@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@map("admin_users")
+}
+
+model Profile {
+  id            String   @id @default(uuid())
+  name          Json     @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  title         Json     @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  introduction  Json     @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  bio           Json     @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  avatarUrl     String?  @map("avatar_url")
+  backgroundUrl String?  @map("background_url")
+  socialLinks   Json     @default("{}")
+  contactInfo   Json     @default("{}") @map("contact_info")
+  isMusicEnabled Boolean  @default(true) @map("is_music_enabled")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@map("profiles")
+}
+
+
+model Category {
+  id        String         @id @default(uuid())
+  name      Json           @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  slug      String         @unique
+  type      String         @default("CUSTOM")
+  sortOrder Int            @default(0) @map("sort_order")
+  isActive  Boolean        @default(true) @map("is_active")
+  isDeleted Boolean        @default(false) @map("is_deleted")
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+  items     CategoryItem[]
+
+  @@index([isDeleted, isActive, sortOrder])
+  @@map("categories")
+}
+
+model CategoryItem {
+  id          String   @id @default(uuid())
+  categoryId  String   @map("category_id")
+  title       Json     @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  description Json     @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  metadata    Json     @default("{}")
+  imageUrl    String?  @map("image_url")
+  sortOrder   Int      @default(0) @map("sort_order")
+  isActive    Boolean  @default(true) @map("is_active")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([categoryId, isDeleted, isActive, sortOrder])
+  @@map("category_items")
+}
+
+model Track {
+  id              String   @id @default(uuid())
+  title           String
+  artist          String
+  s3Key           String   @map("s3_key")
+  cloudfrontUrl   String   @map("cloudfront_url")
+  durationSeconds Int      @default(0) @map("duration_seconds")
+  sortOrder       Int      @default(0) @map("sort_order")
+  isActive        Boolean  @default(true) @map("is_active")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, sortOrder])
+  @@map("tracks")
+}
+
+model Media {
+  id            String   @id @default(uuid())
+  filename      String
+  s3Key         String   @map("s3_key")
+  cloudfrontUrl String   @map("cloudfront_url")
+  mimeType      String   @map("mime_type")
+  fileSizeBytes Int      @map("file_size_bytes")
+  context       String   @default("GENERAL")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@map("media")
+}
+
+model ContactSubmission {
+  id          String   @id @default(uuid())
+  senderName  String   @map("sender_name") @db.VarChar(100)
+  senderEmail String   @map("sender_email") @db.VarChar(254)
+  subject     String   @db.VarChar(200)
+  messageBody String   @map("message_body") @db.VarChar(5000)
+  isRead      Boolean  @default(false) @map("is_read")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@index([isRead, createdAt])
+  @@map("contact_submissions")
+}
+
+model SiteSettings {
+  id                   String   @id @default(uuid())
+  isContactFormEnabled Boolean  @default(true) @map("is_contact_form_enabled")
+  mailProvider         String   @default("resend") @map("mail_provider")
+  mailFrom             String   @default("") @map("mail_from")
+  mailTo               String   @default("") @map("mail_to")
+  updatedAt            DateTime @updatedAt @map("updated_at")
+
+  @@map("site_settings")
+}

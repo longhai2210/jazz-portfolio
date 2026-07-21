@@ -1,0 +1,53 @@
+{
+  "common": {
+    "home": "Trang chủ",
+    "about": "Giới thiệu",
+    "experience": "Kinh nghiệm",
+    "skills": "Kỹ năng",
+    "contact": "Liên hệ",
+    "admin": "Quản trị",
+    "loading": "Đang tải..."
+  },
+  "hero": {
+    "greeting": "Xin chào, tôi là",
+    "scrollDown": "Cuộn để khám phá"
+  },
+  "music": {
+    "nowPlaying": "Đang phát",
+    "unmute": "Bật âm thanh để trải nghiệm trọn vẹn",
+    "playlist": "Danh sách phát"
+  },
+  "footer": {
+    "copyright": "© {year} Bảo lưu mọi quyền."
+  },
+  "contact": {
+    "sectionTitle": "Gửi Tin Nhắn",
+    "sectionSubtitle": "Hãy nhắn tin cho tôi và tôi sẽ phản hồi sớm.",
+    "labelName": "Họ và Tên",
+    "labelEmail": "Địa Chỉ Email",
+    "labelSubject": "Tiêu Đề",
+    "labelMessage": "Nội Dung",
+    "placeholderName": "Nguyễn Văn An",
+    "placeholderEmail": "nguyenvanan@email.vn",
+    "placeholderSubject": "Ý tưởng hợp tác",
+    "placeholderMessage": "Hãy cho tôi biết bạn đang nghĩ gì...",
+    "submit": "Gửi Tin Nhắn",
+    "submitting": "Đang gửi...",
+    "successTitle": "Đã Gửi Tin Nhắn!",
+    "successBody": "Cảm ơn bạn đã liên hệ. Tôi sẽ phản hồi sớm.",
+    "resetButton": "Gửi Tin Nhắn Khác",
+    "errorRequired": "Trường này là bắt buộc.",
+    "errorEmailInvalid": "Vui lòng nhập địa chỉ email hợp lệ.",
+    "errorMinLength": "Nội dung phải có ít nhất 10 ký tự.",
+    "errorMaxLengthName": "Tên không được vượt quá 100 ký tự.",
+    "errorMaxLengthEmail": "Email không được vượt quá 254 ký tự.",
+    "errorMaxLengthSubject": "Tiêu đề không được vượt quá 150 ký tự.",
+    "errorMaxLengthMessage": "Nội dung không được vượt quá 5000 ký tự.",
+    "errorRateLimit": "Đã gửi quá nhiều tin nhắn. Vui lòng chờ {seconds} giây và thử lại.",
+    "errorRateLimitGeneric": "Đã gửi quá nhiều tin nhắn. Vui lòng thử lại sau.",
+    "errorValidation": "Một số trường không hợp lệ. Vui lòng kiểm tra lại.",
+    "errorServer": "Đã xảy ra lỗi. Tin nhắn của bạn chưa bị mất — vui lòng thử lại.",
+    "charCountWarning": "Còn {remaining} ký tự.",
+    "charCountLimit": "Đã đạt giới hạn ký tự."
+  }
+}

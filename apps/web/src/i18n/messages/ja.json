@@ -1,0 +1,53 @@
+{
+  "common": {
+    "home": "ホーム",
+    "about": "紹介",
+    "experience": "経歴",
+    "skills": "スキル",
+    "contact": "連絡先",
+    "admin": "管理",
+    "loading": "読み込み中..."
+  },
+  "hero": {
+    "greeting": "こんにちは、",
+    "scrollDown": "スクロールして探索"
+  },
+  "music": {
+    "nowPlaying": "再生中",
+    "unmute": "サウンドをオンにして完全な体験を",
+    "playlist": "プレイリスト"
+  },
+  "footer": {
+    "copyright": "© {year} All rights reserved."
+  },
+  "contact": {
+    "sectionTitle": "メッセージを送る",
+    "sectionSubtitle": "お気軽にご連絡ください。すぐにご返信いたします。",
+    "labelName": "お名前",
+    "labelEmail": "メールアドレス",
+    "labelSubject": "件名",
+    "labelMessage": "メッセージ",
+    "placeholderName": "山田太郎",
+    "placeholderEmail": "yamada@example.jp",
+    "placeholderSubject": "コラボレーションのアイデア",
+    "placeholderMessage": "ご用件をお聞かせください...",
+    "submit": "メッセージを送る",
+    "submitting": "送信中...",
+    "successTitle": "送信完了！",
+    "successBody": "ご連絡ありがとうございます。近日中にご返信いたします。",
+    "resetButton": "別のメッセージを送る",
+    "errorRequired": "このフィールドは必須です。",
+    "errorEmailInvalid": "有効なメールアドレスを入力してください。",
+    "errorMinLength": "メッセージは10文字以上で入力してください。",
+    "errorMaxLengthName": "名前は100文字以内で入力してください。",
+    "errorMaxLengthEmail": "メールアドレスは254文字以内で入力してください。",
+    "errorMaxLengthSubject": "件名は150文字以内で入力してください。",
+    "errorMaxLengthMessage": "メッセージは5000文字以内で入力してください。",
+    "errorRateLimit": "メッセージの送信回数が多すぎます。{seconds}秒後にもう一度お試しください。",
+    "errorRateLimitGeneric": "メッセージの送信回数が多すぎます。後でもう一度お試しください。",
+    "errorValidation": "入力に誤りがあります。ご確認ください。",
+    "errorServer": "エラーが発生しました。メッセージは失われていません。もう一度お試しください。",
+    "charCountWarning": "残り{remaining}文字",
+    "charCountLimit": "文字数制限に達しました。"
+  }
+}

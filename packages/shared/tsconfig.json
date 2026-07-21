@@ -1,0 +1,10 @@
+{
+  "extends": "@jazz-portfolio/tsconfig/library.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "module": "commonjs",
+    "moduleResolution": "node"
+  },
+  "include": ["src"]
+}

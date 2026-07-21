@@ -1,0 +1,44 @@
+name: Deploy Backend API
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'packages/**'
+      - 'infra/docker/**'
+      - '.github/workflows/deploy-api.yml'
+
+jobs:
+  deploy:
+    name: Deploy to AWS EC2
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.AWS_EC2_HOST }}
+          username: ${{ secrets.AWS_EC2_USERNAME }}
+          key: ${{ secrets.AWS_EC2_SSH_KEY }}
+          port: 22
+          script: |
+            echo "🔌 Connecting to EC2 host..."
+            cd ~/personal
+            
+            echo "📥 Fetching latest codebase changes..."
+            git checkout main
+            git pull origin main
+            
+            echo "🐳 Rebuilding and starting Docker containers..."
+            docker compose -f infra/docker/docker-compose.yml down
+            docker compose -f infra/docker/docker-compose.yml up -d --build
+            
+            echo "⚙️ Executing pending database migrations..."
+            docker exec jazz-api pnpm --filter @jazz-portfolio/database db:push
+            
+            echo "✅ Deploy completed successfully!"

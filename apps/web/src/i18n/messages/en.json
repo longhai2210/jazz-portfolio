@@ -1,0 +1,53 @@
+{
+  "common": {
+    "home": "Home",
+    "about": "About",
+    "experience": "Experience",
+    "skills": "Skills",
+    "contact": "Contact",
+    "admin": "Admin",
+    "loading": "Loading..."
+  },
+  "hero": {
+    "greeting": "Hello, I'm",
+    "scrollDown": "Scroll to explore"
+  },
+  "music": {
+    "nowPlaying": "Now Playing",
+    "unmute": "Unmute for the full experience",
+    "playlist": "Playlist"
+  },
+  "footer": {
+    "copyright": "\u00a9 {year} All rights reserved."
+  },
+  "contact": {
+    "sectionTitle": "Send a Message",
+    "sectionSubtitle": "Drop me a line and I'll get back to you.",
+    "labelName": "Your Name",
+    "labelEmail": "Email Address",
+    "labelSubject": "Subject",
+    "labelMessage": "Message",
+    "placeholderName": "Miles Davis",
+    "placeholderEmail": "miles@jazzclub.io",
+    "placeholderSubject": "Collaboration idea",
+    "placeholderMessage": "Tell me what's on your mind...",
+    "submit": "Send Message",
+    "submitting": "Sending...",
+    "successTitle": "Message Sent!",
+    "successBody": "Thanks for reaching out. I'll get back to you soon.",
+    "resetButton": "Send Another Message",
+    "errorRequired": "This field is required.",
+    "errorEmailInvalid": "Please enter a valid email address.",
+    "errorMinLength": "Message must be at least 10 characters.",
+    "errorMaxLengthName": "Name must be 100 characters or less.",
+    "errorMaxLengthEmail": "Email must be 254 characters or less.",
+    "errorMaxLengthSubject": "Subject must be 150 characters or less.",
+    "errorMaxLengthMessage": "Message must be 5000 characters or less.",
+    "errorRateLimit": "Too many messages sent. Please wait {seconds} seconds and try again.",
+    "errorRateLimitGeneric": "Too many messages sent. Please try again later.",
+    "errorValidation": "Some fields are invalid. Please check your input.",
+    "errorServer": "Something went wrong on our end. Your message was not lost — please try again.",
+    "charCountWarning": "{remaining} characters remaining.",
+    "charCountLimit": "Character limit reached."
+  }
+}

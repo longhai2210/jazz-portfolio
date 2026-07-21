@@ -1,0 +1,301 @@
+@import "tailwindcss";
+
+/* === Jazz Portfolio Design Tokens === */
+@theme {
+  /* Base - Dark smoky palette */
+  --color-jazz-black: #0a0a0f;
+  --color-jazz-dark: #111118;
+  --color-jazz-charcoal: #1a1a2e;
+  --color-jazz-slate: #2a2a3e;
+  --color-jazz-muted: #4a4a5e;
+
+  /* Accent - Warm brass/gold */
+  --color-jazz-gold: #d4a574;
+  --color-jazz-brass: #c9a96e;
+  --color-jazz-amber: #e8b868;
+  --color-jazz-copper: #b87333;
+
+  /* Cool undertones */
+  --color-jazz-blue: #16213e;
+  --color-jazz-indigo: #1a1a40;
+  --color-jazz-steel: #3a3a5c;
+
+  /* Text */
+  --color-jazz-text: #e8e8f0;
+  --color-jazz-text-muted: #9898b0;
+  --color-jazz-text-dim: #6a6a80;
+
+  /* Fonts */
+  --font-heading: 'Playfair Display', 'Noto Serif JP', serif;
+  --font-body: 'Inter', 'Noto Sans JP', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+/* === Light-Jazz (Sunny Café Jazz) Palette === */
+[data-theme="light-jazz"] {
+  --color-jazz-black: #faf6f0;
+  --color-jazz-dark: #f0ebe3;
+  --color-jazz-charcoal: #e8e0d4;
+  --color-jazz-slate: #d4c8b8;
+  --color-jazz-muted: #b8a898;
+
+  --color-jazz-gold: #a0714a;
+  --color-jazz-brass: #8b6234;
+  --color-jazz-amber: #c68530;
+  --color-jazz-copper: #945a28;
+
+  --color-jazz-blue: #e2ddd6;
+  --color-jazz-indigo: #d8d0c4;
+  --color-jazz-steel: #c0b4a4;
+
+  --color-jazz-text: #2a2018;
+  --color-jazz-text-muted: #6a5a48;
+  --color-jazz-text-dim: #9a8a78;
+}
+
+/* === Base Styles === */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-jazz-black);
+  color: var(--color-jazz-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Theme adaptation transitions for layout components and text */
+header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
+  transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
+}
+
+
+/* === Scrollbar Styling === */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-jazz-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-jazz-muted);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-jazz-gold);
+}
+
+/* === Selection === */
+::selection {
+  background-color: color-mix(in srgb, var(--color-jazz-gold) 30%, transparent);
+  color: var(--color-jazz-text);
+}
+
+/* === Custom Jazz Aesthetics & Animations === */
+
+/* Soft jazz sound-wave / vinyl-groove ambient background */
+.jazz-wave-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+[data-theme="light-jazz"] .jazz-wave-bg {
+  opacity: 1;
+}
+
+.jazz-wave-bg .wave-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 200%;
+  will-change: transform;
+  animation: jazz-wave-shift var(--wave-duration, 32s) linear infinite;
+}
+
+.jazz-wave-bg .wave-layer--far {
+  --wave-duration: 42s;
+  opacity: 0.55;
+}
+
+.jazz-wave-bg .wave-layer--mid {
+  --wave-duration: 32s;
+  animation-direction: reverse;
+  opacity: 0.7;
+}
+
+.jazz-wave-bg .wave-layer--near {
+  --wave-duration: 24s;
+  opacity: 0.85;
+}
+
+[data-theme="light-jazz"] .jazz-wave-bg .wave-layer--far {
+  opacity: 0.65;
+}
+
+[data-theme="light-jazz"] .jazz-wave-bg .wave-layer--mid {
+  opacity: 0.8;
+}
+
+[data-theme="light-jazz"] .jazz-wave-bg .wave-layer--near {
+  opacity: 0.95;
+}
+
+@keyframes jazz-wave-shift {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes jazz-wave-breathe {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.jazz-wave-bg .wave-breathe {
+  animation: jazz-wave-breathe 10s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jazz-wave-bg .wave-layer,
+  .jazz-wave-bg .wave-breathe {
+    animation: none;
+  }
+}
+
+/* Scroll music-note particles (motion owned by Framer; size hint only) */
+.scroll-note-glyph {
+  display: block;
+  filter: drop-shadow(0 1px 2px color-mix(in srgb, var(--color-jazz-black) 25%, transparent));
+}
+
+/* Smoky fractal noise background grain */
+.bg-smoky-grain {
+}
+.bg-smoky-grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-theme="light-jazz"] .bg-smoky-grain::before {
+  opacity: 0.02;
+}
+
+/* Stage ambient breathing glow line keyframes */
+@keyframes glow-breathe {
+  0%, 100% {
+    opacity: 0.35;
+    background-position: 0% 50%;
+  }
+  50% {
+    opacity: 0.75;
+    background-position: 100% 50%;
+  }
+}
+
+.animate-glow-breathe {
+  background-size: 200% 200%;
+  animation: glow-breathe 6s ease-in-out infinite;
+}
+
+/* Pulsing playhead glow animation */
+@keyframes pulse-playhead {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(212, 165, 116, 0.4), 0 0 1px rgba(212, 165, 116, 0.2);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 10px rgba(232, 184, 104, 0.8), 0 0 4px rgba(232, 184, 104, 0.4);
+    transform: scale(1.1);
+  }
+}
+
+.animate-pulse-playhead {
+  animation: pulse-playhead 2s infinite ease-in-out;
+}
+
+/* Custom marquee keyframes */
+@keyframes marquee-scroll {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  animation: marquee-scroll 16s linear infinite;
+}
+
+/* Pause animation on hover */
+.hover-pause-marquee:hover .animate-marquee {
+  animation-play-state: paused;
+}
+
+/* Vinyl grooves shine gradient overlay */
+.vinyl-reflection {
+  background: conic-gradient(
+    from 45deg,
+    transparent 0deg,
+    rgba(255, 255, 255, 0.04) 40deg,
+    transparent 80deg,
+    transparent 180deg,
+    rgba(255, 255, 255, 0.04) 220deg,
+    transparent 260deg
+  );
+}
+
+[data-theme="light-jazz"] .vinyl-reflection {
+  background: conic-gradient(
+    from 45deg,
+    transparent 0deg,
+    rgba(255, 255, 255, 0.12) 40deg,
+    transparent 80deg,
+    transparent 180deg,
+    rgba(255, 255, 255, 0.12) 220deg,
+    transparent 260deg
+  );
+}
+
+/* Transport ripple keyframes */
+@keyframes transport-ripple {
+  0% {
+    box-shadow: 0 0 0 0px rgba(212, 165, 116, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(212, 165, 116, 0);
+  }
+}
+
+.ripple-active:active {
+  animation: transport-ripple 0.4s ease-out;
+}
+
