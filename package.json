@@ -6,7 +6,10 @@
     "dev": "turbo run dev",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
+    "typecheck": "turbo run type-check",
     "test": "turbo run test",
+    "test:ci": "turbo run test -- --ci",
+    "verify": "pnpm run lint && pnpm run typecheck && pnpm run test:ci && pnpm run build",
     "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\""
   },

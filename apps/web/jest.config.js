@@ -14,6 +14,8 @@ const config = {
           resolveJsonModule: true,
           strict: true,
           skipLibCheck: true,
+          jsx: 'react-jsx',
+          types: ['node', 'jest', '@testing-library/jest-dom'],
         },
       },
     ],
@@ -21,6 +23,7 @@ const config = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
   testMatch: ['**/*.pbt.test.ts', '**/*.pbt.test.tsx', '**/*.test.ts', '**/*.test.tsx'],
 };
 

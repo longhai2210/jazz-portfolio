@@ -1,0 +1,31 @@
+name: ai-gates
+on:
+  pull_request:
+  push:
+    branches: [master]
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @jazz-portfolio/database db:generate
+      - name: G3 verify (lint, types, tests, build)
+        run: pnpm run verify
+        env:
+          # Build-time placeholders, same as ci.yml.
+          NEXT_PUBLIC_API_URL: http://localhost:3001/api
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      - name: G4 trace (spec format, covered ACs have tests, no skipped tests)
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          if [ -n "$PR_BODY" ]; then node scripts/trace.mjs --check --quiet --ac-from-text "$PR_BODY"; else node scripts/trace.mjs --check --quiet; fi
+      - name: E2E (only when e2e/ exists)
+        if: hashFiles('e2e/**') != ''
+        run: npx playwright install --with-deps chromium && pnpm run e2e
