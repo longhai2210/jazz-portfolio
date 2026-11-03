@@ -113,12 +113,88 @@ model ContactSubmission {
 }
 
 model SiteSettings {
-  id                   String   @id @default(uuid())
-  isContactFormEnabled Boolean  @default(true) @map("is_contact_form_enabled")
-  mailProvider         String   @default("resend") @map("mail_provider")
-  mailFrom             String   @default("") @map("mail_from")
-  mailTo               String   @default("") @map("mail_to")
-  updatedAt            DateTime @updatedAt @map("updated_at")
+  id                      String   @id @default(uuid())
+  isContactFormEnabled    Boolean  @default(true) @map("is_contact_form_enabled")
+  mailProvider            String   @default("resend") @map("mail_provider")
+  mailFrom                String   @default("") @map("mail_from")
+  mailTo                  String   @default("") @map("mail_to")
+  isBlogEnabled           Boolean  @default(false) @map("is_blog_enabled")
+  areCommentsEnabled      Boolean  @default(false) @map("are_comments_enabled")
+  commentModerationMode   String   @default("ALL") @map("comment_moderation_mode")
+  isCommentCaptchaEnabled Boolean  @default(false) @map("is_comment_captcha_enabled")
+  commentAutoCloseDays    Int      @default(0) @map("comment_auto_close_days")
+  commentMaxPerPost       Int      @default(500) @map("comment_max_per_post")
+  commentSpamThreshold    Int      @default(60) @map("comment_spam_threshold")
+  commentNotifyEmail      Boolean  @default(true) @map("comment_notify_email")
+  updatedAt               DateTime @updatedAt @map("updated_at")
 
   @@map("site_settings")
+}
+
+model Post {
+  id                 String    @id @default(uuid())
+  slug               String    @unique
+  title              Json      @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  excerpt            Json      @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  content            Json      @default("{\"en\": \"\", \"vi\": \"\", \"ja\": \"\"}")
+  coverImageUrl      String?   @map("cover_image_url")
+  status             String    @default("DRAFT")
+  tags               String[]  @default([])
+  readingMinutes     Int       @default(0) @map("reading_minutes")
+  areCommentsEnabled Boolean   @default(true) @map("are_comments_enabled")
+  commentsClosedAt   DateTime? @map("comments_closed_at")
+  commentCount       Int       @default(0) @map("comment_count")
+  viewCount          Int       @default(0) @map("view_count")
+  publishedAt        DateTime? @map("published_at")
+  isDeleted          Boolean   @default(false) @map("is_deleted")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  comments           Comment[]
+
+  @@index([isDeleted, status, publishedAt(sort: Desc)])
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([tags], type: Gin)
+  @@map("posts")
+}
+
+model Comment {
+  id          String    @id @default(uuid())
+  postId      String    @map("post_id")
+  parentId    String?   @map("parent_id")
+  authorName  String    @map("author_name") @db.VarChar(60)
+  authorEmail String    @map("author_email") @db.VarChar(254)
+  body        String    @db.VarChar(2000)
+  status      String    @default("PENDING")
+  spamScore   Int       @default(0) @map("spam_score")
+  spamReasons Json      @default("[]") @map("spam_reasons")
+  ipHash      String    @map("ip_hash") @db.VarChar(64)
+  userAgent   String    @default("") @map("user_agent") @db.VarChar(400)
+  contentHash String    @map("content_hash") @db.VarChar(64)
+  locale      String    @default("en") @db.VarChar(5)
+  moderatedAt DateTime? @map("moderated_at")
+  isDeleted   Boolean   @default(false) @map("is_deleted")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  post     Post      @relation(fields: [postId], references: [id], onDelete: Cascade)
+  parent   Comment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies  Comment[] @relation("CommentReplies")
+
+  @@index([postId, status, createdAt])
+  @@index([status, createdAt(sort: Desc)])
+  @@index([ipHash, createdAt])
+  @@index([contentHash])
+  @@map("comments")
+}
+
+model CommentBlocklist {
+  id        String   @id @default(uuid())
+  type      String   // EMAIL | EMAIL_DOMAIN | IP_HASH | KEYWORD
+  value     String   @db.VarChar(200)
+  note      String   @default("") @db.VarChar(200)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([type, value])
+  @@index([type])
+  @@map("comment_blocklist")
 }

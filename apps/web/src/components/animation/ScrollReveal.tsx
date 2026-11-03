@@ -1,14 +1,13 @@
 'use client';
 
-import { useRef } from 'react';
-import { motion, useInView, UseInViewOptions } from 'framer-motion';
+import { useEffect, useRef, useState } from 'react';
 
 interface ScrollRevealProps {
   children: React.ReactNode;
   direction?: 'up' | 'down' | 'left' | 'right' | 'scale' | 'none';
   delay?: number;
   duration?: number;
-  threshold?: UseInViewOptions['amount'];
+  threshold?: number;
   once?: boolean;
 }
 
@@ -21,42 +20,45 @@ export default function ScrollReveal({
   once = true,
 }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { amount: threshold, once });
+  const [isInView, setIsInView] = useState(false);
 
-  const getVariants = () => {
-    const hidden = {
-      opacity: 0,
-      y: direction === 'up' ? 40 : direction === 'down' ? -40 : 0,
-      x: direction === 'left' ? 40 : direction === 'right' ? -40 : 0,
-      scale: direction === 'scale' ? 0.9 : 1,
-    };
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
 
-    const visible = {
-      opacity: 1,
-      y: 0,
-      x: 0,
-      scale: 1,
-    };
+    if (
+      !('IntersectionObserver' in window) ||
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
+      setIsInView(true);
+      return;
+    }
 
-    return { hidden, visible };
-  };
-
-  const variants = getVariants();
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry) return;
+        setIsInView(entry.isIntersecting);
+        if (entry.isIntersecting && once) observer.disconnect();
+      },
+      { threshold },
+    );
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, [once, threshold]);
 
   return (
     <div ref={ref} className="w-full">
-      <motion.div
-        variants={variants}
-        initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
-        transition={{
-          duration,
-          delay,
-          ease: [0.25, 0.1, 0.25, 1], // easeInOut cubic
-        }}
+      <div
+        className={`scroll-reveal scroll-reveal--${direction}${isInView ? ' is-visible' : ''}`}
+        style={
+          {
+            '--reveal-delay': `${delay}s`,
+            '--reveal-duration': `${duration}s`,
+          } as React.CSSProperties
+        }
       >
         {children}
-      </motion.div>
+      </div>
     </div>
   );
 }

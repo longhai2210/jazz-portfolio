@@ -4,10 +4,14 @@ import { CreateCategoryDto, UpdateCategoryDto } from './dto/create-category.dto'
 import { CreateCategoryItemDto, UpdateCategoryItemDto } from './dto/create-category-item.dto';
 import { ReorderDto } from './dto/reorder-categories.dto';
 import { Category, CategoryItem } from '@jazz-portfolio/database';
+import { RevalidationService } from '../common/revalidation.service';
 
 @Injectable()
 export class CategoriesService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly revalidationService: RevalidationService,
+  ) {}
 
   // === Categories ===
 
@@ -73,7 +77,7 @@ export class CategoriesService {
       throw new ConflictException(`Category with slug "${dto.slug}" already exists`);
     }
 
-    return this.prisma.category.create({
+    const created = await this.prisma.category.create({
       data: {
         name: dto.name as any,
         slug: dto.slug,
@@ -82,6 +86,9 @@ export class CategoriesService {
         isActive: dto.isActive,
       },
     });
+
+    void this.revalidationService.purge(['categories']);
+    return created;
   }
 
   async updateCategory(id: string, dto: UpdateCategoryDto): Promise<Category> {
@@ -97,7 +104,7 @@ export class CategoriesService {
       }
     }
 
-    return this.prisma.category.update({
+    const updated = await this.prisma.category.update({
       where: { id },
       data: {
         name: dto.name ? (dto.name as any) : undefined,
@@ -107,6 +114,9 @@ export class CategoriesService {
         isActive: dto.isActive,
       },
     });
+
+    void this.revalidationService.purge(['categories']);
+    return updated;
   }
 
   async softDeleteCategory(id: string): Promise<Category> {
@@ -116,7 +126,7 @@ export class CategoriesService {
     }
 
     // Soft delete category and its children
-    return this.prisma.$transaction(async (tx) => {
+    const deleted = await this.prisma.$transaction(async (tx) => {
       await tx.categoryItem.updateMany({
         where: { categoryId: id },
         data: { isDeleted: true },
@@ -127,6 +137,9 @@ export class CategoriesService {
         data: { isDeleted: true },
       });
     });
+
+    void this.revalidationService.purge(['categories']);
+    return deleted;
   }
 
   async reorderCategories(dto: ReorderDto): Promise<{ success: boolean }> {
@@ -138,6 +151,7 @@ export class CategoriesService {
         }),
       ),
     );
+    void this.revalidationService.purge(['categories']);
     return { success: true };
   }
 
@@ -149,7 +163,7 @@ export class CategoriesService {
       throw new NotFoundException('Category not found');
     }
 
-    return this.prisma.categoryItem.create({
+    const created = await this.prisma.categoryItem.create({
       data: {
         categoryId,
         title: dto.title as any,
@@ -160,6 +174,9 @@ export class CategoriesService {
         isActive: dto.isActive,
       },
     });
+
+    void this.revalidationService.purge(['categories']);
+    return created;
   }
 
   async updateCategoryItem(id: string, dto: UpdateCategoryItemDto): Promise<CategoryItem> {
@@ -168,7 +185,7 @@ export class CategoriesService {
       throw new NotFoundException('Category item not found');
     }
 
-    return this.prisma.categoryItem.update({
+    const updated = await this.prisma.categoryItem.update({
       where: { id },
       data: {
         title: dto.title ? (dto.title as any) : undefined,
@@ -179,6 +196,9 @@ export class CategoriesService {
         isActive: dto.isActive,
       },
     });
+
+    void this.revalidationService.purge(['categories']);
+    return updated;
   }
 
   async softDeleteCategoryItem(id: string): Promise<CategoryItem> {
@@ -187,10 +207,13 @@ export class CategoriesService {
       throw new NotFoundException('Category item not found');
     }
 
-    return this.prisma.categoryItem.update({
+    const deleted = await this.prisma.categoryItem.update({
       where: { id },
       data: { isDeleted: true },
     });
+
+    void this.revalidationService.purge(['categories']);
+    return deleted;
   }
 
   async reorderCategoryItems(dto: ReorderDto): Promise<{ success: boolean }> {
@@ -202,6 +225,7 @@ export class CategoriesService {
         }),
       ),
     );
+    void this.revalidationService.purge(['categories']);
     return { success: true };
   }
 }

@@ -107,16 +107,14 @@
 - [x] Add `isMusicEnabled` type mappings inside packages/shared and apps/api DTOs
 - [x] Add toggling checkbox setting in admin profile editor UI
 - [x] Wire conditional music player rendering in layout wrapper using isMusicEnabled status
-- [x] Verify workspace builds cleanly
-
-
-
-
-
-
-
-
-
-
-
-
+## Phase 12: Blog Posts & Moderated Comments System
+- [x] Phase 1: Database Schema & Shared Contracts (`posts`, `comments`, `comment_blocklists` models, enums, DTOs, API path builders)
+- [x] Phase 2: Feature Flags & Server Guards (`FeatureFlagGuard`, TTL settings cache, `/admin/settings` Content tab)
+- [x] Phase 3: Posts API (Diacritics-stripping slugifier, reading time calculator, sanitized DTOs, NestJS controllers)
+- [x] Phase 4: Admin Posts CMS (Multilingual Markdown editor with live preview, S3 cover upload, `/admin/posts` list & editor)
+- [x] Phase 5: Public Blog UI (RSC Markdown rendering with `rehype-sanitize`, public blog pages `/[locale]/blog`, RSS feed, sitemap)
+- [x] Phase 6: Comments API & Anti-Spam Engine (15-min HMAC token, `SpamShieldService` with 14-layer defense, moderation API)
+- [x] Phase 7: Public Comment UI (`useCommentForm` with 5s dwell-time gate, honeypots, initials avatars, nested reply tree)
+- [x] Phase 8: Comment Moderation CMS (Master-detail split pane, one-click blocklist shortcuts, bulk actions, sidebar counter badge)
+- [x] Phase 9: Hardening, Tests & Observability (36/36 unit & PII leakage security tests passing, 0-error web type-check & build)
+- [x] Phase 10: SEO, Docs & Staged Rollout Strategy (SEO validation, updated Project Bible & task tracker, walkthrough doc)

@@ -1,0 +1,45 @@
+/* Custom Jazz Theme for Highlight.js */
+.hljs {
+  display: block;
+  overflow-x: auto;
+  padding: 1rem;
+  background: #1a1a2e; /* jazz-charcoal */
+  color: #e2e8f0;
+}
+
+.hljs-keyword,
+.hljs-selector-tag,
+.hljs-literal,
+.hljs-section,
+.hljs-link {
+  color: #d4a574; /* jazz-gold */
+}
+
+.hljs-string,
+.hljs-attr,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+  color: #e8b868; /* jazz-amber */
+}
+
+.hljs-comment,
+.hljs-quote,
+.hljs-meta {
+  color: #6a6a80; /* jazz-text-dim */
+  font-style: italic;
+}
+
+.hljs-title,
+.hljs-name,
+.hljs-type,
+.hljs-built_in {
+  color: #c9a96e; /* jazz-brass */
+}
+
+.hljs-number,
+.hljs-variable,
+.hljs-template-variable,
+.hljs-deletion {
+  color: #b87333; /* jazz-copper */
+}

@@ -5,9 +5,20 @@
     "experience": "Experience",
     "skills": "Skills",
     "contact": "Contact",
+    "journal": "Journal",
     "admin": "Admin",
     "loading": "Loading..."
   },
+  "blog": {
+    "title": "Journal & Notes 🎷",
+    "subtitle": "Thoughts on software engineering, jazz performance, system architecture, and creative technology.",
+    "readArticle": "Read Article →",
+    "backToPosts": "← Back to all posts",
+    "comments": "Discussion",
+    "commentsDisabled": "Comments are disabled for this article.",
+    "rssFeed": "📡 RSS Feed"
+  },
+
   "hero": {
     "greeting": "Hello, I'm",
     "scrollDown": "Scroll to explore"

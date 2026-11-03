@@ -31,6 +31,9 @@ import {
 } from './dto/contact-submission.dto';
 import { PaginatedResponse } from '@jazz-portfolio/shared';
 
+import { FeatureFlagGuard } from '../common/feature-flag/feature-flag.guard';
+import { RequireFeature } from '../common/feature-flag/require-feature.decorator';
+
 @ApiTags('Contact Form')
 @Controller()
 export class ContactController {
@@ -38,7 +41,8 @@ export class ContactController {
 
   // === Public Endpoint ===
 
-  @UseGuards(ThrottlerGuard)
+  @UseGuards(ThrottlerGuard, FeatureFlagGuard)
+  @RequireFeature('contact')
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('contact')
   @HttpCode(HttpStatus.CREATED)
@@ -49,6 +53,7 @@ export class ContactController {
     type: CreateContactSubmissionResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Validation error or invalid honeypot field' })
+  @ApiResponse({ status: 403, description: 'Contact form is disabled' })
   @ApiResponse({ status: 429, description: 'Too many requests' })
   @ApiResponse({ status: 503, description: 'Email notification service is not configured' })
   async createSubmission(
@@ -56,6 +61,7 @@ export class ContactController {
   ): Promise<CreateContactSubmissionResponseDto> {
     return this.contactService.createSubmission(dto);
   }
+
 
   // === Admin Endpoints ===
 

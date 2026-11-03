@@ -3,6 +3,7 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { useTranslations } from 'next-intl';
 import { JazzMarkTrumpet } from '../common/JazzMarks';
+import { useContactSubmit } from '@/hooks/public/use-contact-submit';
 
 interface FormErrors {
   name?: string;
@@ -21,8 +22,28 @@ export default function ContactForm() {
   const [honeypot, setHoneypot] = useState('');
 
   const [errors, setErrors] = useState<FormErrors>({});
-  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle');
-  const [serverError, setServerError] = useState<string | null>(null);
+
+  const mutation = useContactSubmit();
+  const hasLocalErrors = Object.keys(errors).length > 0;
+  const status = mutation.isPending ? 'submitting' : mutation.isSuccess ? 'success' : mutation.isError || hasLocalErrors ? 'error' : 'idle';
+
+  let serverError: string | null = null;
+  if (mutation.isError && mutation.error) {
+    const err = mutation.error;
+    if ('messageKey' in err && typeof err.messageKey === 'string') {
+      if (err.messageKey === 'errorRateLimit' && err.retryAfter) {
+        serverError = t('errorRateLimit', { seconds: err.retryAfter });
+      } else if (err.messageKey === 'errorRateLimitGeneric') {
+        serverError = t('errorRateLimitGeneric');
+      } else if (err.messageKey === 'errorValidation') {
+        serverError = t('errorValidation');
+      } else {
+        serverError = t('errorServer');
+      }
+    } else {
+      serverError = t('errorServer');
+    }
+  }
 
   // Email validation regex (RFC 5322)
   const isValidEmail = (val: string): boolean => {
@@ -118,65 +139,15 @@ export default function ContactForm() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
 
-    // Prevent submission if honeypot is filled (silently block or show validation error)
     if (honeypot.trim()) {
-      setServerError(t('errorValidation'));
-      setStatus('error');
       return;
     }
 
     if (!validateForm()) {
-      setServerError(t('errorValidation'));
-      setStatus('error');
       return;
     }
 
-    setStatus('submitting');
-    setServerError(null);
-
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
-
-    try {
-      const response = await fetch(`${API_BASE_URL}/contact`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          email,
-          subject,
-          message,
-          _hp: honeypot,
-        }),
-        signal: AbortSignal.timeout(30000), // 30 second timeout
-      });
-
-      if (response.status === 201) {
-        setStatus('success');
-      } else if (response.status === 429) {
-        const retryAfter = response.headers.get('Retry-After');
-        if (retryAfter) {
-          setServerError(t('errorRateLimit', { seconds: retryAfter }));
-        } else {
-          setServerError(t('errorRateLimitGeneric'));
-        }
-        setStatus('error');
-      } else if (response.status === 400) {
-        setServerError(t('errorValidation'));
-        setStatus('error');
-      } else if (response.status === 503) {
-        setServerError(t('errorServer'));
-        setStatus('error');
-      } else {
-        setServerError(t('errorServer'));
-        setStatus('error');
-      }
-    } catch (err) {
-      console.error('Contact form submission error:', err);
-      setServerError(t('errorServer'));
-      setStatus('error');
-    }
+    mutation.mutate({ name, email, subject, message, _hp: honeypot });
   };
 
   const handleReset = () => {
@@ -186,8 +157,7 @@ export default function ContactForm() {
     setMessage('');
     setHoneypot('');
     setErrors({});
-    setStatus('idle');
-    setServerError(null);
+    mutation.reset();
   };
 
   if (status === 'success') {

@@ -1,4 +1,10 @@
-import { CategoryType } from '../enums';
+import {
+  BlocklistType,
+  CategoryType,
+  CommentModerationMode,
+  CommentStatus,
+  PostStatus,
+} from '../enums';
 
 // === Multilingual Content ===
 export interface LocalizedString {
@@ -104,6 +110,150 @@ export interface CreateContactSubmissionResponseDto {
   emailDelivered: boolean;
 }
 
+// === Posts ===
+export interface PostListItemDto {
+  id: string;
+  slug: string;
+  title: LocalizedString;
+  excerpt: LocalizedString;
+  coverImageUrl: string | null;
+  tags: string[];
+  readingMinutes: number;
+  commentCount: number;
+  publishedAt: string | null;
+}
+
+/** Public detail — adds body, never exposes counters used for moderation. */
+export interface PostDetailDto extends PostListItemDto {
+  content: LocalizedString;
+  areCommentsEnabled: boolean;
+  commentsClosed: boolean;
+}
+
+/** Admin view — adds lifecycle + soft-delete state. */
+export interface AdminPostDto extends PostDetailDto {
+  status: PostStatus;
+  viewCount: number;
+  commentsClosedAt: string | null;
+  isDeleted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreatePostRequest {
+  slug: string;
+  title: LocalizedString;
+  excerpt: LocalizedString;
+  content: LocalizedString;
+  coverImageUrl?: string | null;
+  tags?: string[];
+  status?: PostStatus;
+  areCommentsEnabled?: boolean;
+}
+
+export type UpdatePostRequest = Partial<CreatePostRequest>;
+
+// === Comments ===
+/** Public shape. NOTE: no email, no ipAddress, no spam fields. */
+export interface PublicCommentDto {
+  id: string;
+  parentId: string | null;
+  authorName: string;
+  content: string;
+  createdAt: string;
+  replies?: PublicCommentDto[];
+}
+
+export interface AdminCommentDto extends Omit<PublicCommentDto, 'replies'> {
+  postId: string;
+  postSlug: string;
+  postTitleEn?: string;
+  authorEmail: string;
+  status: CommentStatus;
+  spamScore: number;
+  blockReason?: string | null;
+  ipAddress: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CommentTokenDto {
+  token: string;
+  expiresAt: string;
+}
+
+export interface CreateCommentRequest {
+  postId: string;
+  parentId?: string | null;
+  commentToken: string;
+  authorName: string;
+  authorEmail: string;
+  content: string;
+  captchaToken?: string;
+}
+
+export interface CreateCommentResponseDto {
+  id: string;
+  status: CommentStatus;
+  message: string;
+}
+
+export interface ModerateCommentRequest {
+  status: CommentStatus;
+}
+
+export interface BulkModerateRequest {
+  ids: string[];
+  status: CommentStatus;
+}
+
+export interface CommentBlocklistDto {
+  id: string;
+  type: BlocklistType;
+  value: string;
+  pattern?: string | null;
+  isActive?: boolean;
+  createdAt: string;
+  updatedAt?: string;
+}
+
+
+export interface CreateBlocklistItemRequest {
+  type: BlocklistType;
+  value: string;
+  pattern?: string;
+}
+
+
+// === Feature Settings ===
+export interface FeatureSettingsDto {
+  isBlogEnabled: boolean;
+  areCommentsEnabled: boolean;
+  commentModerationMode: CommentModerationMode;
+  isCommentCaptchaEnabled: boolean;
+  commentAutoCloseDays: number;
+  commentMaxPerPost: number;
+  commentSpamThreshold: number;
+  commentNotifyEmail: boolean;
+  updatedAt: string;
+}
+
+export type UpdateFeatureSettingsDto = Partial<Omit<FeatureSettingsDto, 'updatedAt'>>;
+
+export interface FeatureSettingsStatusDto {
+  captchaConfigured: boolean;   // TURNSTILE_SECRET_KEY present
+  tokenSecretConfigured: boolean;
+  ipSaltConfigured: boolean;
+  pendingCommentCount: number;
+}
+
+export interface PublicSettingsDto {
+  isContactFormEnabled: boolean;
+  isBlogEnabled: boolean;
+  areCommentsEnabled: boolean;
+  isCommentCaptchaEnabled: boolean;
+}
+
 // === Pagination ===
 export interface PaginatedResponse<T> {
   items: T[];
@@ -142,6 +292,9 @@ export interface AdminStatsDto {
   categories: number;
   items: number;
   tracks: number;
+  publishedPosts?: number;
+  draftPosts?: number;
+  pendingComments?: number;
 }
 
 // === API Response ===

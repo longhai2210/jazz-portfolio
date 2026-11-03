@@ -9,7 +9,10 @@ jest.mock('@/lib/api-public', () => ({
     settings: 'settings',
     music: 'music',
   },
-  PublicApiClient: {
+}));
+
+jest.mock('@/lib/api-public-server', () => ({
+  ServerPublicApiClient: {
     get: (...args: unknown[]) => getMock(...args),
   },
 }));

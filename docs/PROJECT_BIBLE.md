@@ -41,11 +41,13 @@
 | Multilingual | ✅ Completed | EN, VI, JA with flag-based switching |
 | Music Player | ✅ Completed | Auto-play (muted), persistent across navigation, playlist support |
 | Portfolio Sections | ✅ Completed | Hero, About, Experience, Skills, Contact |
-| Admin Panel | ✅ Completed | Profile, categories, music, password, systems, and messaging management |
+| Blog / Journal | ✅ Completed | Feature-flagged, multilingual posts with Markdown rendering and RSS feed |
+| Comments System | ✅ Completed | Moderated comment threads with 14-layer anti-spam shield and blocklist engine |
+| Admin Panel | ✅ Completed | Profile, categories, music, blog posts, comment moderation, settings management |
 | Dynamic Categories | ✅ Completed | Add/delete (soft) categories and items via admin |
 | Contact Form | ✅ Completed | Public message submission with honeypots, dynamic length limits, and email notifications |
 | Admin Inbox | ✅ Completed | Splitscreen inbox panel to read and manage client contact form submissions |
-| System Settings | ✅ Completed | Admin configurations managing contact form toggles, email provider settings, and status audits |
+| System Settings | ✅ Completed | Admin configurations managing contact form toggles, content feature flags, and email provider settings |
 | Theme Switcher | ✅ Completed | Smooth theme switching animations supporting Dark theme and Light-Jazz theme |
 | Responsive | ✅ Completed | Mobile-first, all breakpoints |
 | Scroll Animations | ✅ Completed | Framer Motion scroll reveals, parallax, staggered entries |
@@ -54,10 +56,9 @@
 
 ### Out of Scope (v1)
 
-- Blog / Posts
-- Comments system
 - Multi-admin / roles
 - Custom domain (using default AWS URLs)
+
 
 ---
 
@@ -95,7 +96,7 @@
 
 ### Data Flow
 
-1. **Public Portfolio:** Next.js (SSR) -> NestJS API -> PostgreSQL -> Response rendered with i18n
+1. **Public Portfolio:** Next.js (RSC + SSG/ISR) -> optional private API origin -> NestJS API -> PostgreSQL -> tagged cached response rendered with i18n
 2. **Admin Panel:** Next.js (CSR) -> JWT Auth -> NestJS API -> PostgreSQL / S3
 3. **Music Playback:** Next.js -> Zustand store -> `<audio>` element -> CloudFront CDN -> S3
 4. **Media Upload:** Admin form -> Presigned URL from API -> Direct upload to S3 -> Metadata saved to DB
@@ -397,7 +398,8 @@ JWT strategy accepts **cookie or** `Authorization: Bearer` (Bearer is optional/l
 
 | Client | Use for | Cache |
 |---|---|---|
-| `PublicApiClient` | Portfolio RSC / public GETs | `revalidate` + tags (`profile`, `categories`, `settings`, `music`) |
+| `ServerPublicApiClient` | Portfolio/blog RSC public GETs | `API_INTERNAL_URL` fallback + `revalidate` + tags |
+| `PublicApiClient` | Live browser reads/writes (comments/tokens) | `cache: 'no-store'` against `NEXT_PUBLIC_API_URL` |
 | `AdminApiClient` | CMS mutations & authenticated GETs | `cache: 'no-store'` + cookies |
 
 Shared path builders live in `@jazz-portfolio/shared` (`ApiRoutes`). Nest controllers are the HTTP source of truth. See [refactor_and_performance.md](./refactor_and_performance.md).
@@ -571,6 +573,7 @@ Shared path builders live in `@jazz-portfolio/shared` (`ApiRoutes`). Nest contro
 | Variable | Required | Description |
 |---|---|---|
 | NEXT_PUBLIC_API_URL | Yes | Backend API base URL (browser; used with credentialed admin fetches) |
+| API_INTERNAL_URL | No | Private API base URL for RSC/ISR; falls back to `NEXT_PUBLIC_API_URL` |
 | NEXT_PUBLIC_CDN_URL | No | CloudFront URL for media |
 | NEXT_PUBLIC_SITE_URL | No | Canonical site origin for metadata / sitemap / robots |
 | REVALIDATE_SECRET | No | Shared secret for `POST /api/revalidate` (cache tag invalidation) |
@@ -655,6 +658,7 @@ Shared path builders live in `@jazz-portfolio/shared` (`ApiRoutes`). Nest contro
 | 2026-07-20 | Prisma indexes + lean public selects + list pagination | Hot filters indexed; no `s3Key` on public music; inbox/media paginated |
 | 2026-07-20 | httpOnly cookie JWT (`jazz_access_token`) | Remove localStorage XSS surface; CORS credentials + SameSite for cross-origin |
 | 2026-07-20 | CI lint → type-check → build → test | Catch ship breakage, not only static analysis |
+| 2026-09-02 | Split cached server public reads from live browser public reads | Allow private RSC routing, keep Next cache options out of browser requests, and stream comments independently |
 
 ---
 
@@ -664,6 +668,7 @@ Shared path builders live in `@jazz-portfolio/shared` (`ApiRoutes`). Nest contro
 |---|---|
 | [refactor_and_performance.md](./refactor_and_performance.md) | Rationale and best practices for the Phase 1–6 refactor |
 | [perf-notes.md](./perf-notes.md) | Cache tags, revalidation, build metrics, Lighthouse how-to |
+| [application_optimization_plan.md](./application_optimization_plan.md) | Current hybrid-architecture assessment, measured baseline, completed refactors, and ranked next phases |
 | [DEPLOYMENT_RUNBOOK.md](./DEPLOYMENT_RUNBOOK.md) | Deploy operations |
 | [backend_development_mastery.md](./backend_development_mastery.md) | Nest patterns deep-dive |
 | [database_design_deepdive.md](./database_design_deepdive.md) | Schema and query design |

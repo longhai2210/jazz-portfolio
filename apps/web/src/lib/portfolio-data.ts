@@ -4,8 +4,10 @@ import {
   ProfileDto,
   CategoryDto,
   TrackDto,
+  PublicSettingsDto,
 } from '@jazz-portfolio/shared';
-import { CACHE_TAGS, PublicApiClient } from '@/lib/api-public';
+import { CACHE_TAGS } from '@/lib/api-public';
+import { ServerPublicApiClient } from '@/lib/api-public-server';
 
 /**
  * Deduplicated public portfolio fetches for RSC.
@@ -14,7 +16,7 @@ import { CACHE_TAGS, PublicApiClient } from '@/lib/api-public';
 
 export const getProfile = cache(async (): Promise<ProfileDto | null> => {
   try {
-    const res = await PublicApiClient.get<ProfileDto>(ApiRoutes.profile.public(), {
+    const res = await ServerPublicApiClient.get<ProfileDto>(ApiRoutes.profile.public(), {
       tags: [CACHE_TAGS.profile],
     });
     if (res.data) return res.data;
@@ -32,7 +34,7 @@ export const getProfile = cache(async (): Promise<ProfileDto | null> => {
 
 export const getCategories = cache(async (): Promise<CategoryDto[]> => {
   try {
-    const res = await PublicApiClient.get<CategoryDto[]>(ApiRoutes.categories.public(), {
+    const res = await ServerPublicApiClient.get<CategoryDto[]>(ApiRoutes.categories.public(), {
       tags: [CACHE_TAGS.categories],
     });
     if (res.data && res.data.length > 0) return res.data;
@@ -49,9 +51,9 @@ export const getCategories = cache(async (): Promise<CategoryDto[]> => {
 });
 
 export const getPublicSettings = cache(
-  async (): Promise<{ isContactFormEnabled: boolean }> => {
+  async (): Promise<PublicSettingsDto> => {
     try {
-      const res = await PublicApiClient.get<{ isContactFormEnabled: boolean }>(
+      const res = await ServerPublicApiClient.get<PublicSettingsDto>(
         ApiRoutes.settings.public(),
         { tags: [CACHE_TAGS.settings] },
       );
@@ -60,13 +62,18 @@ export const getPublicSettings = cache(
       console.warn('Could not fetch settings from API:', error);
     }
 
-    return { isContactFormEnabled: true };
+    return {
+      isContactFormEnabled: true,
+      isBlogEnabled: false,
+      areCommentsEnabled: false,
+      isCommentCaptchaEnabled: false,
+    };
   },
 );
 
 export const getMusicTracks = cache(async (): Promise<TrackDto[] | null> => {
   try {
-    const res = await PublicApiClient.get<TrackDto[]>(ApiRoutes.music.public(), {
+    const res = await ServerPublicApiClient.get<TrackDto[]>(ApiRoutes.music.public(), {
       tags: [CACHE_TAGS.music],
     });
     if (res.data) return res.data;

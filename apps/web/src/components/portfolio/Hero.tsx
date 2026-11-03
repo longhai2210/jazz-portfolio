@@ -1,7 +1,4 @@
-'use client';
-
-import { useLocale, useTranslations } from 'next-intl';
-import { motion } from 'framer-motion';
+import { getTranslations } from 'next-intl/server';
 import { getTranslation } from '@/lib/i18n';
 import { ProfileDto } from '@jazz-portfolio/shared';
 import {
@@ -10,14 +7,16 @@ import {
   JazzMarkPhone,
   JazzMarkPin,
 } from '../common/JazzMarks';
+import HeroAnimations from './HeroAnimations';
+import ScrollDownButton from './ScrollDownButton';
 
 interface HeroProps {
   profile: ProfileDto;
+  locale: string;
 }
 
-export default function Hero({ profile }: HeroProps) {
-  const locale = useLocale();
-  const t = useTranslations('hero');
+export default async function Hero({ profile, locale }: HeroProps) {
+  const t = await getTranslations({ locale, namespace: 'hero' });
 
   const email = profile.contactInfo?.email || 'contact@example.com';
   const phone = profile.contactInfo?.phone || '+84 (0) 900 000 000';
@@ -35,12 +34,7 @@ export default function Hero({ profile }: HeroProps) {
         
         {/* Main Heading Column */}
         <div className="lg:col-span-7 flex flex-col gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="flex flex-col gap-2"
-          >
+          <HeroAnimations className="flex flex-col gap-2">
             <span className="text-jazz-gold font-mono tracking-widest text-xs uppercase">
               {t('greeting')}
             </span>
@@ -50,24 +44,14 @@ export default function Hero({ profile }: HeroProps) {
             <h2 className="text-2xl md:text-3xl font-heading text-jazz-brass font-medium mt-2">
               {getTranslation(profile.title, locale)}
             </h2>
-          </motion.div>
+          </HeroAnimations>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="text-base md:text-lg text-jazz-text-muted max-w-xl leading-relaxed"
-          >
+          <HeroAnimations delay={0.2} className="text-base md:text-lg text-jazz-text-muted max-w-xl leading-relaxed">
             {getTranslation(profile.introduction, locale)}
-          </motion.p>
+          </HeroAnimations>
 
           {/* Action buttons */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="flex flex-wrap gap-4 mt-4"
-          >
+          <HeroAnimations delay={0.4} className="flex flex-wrap gap-4 mt-4">
             <a
               href="#contact"
               className="px-8 py-3 rounded-full bg-jazz-gold hover:bg-jazz-amber text-jazz-black font-semibold shadow-[0_0_15px_rgba(212,165,116,0.3)] hover:shadow-[0_0_25px_rgba(212,165,116,0.5)] transition-all duration-300"
@@ -80,17 +64,12 @@ export default function Hero({ profile }: HeroProps) {
             >
               Read Bio
             </a>
-          </motion.div>
+          </HeroAnimations>
         </div>
 
         {/* Contact Info Column (Displayed Prominently First) */}
         <div className="lg:col-span-5">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="bg-jazz-dark/70 backdrop-blur-md border border-jazz-slate p-8 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] relative group overflow-hidden"
-          >
+          <HeroAnimations delay={0.3} animationVariant="fadeScale" className="bg-jazz-dark/70 backdrop-blur-md border border-jazz-slate p-8 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.3)] relative group overflow-hidden">
             {/* Glowing gold border element */}
             <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-jazz-gold to-transparent opacity-50 group-hover:opacity-100 transition-opacity duration-500" />
 
@@ -138,23 +117,12 @@ export default function Hero({ profile }: HeroProps) {
                 </div>
               </div>
             </div>
-          </motion.div>
+          </HeroAnimations>
         </div>
       </div>
 
       {/* Floating Scroll Down Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.6, y: [0, 10, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity, delay: 1 }}
-        className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer"
-        onClick={() => document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' })}
-      >
-        <span className="text-xs font-mono tracking-widest text-jazz-text-dim uppercase">
-          {t('scrollDown')}
-        </span>
-        <span className="text-jazz-gold text-lg">↓</span>
-      </motion.div>
+      <ScrollDownButton label={t('scrollDown')} />
     </section>
   );
 }

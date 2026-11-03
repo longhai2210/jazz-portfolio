@@ -69,7 +69,11 @@ We use environment files (`.env`) to manage configurations. Copy the templates b
 3. **Create Frontend Web Env:** In `apps/web/.env`, add:
    ```env
    NEXT_PUBLIC_API_URL="http://localhost:3001/api"
+   API_INTERNAL_URL="http://localhost:3001/api"
    ```
+
+   `API_INTERNAL_URL` is optional. It lets server-rendered/ISR requests use a private service
+   address in deployed environments; browser requests always use `NEXT_PUBLIC_API_URL`.
 
 ---
 

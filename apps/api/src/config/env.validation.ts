@@ -86,6 +86,29 @@ class EnvironmentVariables {
   @IsString()
   @IsOptional()
   SMTP_PASS?: string;
+
+  @IsString()
+  @IsOptional()
+  @MinLength(32)
+  COMMENT_TOKEN_SECRET?: string;
+
+  @IsString()
+  @IsOptional()
+  @MinLength(32)
+  COMMENT_IP_HASH_SALT?: string;
+
+  @IsString()
+  @IsOptional()
+  TURNSTILE_SECRET_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  WEB_REVALIDATE_URL?: string;
+
+  @IsString()
+  @IsOptional()
+  @MinLength(32)
+  REVALIDATE_SECRET?: string;
 }
 
 export function validate(config: Record<string, unknown>) {

@@ -1,11 +1,12 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { getTranslations } from 'next-intl/server';
 import JazzIcon from '../common/JazzIcon';
 
+interface FooterProps {
+  locale: string;
+}
 
-export default function Footer() {
-  const t = useTranslations('footer');
+export default async function Footer({ locale }: FooterProps) {
+  const t = await getTranslations({ locale, namespace: 'footer' });
   const currentYear = new Date().getFullYear();
 
   return (

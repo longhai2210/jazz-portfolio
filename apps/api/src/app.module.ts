@@ -12,6 +12,8 @@ import { MediaModule } from './media/media.module';
 import { ContactModule } from './contact/contact.module';
 import { SettingsModule } from './settings/settings.module';
 import { StatsModule } from './stats/stats.module';
+import { BlogModule } from './blog/blog.module';
+import { CommentsModule } from './comments/comments.module';
 
 @Module({
   imports: [
@@ -33,10 +35,9 @@ import { StatsModule } from './stats/stats.module';
     ContactModule,
     SettingsModule,
     StatsModule,
+    BlogModule,
+    CommentsModule,
   ],
   controllers: [HealthController],
 })
 export class AppModule {}
-
-
-

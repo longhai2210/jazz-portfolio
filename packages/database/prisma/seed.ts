@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { SEED_COMMENTS, SEED_POSTS } from './seed-blog-data';
 import {
   SEED_CATEGORIES,
   SEED_EDUCATION_ITEMS,
@@ -132,13 +133,93 @@ async function main() {
       mailProvider: process.env.MAIL_PROVIDER || 'resend',
       mailFrom: process.env.MAIL_FROM || '',
       mailTo: process.env.MAIL_TO || '',
+      isBlogEnabled: false,
+      areCommentsEnabled: false,
+      commentModerationMode: 'ALL',
+      isCommentCaptchaEnabled: false,
+      commentAutoCloseDays: 0,
+      commentMaxPerPost: 500,
+      commentSpamThreshold: 60,
+      commentNotifyEmail: true,
     },
   });
+
+  // Seed demo posts
+  for (const post of SEED_POSTS) {
+    await prisma.post.upsert({
+      where: { slug: post.slug },
+      update: {
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverImageUrl: post.coverImageUrl,
+        status: post.status,
+        tags: post.tags,
+        readingMinutes: post.readingMinutes,
+        areCommentsEnabled: post.areCommentsEnabled,
+        publishedAt: post.publishedAt,
+        isDeleted: false,
+      },
+      create: {
+        id: post.id,
+        slug: post.slug,
+        title: post.title,
+        excerpt: post.excerpt,
+        content: post.content,
+        coverImageUrl: post.coverImageUrl,
+        status: post.status,
+        tags: post.tags,
+        readingMinutes: post.readingMinutes,
+        areCommentsEnabled: post.areCommentsEnabled,
+        publishedAt: post.publishedAt,
+        isDeleted: false,
+      },
+    });
+  }
+
+  // Seed demo comments
+  for (const comment of SEED_COMMENTS) {
+    await prisma.comment.upsert({
+      where: { id: comment.id },
+      update: {
+        postId: comment.postId,
+        parentId: comment.parentId,
+        authorName: comment.authorName,
+        authorEmail: comment.authorEmail,
+        body: comment.body,
+        status: comment.status,
+        spamScore: comment.spamScore,
+        spamReasons: comment.spamReasons,
+        ipHash: comment.ipHash,
+        userAgent: comment.userAgent,
+        contentHash: comment.contentHash,
+        locale: comment.locale,
+        isDeleted: false,
+      },
+      create: {
+        id: comment.id,
+        postId: comment.postId,
+        parentId: comment.parentId,
+        authorName: comment.authorName,
+        authorEmail: comment.authorEmail,
+        body: comment.body,
+        status: comment.status,
+        spamScore: comment.spamScore,
+        spamReasons: comment.spamReasons,
+        ipHash: comment.ipHash,
+        userAgent: comment.userAgent,
+        contentHash: comment.contentHash,
+        locale: comment.locale,
+        isDeleted: false,
+      },
+    });
+  }
 
   // Intentionally no music tracks — player uses client fallbacks; avoids broken S3 URLs.
 
   console.log('✅ Seeding complete!');
 }
+
 
 main()
   .catch((e) => {

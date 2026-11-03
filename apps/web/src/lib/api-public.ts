@@ -1,4 +1,5 @@
-import { ApiResponse } from '@jazz-portfolio/shared';
+import type { ApiResponse } from '@jazz-portfolio/shared';
+import { parseApiResponse } from '@/lib/api-response';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -11,38 +12,28 @@ export const CACHE_TAGS = {
   categories: 'categories',
   settings: 'settings',
   music: 'music',
+  posts: 'posts',
+  comments: 'comments',
 } as const;
 
 export type PublicCacheTag = (typeof CACHE_TAGS)[keyof typeof CACHE_TAGS];
 
-export type PublicGetOptions = {
-  /** Cache tags for `revalidateTag` (default: none). */
-  tags?: PublicCacheTag[];
-  /** ISR seconds; default 60. Pass `false` to opt out of time-based revalidation. */
-  revalidate?: number | false;
-};
-
-/** RSC-safe public GETs — uses Next Data Cache (`revalidate` + tags). */
+/**
+ * Browser-facing public API client for interactive reads and writes.
+ *
+ * Cached RSC reads live in `api-public-server.ts`. Keeping these clients
+ * separate prevents browser requests (comment tokens/reloads) from inheriting
+ * Next.js Data Cache options and lets the server use a private API origin.
+ */
 export class PublicApiClient {
-  static async get<T>(
-    path: string,
-    options: PublicGetOptions = {},
-  ): Promise<ApiResponse<T>> {
-    const revalidate = options.revalidate ?? 60;
+  static async get<T>(path: string): Promise<ApiResponse<T>> {
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' },
-      next: {
-        revalidate,
-        ...(options.tags?.length ? { tags: options.tags } : {}),
-      },
+      cache: 'no-store',
     });
 
-    if (!response.ok) {
-      throw new Error(`GET ${path} failed: ${response.statusText}`);
-    }
-
-    return response.json();
+    return parseApiResponse<T>(response, 'GET', path);
   }
 
   static async post<T>(path: string, body: unknown): Promise<ApiResponse<T>> {
@@ -53,10 +44,6 @@ export class PublicApiClient {
       cache: 'no-store',
     });
 
-    if (!response.ok) {
-      throw new Error(`POST ${path} failed: ${response.statusText}`);
-    }
-
-    return response.json();
+    return parseApiResponse<T>(response, 'POST', path);
   }
 }

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { ProfileDto } from '@jazz-portfolio/shared';
 import MutationErrorBanner from '@/components/admin/MutationErrorBanner';
 import { useProfileAdmin } from '@/hooks/admin/useProfileAdmin';
@@ -85,7 +86,9 @@ export default function AdminProfilePage() {
 
   if (isLoading) {
     return (
-      <div className="text-sm font-mono text-jazz-gold animate-pulse">Loading Profile Editor...</div>
+      <div className="text-sm font-mono text-jazz-gold animate-pulse">
+        Loading Profile Editor...
+      </div>
     );
   }
 
@@ -121,9 +124,15 @@ export default function AdminProfilePage() {
 
       <form onSubmit={handleSave} className="flex flex-col gap-8">
         <div className="bg-jazz-dark/50 border border-jazz-slate p-6 rounded-2xl flex flex-col sm:flex-row items-center gap-6">
-          <div className="w-24 h-24 rounded-full bg-jazz-charcoal overflow-hidden border border-jazz-slate flex items-center justify-center text-4xl">
+          <div className="relative w-24 h-24 rounded-full bg-jazz-charcoal overflow-hidden border border-jazz-slate flex items-center justify-center text-4xl">
             {profile.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="Avatar Preview" className="w-full h-full object-cover" />
+              <Image
+                src={profile.avatarUrl}
+                alt="Avatar preview"
+                fill
+                sizes="96px"
+                className="object-cover"
+              />
             ) : (
               '🤵'
             )}
@@ -161,15 +170,23 @@ export default function AdminProfilePage() {
                   {field === 'bio' || field === 'introduction' ? (
                     <textarea
                       rows={3}
-                      value={(profile[field as keyof ProfileDto] as Record<string, string>)?.[lang] || ''}
-                      onChange={(e) => handleInputChange(field as keyof ProfileDto, lang, e.target.value)}
+                      value={
+                        (profile[field as keyof ProfileDto] as Record<string, string>)?.[lang] || ''
+                      }
+                      onChange={(e) =>
+                        handleInputChange(field as keyof ProfileDto, lang, e.target.value)
+                      }
                       className="w-full bg-jazz-charcoal border border-jazz-slate text-jazz-text rounded-xl p-3.5 text-xs focus:outline-none focus:border-jazz-gold transition-colors font-mono"
                     />
                   ) : (
                     <input
                       type="text"
-                      value={(profile[field as keyof ProfileDto] as Record<string, string>)?.[lang] || ''}
-                      onChange={(e) => handleInputChange(field as keyof ProfileDto, lang, e.target.value)}
+                      value={
+                        (profile[field as keyof ProfileDto] as Record<string, string>)?.[lang] || ''
+                      }
+                      onChange={(e) =>
+                        handleInputChange(field as keyof ProfileDto, lang, e.target.value)
+                      }
                       className="w-full bg-jazz-charcoal border border-jazz-slate text-jazz-text rounded-xl px-3.5 py-2.5 text-xs focus:outline-none focus:border-jazz-gold transition-colors font-mono"
                     />
                   )}

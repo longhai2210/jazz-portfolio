@@ -12,7 +12,15 @@ import {
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { SettingsService } from './settings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { SiteSettingsDto, UpdateSiteSettingsDto, MailStatusDto } from '@jazz-portfolio/shared';
+import {
+  SiteSettingsDto,
+  UpdateSiteSettingsDto,
+  MailStatusDto,
+  FeatureSettingsDto,
+  FeatureSettingsStatusDto,
+  PublicSettingsDto,
+} from '@jazz-portfolio/shared';
+import { UpdateFeatureSettingsDto } from './dto/update-feature-settings.dto';
 
 @ApiTags('Site Settings')
 @Controller('settings')
@@ -24,7 +32,7 @@ export class SettingsController {
   @Get('public')
   @ApiOperation({ summary: 'Get public site settings' })
   @ApiResponse({ status: 200, description: 'Public settings retrieved successfully' })
-  async getPublicSettings(): Promise<{ isContactFormEnabled: boolean }> {
+  async getPublicSettings(): Promise<PublicSettingsDto> {
     return this.settingsService.getPublicSettings();
   }
 
@@ -50,6 +58,31 @@ export class SettingsController {
     @Body() dto: UpdateSiteSettingsDto,
   ): Promise<SiteSettingsDto> {
     return this.settingsService.updateSettings(dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Get('admin/features')
+  @ApiOperation({ summary: 'Get feature flag settings and status (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Feature settings and status returned' })
+  async getFeatureSettings(): Promise<{
+    settings: FeatureSettingsDto;
+    status: FeatureSettingsStatusDto;
+  }> {
+    const settings = await this.settingsService.getFeatureSettings();
+    const status = await this.settingsService.getFeatureStatus();
+    return { settings, status };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @Put('admin/features')
+  @ApiOperation({ summary: 'Update feature flag settings (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Feature settings updated successfully' })
+  async updateFeatureSettings(
+    @Body() dto: UpdateFeatureSettingsDto,
+  ): Promise<FeatureSettingsDto> {
+    return this.settingsService.updateFeatureSettings(dto);
   }
 
   @UseGuards(JwtAuthGuard)

@@ -4,10 +4,14 @@ import { CreateTrackDto, UpdateTrackDto } from './dto/create-track.dto';
 import { ReorderDto } from '../categories/dto/reorder-categories.dto';
 import { Track } from '@jazz-portfolio/database';
 import { TrackDto } from '@jazz-portfolio/shared';
+import { RevalidationService } from '../common/revalidation.service';
 
 @Injectable()
 export class MusicService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly revalidationService: RevalidationService,
+  ) {}
 
   async getPublicPlaylist(): Promise<TrackDto[]> {
     return this.prisma.track.findMany({
@@ -40,7 +44,7 @@ export class MusicService {
   }
 
   async createTrack(dto: CreateTrackDto): Promise<Track> {
-    return this.prisma.track.create({
+    const created = await this.prisma.track.create({
       data: {
         title: dto.title,
         artist: dto.artist,
@@ -51,6 +55,9 @@ export class MusicService {
         isActive: dto.isActive,
       },
     });
+
+    void this.revalidationService.purge(['music']);
+    return created;
   }
 
   async updateTrack(id: string, dto: UpdateTrackDto): Promise<Track> {
@@ -59,7 +66,7 @@ export class MusicService {
       throw new NotFoundException(`Track with ID "${id}" not found`);
     }
 
-    return this.prisma.track.update({
+    const updated = await this.prisma.track.update({
       where: { id },
       data: {
         title: dto.title,
@@ -71,6 +78,9 @@ export class MusicService {
         isActive: dto.isActive,
       },
     });
+
+    void this.revalidationService.purge(['music']);
+    return updated;
   }
 
   async deleteTrack(id: string): Promise<Track> {
@@ -79,7 +89,9 @@ export class MusicService {
       throw new NotFoundException(`Track with ID "${id}" not found`);
     }
 
-    return this.prisma.track.delete({ where: { id } });
+    const deleted = await this.prisma.track.delete({ where: { id } });
+    void this.revalidationService.purge(['music']);
+    return deleted;
   }
 
   async reorderPlaylist(dto: ReorderDto): Promise<{ success: boolean }> {
@@ -91,7 +103,7 @@ export class MusicService {
         }),
       ),
     );
+    void this.revalidationService.purge(['music']);
     return { success: true };
   }
 }
-

@@ -35,3 +35,7 @@ npm-debug.log*
 
 # Testing
 coverage/
+
+# Understand-Anything knowledge graph (local cache, only the ignore file is shared)
+.ua/*
+!.ua/.understandignore

@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import { motion } from 'framer-motion';
-import JazzLoader from '../animation/JazzLoader';
 import JazzWaveBackground from '../animation/JazzWaveBackground';
+import JazzLoader from '../animation/JazzLoader';
 
 const SmokeEffect = dynamic(() => import('../animation/SmokeEffect'), {
   ssr: false,
@@ -19,36 +18,33 @@ interface PortfolioShellProps {
 }
 
 export default function PortfolioShell({ children }: PortfolioShellProps) {
-  const [isLoading, setIsLoading] = useState(true);
+  const [showAmbientEffects, setShowAmbientEffects] = useState(false);
+  const [introComplete, setIntroComplete] = useState(false);
+  const finishIntro = useCallback(() => setIntroComplete(true), []);
+
+  useEffect(() => {
+    if (!introComplete || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      return;
+    }
+
+    // Keep decorative JavaScript out of the critical rendering window.
+    const timer = window.setTimeout(() => setShowAmbientEffects(true), 1200);
+    return () => window.clearTimeout(timer);
+  }, [introComplete]);
 
   return (
     <>
+      <JazzLoader onComplete={finishIntro} />
       {/* Soft sound-wave / vinyl-groove ambient layer (behind content) */}
-      <div
-        className="fixed inset-0 z-0 overflow-hidden pointer-events-none"
-        aria-hidden
-      >
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" aria-hidden>
         <JazzWaveBackground />
       </div>
 
-      {/* 1. Full-screen Intro Loader */}
-      <JazzLoader onComplete={() => setIsLoading(false)} />
+      {/* Server-rendered content stays mounted behind the brief intro overlay. */}
+      <div className="relative z-10 w-full min-h-screen">{children}</div>
 
-      {/* 2. Main Page Layout (Fades in once loading finishes) */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isLoading ? 0 : 1 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
-        className="relative z-10 w-full min-h-screen"
-      >
-        {children}
-      </motion.div>
-
-      {/* 3. Ambient Background Smoke Effect */}
-      {!isLoading && <SmokeEffect />}
-
-      {/* 4. Scroll music-notes (right gutter + edge bounce) */}
-      {!isLoading && <ScrollNotesEffect />}
+      {showAmbientEffects && <SmokeEffect />}
+      {showAmbientEffects && <ScrollNotesEffect />}
     </>
   );
 }

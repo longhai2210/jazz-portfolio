@@ -2,12 +2,16 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
+import { RevalidationService } from '../common/revalidation.service';
 import * as bcrypt from 'bcrypt';
 import { Profile } from '@jazz-portfolio/database';
 
 @Injectable()
 export class ProfileService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private readonly revalidationService: RevalidationService,
+  ) {}
 
   async getProfile(): Promise<Profile> {
     const profile = await this.prisma.profile.findUnique({
@@ -20,7 +24,7 @@ export class ProfileService {
   }
 
   async updateProfile(dto: UpdateProfileDto): Promise<Profile> {
-    return this.prisma.profile.update({
+    const updated = await this.prisma.profile.update({
       where: { id: 'default-profile' },
       data: {
         name: dto.name as any,
@@ -35,6 +39,8 @@ export class ProfileService {
       },
     });
 
+    void this.revalidationService.purge(['profile']);
+    return updated;
   }
 
   async changePassword(userId: string, dto: ChangePasswordDto) {

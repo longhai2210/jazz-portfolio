@@ -113,6 +113,8 @@ In the S3 bucket's **Permissions** tab, add the following CORS configuration to 
    ```
 4. **Environment Variables:** In Amplify App Settings, configure:
    - `NEXT_PUBLIC_API_URL`: `https://your-ec2-domain:3001/api`
+   - `API_INTERNAL_URL` (optional): a private API base URL reachable from the Next.js runtime;
+     omit it when Amplify cannot reach the API privately
 5. Click **Save and deploy**.
 
 ---

@@ -28,32 +28,57 @@ export default function AdminDashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-jazz-dark/50 border border-jazz-slate p-6 rounded-2xl relative overflow-hidden group">
-            <span className="text-4xl absolute right-4 bottom-4 opacity-10">📁</span>
-            <h3 className="text-xs font-mono uppercase tracking-wider text-jazz-text-dim">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="bg-jazz-dark/50 border border-jazz-slate p-5 rounded-2xl relative overflow-hidden group">
+            <span className="text-3xl absolute right-3 bottom-3 opacity-10">📁</span>
+            <h3 className="text-[11px] font-mono uppercase tracking-wider text-jazz-text-dim">
               Categories
             </h3>
-            <p className="text-4xl font-heading font-bold text-jazz-gold mt-4">{stats.categories}</p>
-            <p className="text-xs text-jazz-text-muted mt-2">Active portfolio sections</p>
+            <p className="text-3xl font-heading font-bold text-jazz-gold mt-3">{stats.categories}</p>
+            <p className="text-[11px] text-jazz-text-muted mt-1">Active sections</p>
           </div>
 
-          <div className="bg-jazz-dark/50 border border-jazz-slate p-6 rounded-2xl relative overflow-hidden group">
-            <span className="text-4xl absolute right-4 bottom-4 opacity-10">💼</span>
-            <h3 className="text-xs font-mono uppercase tracking-wider text-jazz-text-dim">
-              Portfolio Items
+          <div className="bg-jazz-dark/50 border border-jazz-slate p-5 rounded-2xl relative overflow-hidden group">
+            <span className="text-3xl absolute right-3 bottom-3 opacity-10">💼</span>
+            <h3 className="text-[11px] font-mono uppercase tracking-wider text-jazz-text-dim">
+              Items
             </h3>
-            <p className="text-4xl font-heading font-bold text-jazz-gold mt-4">{stats.items}</p>
-            <p className="text-xs text-jazz-text-muted mt-2">Skills tags and work histories</p>
+            <p className="text-3xl font-heading font-bold text-jazz-gold mt-3">{stats.items}</p>
+            <p className="text-[11px] text-jazz-text-muted mt-1">Skills & history</p>
           </div>
 
-          <div className="bg-jazz-dark/50 border border-jazz-slate p-6 rounded-2xl relative overflow-hidden group">
-            <span className="text-4xl absolute right-4 bottom-4 opacity-10">🎵</span>
-            <h3 className="text-xs font-mono uppercase tracking-wider text-jazz-text-dim">Tracks</h3>
-            <p className="text-4xl font-heading font-bold text-jazz-gold mt-4">{stats.tracks}</p>
-            <p className="text-xs text-jazz-text-muted mt-2">Background playlist items</p>
+          <div className="bg-jazz-dark/50 border border-jazz-slate p-5 rounded-2xl relative overflow-hidden group">
+            <span className="text-3xl absolute right-3 bottom-3 opacity-10">🎵</span>
+            <h3 className="text-[11px] font-mono uppercase tracking-wider text-jazz-text-dim">Tracks</h3>
+            <p className="text-3xl font-heading font-bold text-jazz-gold mt-3">{stats.tracks}</p>
+            <p className="text-[11px] text-jazz-text-muted mt-1">Music tracks</p>
+          </div>
+
+          <div className="bg-jazz-dark/50 border border-jazz-slate p-5 rounded-2xl relative overflow-hidden group">
+            <span className="text-3xl absolute right-3 bottom-3 opacity-10">📝</span>
+            <h3 className="text-[11px] font-mono uppercase tracking-wider text-jazz-text-dim">
+              Posts
+            </h3>
+            <p className="text-3xl font-heading font-bold text-jazz-gold mt-3">
+              {stats.publishedPosts ?? 0}
+            </p>
+            <p className="text-[11px] text-jazz-text-muted mt-1">
+              Published ({stats.draftPosts ?? 0} draft)
+            </p>
+          </div>
+
+          <div className="bg-jazz-dark/50 border border-jazz-slate p-5 rounded-2xl relative overflow-hidden group">
+            <span className="text-3xl absolute right-3 bottom-3 opacity-10">💬</span>
+            <h3 className="text-[11px] font-mono uppercase tracking-wider text-jazz-text-dim">
+              Comments
+            </h3>
+            <p className="text-3xl font-heading font-bold text-jazz-gold mt-3">
+              {stats.pendingComments ?? 0}
+            </p>
+            <p className="text-[11px] text-jazz-text-muted mt-1">Pending review</p>
           </div>
         </div>
+
       )}
 
       {/* Guide details */}

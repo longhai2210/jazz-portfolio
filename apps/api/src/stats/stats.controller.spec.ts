@@ -10,6 +10,9 @@ describe('StatsController (admin contract smoke)', () => {
       categories: 2,
       items: 5,
       tracks: 3,
+      publishedPosts: 1,
+      draftPosts: 1,
+      pendingComments: 1,
     }),
   };
 
@@ -30,6 +33,9 @@ describe('StatsController (admin contract smoke)', () => {
       categories: 2,
       items: 5,
       tracks: 3,
+      publishedPosts: 1,
+      draftPosts: 1,
+      pendingComments: 1,
     });
     expect(statsService.getAdminStats).toHaveBeenCalled();
   });

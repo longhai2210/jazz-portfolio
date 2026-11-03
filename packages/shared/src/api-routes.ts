@@ -113,6 +113,60 @@ export const ApiRoutes = {
     public: () => '/settings/public',
     adminEmail: () => '/settings/admin/email',
     adminEmailTest: () => '/settings/admin/email/test',
+    adminFeatures: () => '/settings/admin/features',
+  },
+
+  blog: {
+    publicList: (params?: { page?: number; limit?: number; tag?: string }) => {
+      const p = new URLSearchParams();
+      if (params?.page != null) p.set('page', String(params.page));
+      if (params?.limit != null) p.set('limit', String(params.limit));
+      if (params?.tag) p.set('tag', params.tag);
+      const qs = p.toString();
+      return qs ? `/blog/posts?${qs}` : '/blog/posts';
+    },
+    publicBySlug: (slug: string) => `/blog/posts/${slug}`,
+    publicTags: () => '/blog/tags',
+    commentToken: (slug: string) => `/blog/posts/${slug}/comment-token`,
+    publicComments: (slug: string, page?: number) => {
+      const p = new URLSearchParams();
+      if (page != null) p.set('page', String(page));
+      const qs = p.toString();
+      return qs ? `/blog/posts/${slug}/comments?${qs}` : `/blog/posts/${slug}/comments`;
+    },
+    submitComment: () => '/blog/comments',
+
+    adminList: (params?: { page?: number; limit?: number; status?: string }) => {
+      const p = new URLSearchParams();
+      if (params?.page != null) p.set('page', String(params.page));
+      if (params?.limit != null) p.set('limit', String(params.limit));
+      if (params?.status) p.set('status', params.status);
+      const qs = p.toString();
+      return qs ? `/blog/admin/posts?${qs}` : '/blog/admin/posts';
+    },
+    adminCreate: () => '/blog/admin/posts',
+    adminGet: (id: string) => `/blog/admin/posts/${id}`,
+    adminUpdate: (id: string) => `/blog/admin/posts/${id}`,
+    adminDelete: (id: string) => `/blog/admin/posts/${id}`,
+    adminPublish: (id: string) => `/blog/admin/posts/${id}/publish`,
+    adminUnpublish: (id: string) => `/blog/admin/posts/${id}/unpublish`,
+  },
+
+  comments: {
+    adminList: (params?: { page?: number; limit?: number; status?: string; postId?: string }) => {
+      const p = new URLSearchParams();
+      if (params?.page != null) p.set('page', String(params.page));
+      if (params?.limit != null) p.set('limit', String(params.limit));
+      if (params?.status) p.set('status', params.status);
+      if (params?.postId) p.set('postId', params.postId);
+      const qs = p.toString();
+      return qs ? `/admin/comments?${qs}` : '/admin/comments';
+    },
+    adminModerate: (id: string) => `/admin/comments/${id}/moderate`,
+    adminBulkModerate: () => '/admin/comments/bulk-moderate',
+    adminDelete: (id: string) => `/admin/comments/${id}`,
+    adminBlocklist: () => '/admin/comments/blocklist',
+    adminBlocklistDelete: (id: string) => `/admin/comments/blocklist/${id}`,
   },
 
   contact: {

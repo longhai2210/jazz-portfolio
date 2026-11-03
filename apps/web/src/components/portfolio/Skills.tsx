@@ -1,9 +1,6 @@
-'use client';
-
-import { useLocale } from 'next-intl';
 import Image from 'next/image';
 import { getTranslation } from '@/lib/i18n';
-import ScrollReveal from '../animation/ScrollReveal';
+import ScrollRevealWrapper from '../animation/ScrollRevealWrapper';
 import JazzIcon from '../common/JazzIcon';
 
 import { CategoryDto } from '@jazz-portfolio/shared';
@@ -11,11 +8,10 @@ import { JazzMarkToolkit } from '../common/JazzMarks';
 
 interface SkillsProps {
   category: CategoryDto;
+  locale: string;
 }
 
-export default function Skills({ category }: SkillsProps) {
-  const locale = useLocale();
-
+export default function Skills({ category, locale }: SkillsProps) {
   const items = category.items || [];
 
   // Group items by subcategory metadata (e.g. 'Languages', 'Frameworks', 'Tools')
@@ -32,7 +28,7 @@ export default function Skills({ category }: SkillsProps) {
     <section id="skills" className="py-24 px-6 bg-jazz-dark/20 border-t border-b border-jazz-slate/30">
       <div className="max-w-7xl mx-auto">
         
-        <ScrollReveal>
+        <ScrollRevealWrapper>
           <div className="flex items-center gap-3 mb-16">
             <JazzMarkToolkit size={34} className="text-jazz-gold" />
             <h2 className="text-3xl md:text-4xl font-heading font-bold text-jazz-gold">
@@ -40,11 +36,11 @@ export default function Skills({ category }: SkillsProps) {
             </h2>
             <div className="flex-1 h-[1px] bg-gradient-to-r from-jazz-slate to-transparent" />
           </div>
-        </ScrollReveal>
+        </ScrollRevealWrapper>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {Object.entries(groupedSkills).map(([group, skills], groupIdx) => (
-            <ScrollReveal key={group} direction="up" delay={groupIdx * 0.15}>
+            <ScrollRevealWrapper key={group} direction="up" delay={groupIdx * 0.15}>
               <div className="bg-jazz-dark/70 backdrop-blur-md border border-jazz-slate p-6 md:p-8 rounded-2xl h-full flex flex-col gap-6 shadow-[0_4px_20px_rgba(0,0,0,0.15)] relative overflow-hidden group">
                 {/* Glowing glow accent on corner */}
                 <div className="absolute top-0 right-0 w-[80px] h-[80px] bg-jazz-gold/5 rounded-full blur-2xl group-hover:bg-jazz-gold/15 transition-colors duration-500" />
@@ -73,7 +69,7 @@ export default function Skills({ category }: SkillsProps) {
                   ))}
                 </div>
               </div>
-            </ScrollReveal>
+            </ScrollRevealWrapper>
           ))}
         </div>
       </div>

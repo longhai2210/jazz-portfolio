@@ -69,12 +69,14 @@ Each theme: **Problem → Thinking → What we did → Best practice**.
 
 | Client | File | Behavior |
 |---|---|---|
-| `PublicApiClient` | [`apps/web/src/lib/api-public.ts`](../apps/web/src/lib/api-public.ts) | `revalidate` + cache tags |
+| `ServerPublicApiClient` | [`apps/web/src/lib/api-public-server.ts`](../apps/web/src/lib/api-public-server.ts) | RSC/ISR `revalidate` + cache tags; optional private API origin |
+| `PublicApiClient` | [`apps/web/src/lib/api-public.ts`](../apps/web/src/lib/api-public.ts) | Live browser requests with `cache: 'no-store'` |
 | `AdminApiClient` | [`apps/web/src/lib/api-admin.ts`](../apps/web/src/lib/api-admin.ts) | `cache: 'no-store'`, `credentials: 'include'` |
 
 **Best practice.**
 
-- Never reuse one fetch wrapper for both RSC public data and credentialed admin calls.
+- Keep cached RSC reads, live browser reads, and credentialed admin calls in separate clients.
+- Configure `API_INTERNAL_URL` when the Next runtime can reach Nest over a private network.
 - If you add a new public GET, assign a cache tag and document how to invalidate it.
 
 ---
@@ -213,7 +215,7 @@ Login/logout on Nest; JWT strategy accepts **cookie or Bearer**; CORS `credentia
 ### Do
 
 - [ ] Update `ApiRoutes` when Nest routes or DTO field names change
-- [ ] Use `PublicApiClient` + tags for portfolio; `AdminApiClient` + credentials for CMS
+- [ ] Use `ServerPublicApiClient` + tags for RSC, `PublicApiClient` for live browser reads, and `AdminApiClient` + credentials for CMS
 - [ ] Wrap shared RSC loaders in `cache()`; parallelize independent fetches
 - [ ] Dynamic-import non-critical portfolio chrome (music, canvas)
 - [ ] Invalidate the right cache tag after public-facing CMS writes
@@ -237,7 +239,7 @@ Login/logout on Nest; JWT strategy accepts **cookie or Bearer**; CORS `credentia
 | Concern | Where to look |
 |---|---|
 | Shared paths & reorder helpers | [`packages/shared/src/api-routes.ts`](../packages/shared/src/api-routes.ts) |
-| Public / admin HTTP | [`apps/web/src/lib/api-public.ts`](../apps/web/src/lib/api-public.ts), [`api-admin.ts`](../apps/web/src/lib/api-admin.ts) |
+| Public / admin HTTP | [`apps/web/src/lib/api-public-server.ts`](../apps/web/src/lib/api-public-server.ts), [`api-public.ts`](../apps/web/src/lib/api-public.ts), [`api-admin.ts`](../apps/web/src/lib/api-admin.ts) |
 | RSC loaders | [`apps/web/src/lib/portfolio-data.ts`](../apps/web/src/lib/portfolio-data.ts) |
 | Revalidate API | [`apps/web/src/app/api/revalidate/route.ts`](../apps/web/src/app/api/revalidate/route.ts) |
 | Music chrome lazy load | [`apps/web/src/components/music/MusicChrome.tsx`](../apps/web/src/components/music/MusicChrome.tsx) |

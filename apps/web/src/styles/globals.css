@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* === Jazz Portfolio Design Tokens === */
 @theme {
@@ -25,14 +25,17 @@
   --color-jazz-text-muted: #9898b0;
   --color-jazz-text-dim: #6a6a80;
 
-  /* Fonts */
-  --font-heading: 'Playfair Display', 'Noto Serif JP', serif;
-  --font-body: 'Inter', 'Noto Sans JP', sans-serif;
+  /* Fonts — actual loading handled by next/font (see lib/fonts.ts).
+     next/font injects --font-heading, --font-body, --font-mono as CSS
+     variables on <html>. We define fallback stacks here so the theme
+     still works if the variables aren't present (e.g., tests, Storybook). */
+  --font-heading: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 }
 
 /* === Light-Jazz (Sunny Café Jazz) Palette === */
-[data-theme="light-jazz"] {
+[data-theme='light-jazz'] {
   --color-jazz-black: #faf6f0;
   --color-jazz-dark: #f0ebe3;
   --color-jazz-charcoal: #e8e0d4;
@@ -56,22 +59,64 @@
 /* === Base Styles === */
 html {
   scroll-behavior: smooth;
+  overflow-x: clip;
 }
 
 body {
   font-family: var(--font-body);
   background-color: var(--color-jazz-black);
   color: var(--color-jazz-text);
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.5s ease, color 0.5s ease;
+  transition:
+    background-color 0.5s ease,
+    color 0.5s ease;
+}
+
+/* The locale layout only attaches these variables for Japanese pages. */
+html[lang='ja'] body {
+  font-family: var(--font-body-jp), var(--font-body);
+}
+
+html[lang='ja'] .font-heading {
+  font-family: var(--font-heading-jp), var(--font-heading);
 }
 
 /* Theme adaptation transitions for layout components and text */
-header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
-  transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease, box-shadow 0.5s ease;
+header,
+footer,
+section,
+div,
+h1,
+h2,
+h3,
+h4,
+p,
+span,
+button,
+a,
+input,
+svg {
+  transition:
+    background-color 0.5s ease,
+    border-color 0.5s ease,
+    color 0.5s ease,
+    box-shadow 0.5s ease;
 }
 
+/* === Focus Indicators === */
+*:focus-visible {
+  outline: 2px solid var(--color-jazz-gold);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+button:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--color-jazz-gold);
+  outline-offset: 2px;
+}
 
 /* === Scrollbar Styling === */
 ::-webkit-scrollbar {
@@ -110,7 +155,7 @@ header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
   pointer-events: none;
 }
 
-[data-theme="light-jazz"] .jazz-wave-bg {
+[data-theme='light-jazz'] .jazz-wave-bg {
   opacity: 1;
 }
 
@@ -140,15 +185,15 @@ header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
   opacity: 0.85;
 }
 
-[data-theme="light-jazz"] .jazz-wave-bg .wave-layer--far {
+[data-theme='light-jazz'] .jazz-wave-bg .wave-layer--far {
   opacity: 0.65;
 }
 
-[data-theme="light-jazz"] .jazz-wave-bg .wave-layer--mid {
+[data-theme='light-jazz'] .jazz-wave-bg .wave-layer--mid {
   opacity: 0.8;
 }
 
-[data-theme="light-jazz"] .jazz-wave-bg .wave-layer--near {
+[data-theme='light-jazz'] .jazz-wave-bg .wave-layer--near {
   opacity: 0.95;
 }
 
@@ -192,7 +237,7 @@ header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
 .bg-smoky-grain {
 }
 .bg-smoky-grain::before {
-  content: "";
+  content: '';
   position: absolute;
   inset: 0;
   width: 100%;
@@ -203,13 +248,14 @@ header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
   z-index: 1;
 }
 
-[data-theme="light-jazz"] .bg-smoky-grain::before {
+[data-theme='light-jazz'] .bg-smoky-grain::before {
   opacity: 0.02;
 }
 
 /* Stage ambient breathing glow line keyframes */
 @keyframes glow-breathe {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.35;
     background-position: 0% 50%;
   }
@@ -226,12 +272,17 @@ header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
 
 /* Pulsing playhead glow animation */
 @keyframes pulse-playhead {
-  0%, 100% {
-    box-shadow: 0 0 4px rgba(212, 165, 116, 0.4), 0 0 1px rgba(212, 165, 116, 0.2);
+  0%,
+  100% {
+    box-shadow:
+      0 0 4px rgba(212, 165, 116, 0.4),
+      0 0 1px rgba(212, 165, 116, 0.2);
     transform: scale(1);
   }
   50% {
-    box-shadow: 0 0 10px rgba(232, 184, 104, 0.8), 0 0 4px rgba(232, 184, 104, 0.4);
+    box-shadow:
+      0 0 10px rgba(232, 184, 104, 0.8),
+      0 0 4px rgba(232, 184, 104, 0.4);
     transform: scale(1.1);
   }
 }
@@ -273,7 +324,7 @@ header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
   );
 }
 
-[data-theme="light-jazz"] .vinyl-reflection {
+[data-theme='light-jazz'] .vinyl-reflection {
   background: conic-gradient(
     from 45deg,
     transparent 0deg,
@@ -299,3 +350,162 @@ header, footer, section, div, h1, h2, h3, h4, p, span, button, a, input, svg {
   animation: transport-ripple 0.4s ease-out;
 }
 
+/* Jazz Gold Shimmer Skeleton Loading Effect */
+@keyframes jazz-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.jazz-shimmer {
+  background: linear-gradient(
+    110deg,
+    var(--color-jazz-charcoal) 30%,
+    color-mix(in srgb, var(--color-jazz-gold) 18%, var(--color-jazz-charcoal)) 50%,
+    var(--color-jazz-charcoal) 70%
+  );
+  background-size: 200% 100%;
+  animation: jazz-shimmer 1.8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .jazz-shimmer {
+    animation: none;
+  }
+}
+
+/* Lightweight entrance motion without shipping a runtime animation library. */
+@keyframes hero-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-fade-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.hero-enter {
+  animation-duration: 0.8s;
+  animation-fill-mode: both;
+  animation-timing-function: ease-out;
+}
+
+.hero-enter--fadeUp {
+  animation-name: hero-fade-up;
+}
+.hero-enter--fadeScale {
+  animation-name: hero-fade-scale;
+}
+
+.scroll-reveal {
+  opacity: 0;
+  transition:
+    opacity var(--reveal-duration, 0.6s) cubic-bezier(0.25, 0.1, 0.25, 1) var(--reveal-delay, 0s),
+    transform var(--reveal-duration, 0.6s) cubic-bezier(0.25, 0.1, 0.25, 1) var(--reveal-delay, 0s);
+}
+
+.scroll-reveal--up {
+  transform: translateY(40px);
+}
+.scroll-reveal--down {
+  transform: translateY(-40px);
+}
+.scroll-reveal--left {
+  transform: translateX(40px);
+}
+.scroll-reveal--right {
+  transform: translateX(-40px);
+}
+.scroll-reveal--scale {
+  transform: scale(0.9);
+}
+.scroll-reveal--none {
+  transform: none;
+}
+
+@media (max-width: 640px) {
+  .scroll-reveal--left,
+  .scroll-reveal--right {
+    transform: translateY(24px);
+  }
+}
+
+.scroll-reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-enter {
+    animation: none;
+  }
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@keyframes mobile-nav-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes scroll-cue {
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+  50% {
+    transform: translate(-50%, 10px);
+  }
+}
+
+@keyframes scroll-top-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-mobile-nav-in {
+  animation: mobile-nav-in 0.25s ease-out both;
+}
+.scroll-down-cue {
+  animation: scroll-cue 1.5s ease-in-out 1s infinite;
+}
+.animate-scroll-top-in {
+  animation: scroll-top-in 0.25s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-mobile-nav-in,
+  .scroll-down-cue,
+  .animate-scroll-top-in {
+    animation: none;
+  }
+}

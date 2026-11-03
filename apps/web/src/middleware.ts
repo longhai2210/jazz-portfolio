@@ -23,11 +23,17 @@ export default function middleware(request: NextRequest) {
       const locale = adminMatch[1];
       const loginUrl = request.nextUrl.clone();
       loginUrl.pathname = `/${locale}/admin/login`;
-      return NextResponse.redirect(loginUrl);
+      const response = NextResponse.redirect(loginUrl);
+      response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+      return response;
     }
   }
 
-  return intlMiddleware(request);
+  const response = intlMiddleware(request);
+  if (adminMatch) {
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
+  }
+  return response;
 }
 
 export const config = {

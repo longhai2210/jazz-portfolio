@@ -10,7 +10,7 @@ interface AudioState {
   volume: number; // 0 to 1
   currentTime: number;
   duration: number;
-  
+
   // Actions
   setPlaylist: (playlist: TrackDto[]) => void;
   playTrack: (index: number) => void;
@@ -35,8 +35,20 @@ export const useAudioStore = create<AudioState>()(
       currentTime: 0,
       duration: 0,
 
-      setPlaylist: (playlist) => set({ playlist }),
-      
+      setPlaylist: (playlist) =>
+        set((state) => {
+          const currentTrackIndex =
+            playlist.length === 0
+              ? 0
+              : Math.min(Math.max(0, state.currentTrackIndex), playlist.length - 1);
+
+          return {
+            playlist,
+            currentTrackIndex,
+            ...(playlist.length === 0 ? { isPlaying: false, currentTime: 0, duration: 0 } : {}),
+          };
+        }),
+
       playTrack: (index) => {
         const { playlist } = get();
         if (index >= 0 && index < playlist.length) {
@@ -45,12 +57,13 @@ export const useAudioStore = create<AudioState>()(
       },
 
       togglePlay: () => set((state) => ({ isPlaying: !state.isPlaying })),
-      
+
       setIsPlaying: (isPlaying) => set({ isPlaying }),
 
       toggleMute: () => set((state) => ({ isMuted: !state.isMuted })),
 
-      setVolume: (volume) => set({ volume }),
+      setVolume: (volume) =>
+        set({ volume: Number.isFinite(volume) ? Math.min(1, Math.max(0, volume)) : 0.5 }),
 
       setCurrentTime: (currentTime) => set({ currentTime }),
 

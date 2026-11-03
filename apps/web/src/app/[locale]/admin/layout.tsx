@@ -13,9 +13,69 @@ import {
 } from '@/lib/admin-session-cookie';
 import JazzIcon from '@/components/common/JazzIcon';
 import AdminQueryProvider from '@/providers/AdminQueryProvider';
+import { useAdminStats } from '@/hooks/admin/useAdminStats';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
+}
+
+function SidebarNav({
+  pathname,
+  locale,
+}: {
+  pathname: string;
+  locale: string;
+}) {
+  const { stats } = useAdminStats();
+
+  const menuItems = [
+    { href: `/${locale}/admin`, label: 'Dashboard', icon: '📊' },
+    { href: `/${locale}/admin/contact`, label: 'Inbox', icon: '📬' },
+    { href: `/${locale}/admin/posts`, label: 'Blog Posts', icon: '📝' },
+    {
+      href: `/${locale}/admin/comments`,
+      label: 'Comments',
+      icon: '💬',
+      badge: stats.pendingComments && stats.pendingComments > 0 ? stats.pendingComments : undefined,
+    },
+    { href: `/${locale}/admin/profile`, label: 'Profile Editor', icon: '🤵' },
+    { href: `/${locale}/admin/categories`, label: 'Categories', icon: '📁' },
+    { href: `/${locale}/admin/music`, label: 'Music Manager', icon: '🎵' },
+    { href: `/${locale}/admin/settings`, label: 'System Settings', icon: '⚙️' },
+  ];
+
+  return (
+    <nav className="p-4 flex flex-col gap-1.5">
+      {menuItems.map((item) => {
+        const isActive =
+          pathname === item.href ||
+          (item.href !== `/${locale}/admin` && pathname.startsWith(item.href));
+
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
+              isActive
+                ? 'bg-jazz-gold/10 text-jazz-gold border border-jazz-gold/20'
+                : 'text-jazz-text-muted hover:text-jazz-gold hover:bg-jazz-charcoal/50 border border-transparent'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="text-lg">{item.icon}</span>
+              <span>{item.label}</span>
+            </div>
+
+            {item.badge !== undefined && (
+              <span className="bg-amber-500/20 text-amber-300 border border-amber-500/40 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full">
+                {item.badge}
+              </span>
+            )}
+          </Link>
+        );
+      })}
+    </nav>
+  );
 }
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
@@ -96,15 +156,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     );
   }
 
-  const menuItems = [
-    { href: `/${locale}/admin`, label: 'Dashboard', icon: '📊' },
-    { href: `/${locale}/admin/contact`, label: 'Inbox', icon: '📬' },
-    { href: `/${locale}/admin/profile`, label: 'Profile Editor', icon: '🤵' },
-    { href: `/${locale}/admin/categories`, label: 'Categories', icon: '📁' },
-    { href: `/${locale}/admin/music`, label: 'Music Manager', icon: '🎵' },
-    { href: `/${locale}/admin/settings`, label: 'System Settings', icon: '⚙️' },
-  ];
-
   return (
     <AdminQueryProvider>
       <div className="min-h-screen bg-jazz-black flex text-jazz-text">
@@ -124,29 +175,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               </p>
             </div>
 
-            {/* Menu links list */}
-            <nav className="p-4 flex flex-col gap-1.5">
-              {menuItems.map((item) => {
-                const isActive =
-                  pathname === item.href ||
-                  (item.href !== `/${locale}/admin` && pathname.startsWith(item.href));
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200 ${
-                      isActive
-                        ? 'bg-jazz-gold/10 text-jazz-gold border border-jazz-gold/20'
-                        : 'text-jazz-text-muted hover:text-jazz-gold hover:bg-jazz-charcoal/50 border border-transparent'
-                    }`}
-                  >
-                    <span className="text-lg">{item.icon}</span>
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-            </nav>
+            {/* Menu links list with badges */}
+            <SidebarNav pathname={pathname} locale={locale} />
           </div>
 
           {/* Sidebar Footer (Logout) */}
@@ -155,7 +185,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               onClick={() => {
                 void handleLogout();
               }}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold border border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-sm font-semibold border border-red-500/20 text-red-400 hover:bg-red-500/10 hover:text-red-300 transition-all duration-200 cursor-pointer"
             >
               <span>🚪</span> Log Out
             </button>

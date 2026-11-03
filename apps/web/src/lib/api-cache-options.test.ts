@@ -1,5 +1,6 @@
 import { AdminApiClient } from '@/lib/api-admin';
 import { CACHE_TAGS, PublicApiClient } from '@/lib/api-public';
+import { ServerPublicApiClient } from '@/lib/api-public-server';
 
 describe('API client cache options', () => {
   const originalFetch = global.fetch;
@@ -9,14 +10,14 @@ describe('API client cache options', () => {
     jest.restoreAllMocks();
   });
 
-  it('PublicApiClient.get uses Next Data Cache revalidate + tags', async () => {
+  it('ServerPublicApiClient.get uses Next Data Cache revalidate + tags', async () => {
     const fetchMock = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: { ok: true }, meta: null }),
     });
     global.fetch = fetchMock as unknown as typeof fetch;
 
-    await PublicApiClient.get('/profile', {
+    await ServerPublicApiClient.get('/profile', {
       tags: [CACHE_TAGS.profile],
       revalidate: 120,
     });
@@ -32,19 +33,33 @@ describe('API client cache options', () => {
     expect(init.cache).toBeUndefined();
   });
 
-  it('PublicApiClient.get defaults revalidate to 60', async () => {
+  it('ServerPublicApiClient.get defaults revalidate to 60', async () => {
     const fetchMock = jest.fn().mockResolvedValue({
       ok: true,
       json: async () => ({ data: null, meta: null }),
     });
     global.fetch = fetchMock as unknown as typeof fetch;
 
-    await PublicApiClient.get('/categories');
+    await ServerPublicApiClient.get('/categories');
 
     const init = fetchMock.mock.calls[0][1] as RequestInit & {
       next?: { revalidate?: number };
     };
     expect(init.next?.revalidate).toBe(60);
+  });
+
+  it('PublicApiClient.get bypasses browser HTTP caches for live interactive data', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      json: async () => ({ data: null, meta: null }),
+    });
+    global.fetch = fetchMock as unknown as typeof fetch;
+
+    await PublicApiClient.get('/blog/posts/example/comments');
+
+    const init = fetchMock.mock.calls[0][1] as RequestInit & { next?: unknown };
+    expect(init.cache).toBe('no-store');
+    expect(init.next).toBeUndefined();
   });
 
   it('AdminApiClient.get always uses cache: no-store and credentials', async () => {

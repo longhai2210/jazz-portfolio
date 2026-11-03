@@ -5,9 +5,20 @@
     "experience": "Kinh nghiệm",
     "skills": "Kỹ năng",
     "contact": "Liên hệ",
+    "journal": "Nhật ký",
     "admin": "Quản trị",
     "loading": "Đang tải..."
   },
+  "blog": {
+    "title": "Nhật ký & Ghi chép 🎷",
+    "subtitle": "Suy ngẫm về kỹ thuật phần mềm, trình diễn nhạc jazz, kiến trúc hệ thống và công nghệ sáng tạo.",
+    "readArticle": "Đọc bài viết →",
+    "backToPosts": "← Quay lại danh sách bài viết",
+    "comments": "Thảo luận",
+    "commentsDisabled": "Bình luận đã bị tắt cho bài viết này.",
+    "rssFeed": "📡 Nguồn RSS"
+  },
+
   "hero": {
     "greeting": "Xin chào, tôi là",
     "scrollDown": "Cuộn để khám phá"

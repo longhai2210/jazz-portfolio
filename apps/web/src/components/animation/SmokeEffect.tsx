@@ -3,6 +3,8 @@
 import { useEffect, useRef } from 'react';
 import { useThemeStore } from '@/stores/themeStore';
 
+const FRAME_INTERVAL_MS = 1000 / 30;
+
 export default function SmokeEffect() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const { theme } = useThemeStore();
@@ -19,9 +21,11 @@ export default function SmokeEffect() {
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    let animationFrameId: number;
+    let animationFrameId: number | null = null;
+    let lastFrameAt = 0;
     let width = (canvas.width = window.innerWidth);
     let height = (canvas.height = window.innerHeight);
+    const motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     // Particle class for smoke puffs
     class Particle {
@@ -86,10 +90,23 @@ export default function SmokeEffect() {
       }
     }
 
-    const particles: Particle[] = Array.from({ length: 18 }).map(() => new Particle());
+    const particleCount = width < 768 ? 10 : 18;
+    const particles: Particle[] = Array.from({ length: particleCount }).map(
+      () => new Particle(),
+    );
 
-    // Animation Loop
-    const animate = () => {
+    // Smoke changes slowly, so 30fps is visually equivalent while roughly
+    // halving canvas work on high-refresh displays.
+    const animate = (timestamp: number) => {
+      animationFrameId = null;
+      if (document.hidden || motionPreference.matches) return;
+
+      if (timestamp - lastFrameAt < FRAME_INTERVAL_MS) {
+        animationFrameId = requestAnimationFrame(animate);
+        return;
+      }
+      lastFrameAt = timestamp;
+
       // Clear with clearRect to keep it transparent, allowing background to show through
       ctx.clearRect(0, 0, width, height);
 
@@ -107,7 +124,29 @@ export default function SmokeEffect() {
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    const startAnimation = () => {
+      if (animationFrameId === null && !document.hidden && !motionPreference.matches) {
+        lastFrameAt = 0;
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    const stopAnimation = () => {
+      if (animationFrameId !== null) {
+        cancelAnimationFrame(animationFrameId);
+        animationFrameId = null;
+      }
+    };
+
+    const syncAnimationState = () => {
+      if (document.hidden || motionPreference.matches) {
+        stopAnimation();
+      } else {
+        startAnimation();
+      }
+    };
+
+    startAnimation();
 
     // Resize Handler
     const handleResize = () => {
@@ -116,10 +155,14 @@ export default function SmokeEffect() {
       height = canvas.height = window.innerHeight;
     };
     window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', syncAnimationState);
+    motionPreference.addEventListener('change', syncAnimationState);
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      stopAnimation();
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', syncAnimationState);
+      motionPreference.removeEventListener('change', syncAnimationState);
     };
   }, []);
 

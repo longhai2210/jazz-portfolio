@@ -1,4 +1,5 @@
-import { ApiResponse } from '@jazz-portfolio/shared';
+import type { ApiResponse } from '@jazz-portfolio/shared';
+import { parseApiResponse } from '@/lib/api-response';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api';
 
@@ -14,11 +15,12 @@ export class AdminApiClient {
     };
   }
 
-  private static async parse<T>(response: Response, method: string, path: string): Promise<ApiResponse<T>> {
-    if (!response.ok) {
-      throw new Error(`${method} ${path} failed: ${response.statusText}`);
-    }
-    return response.json();
+  private static async parse<T>(
+    response: Response,
+    method: string,
+    path: string,
+  ): Promise<ApiResponse<T>> {
+    return parseApiResponse<T>(response, method, path);
   }
 
   static async get<T>(path: string): Promise<ApiResponse<T>> {

@@ -4,12 +4,15 @@
 
 Short record of the Jazz Portfolio refactor (phases 1–5) and how to revalidate / measure.
 
+For the 2026-09-02 whole-application assessment and ranked next work, see
+[application_optimization_plan.md](./application_optimization_plan.md).
+
 ## What changed (expected wins)
 
 | Area | Change | Expected impact |
 | --- | --- | --- |
 | Public SSR | Parallel `Promise.all` for profile / categories / settings; React `cache()` for `getProfile` | Lower TTFB; no duplicate profile fetch in layout + page |
-| Data cache | `PublicApiClient` uses `revalidate` + tags; admin uses `cache: 'no-store'` | Correct ISR; admin GETs never poison the Data Cache |
+| Data cache | `ServerPublicApiClient` uses `revalidate` + tags; live browser/admin reads use `cache: 'no-store'` | Correct ISR; interactive or authenticated GETs never poison the Data Cache |
 | Client JS | `next/dynamic` for MusicPlayer / PlaylistFetcher / SmokeEffect; `optimizePackageImports` | Smaller initial JS; better TTI on portfolio |
 | Images / audio | `next/image` + CloudFront remotePatterns; vinyl WebP; audio `preload="metadata"` | Better LCP / less bandwidth |
 | Admin | TanStack Query; split category/settings UI; lightweight `/admin/stats` | Fewer full-tree fetches; clearer mutation errors |
