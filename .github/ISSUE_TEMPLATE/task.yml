@@ -1,0 +1,26 @@
+name: Task
+description: One unit of work for the AI workflow, linked to acceptance criteria
+title: "T-000 "
+labels: ["task"]
+body:
+  - type: input
+    id: feature
+    attributes: { label: Feature, placeholder: "booking" }
+    validations: { required: true }
+  - type: input
+    id: covers
+    attributes: { label: Covers, description: "AC IDs, comma separated", placeholder: "AC-BOOK-001.1, AC-BOOK-001.2" }
+    validations: { required: true }
+  - type: dropdown
+    id: role
+    attributes: { label: Role, options: [dev, designer] }
+  - type: textarea
+    id: files
+    attributes: { label: Files it may touch }
+    validations: { required: true }
+  - type: input
+    id: depends
+    attributes: { label: Depends on }
+  - type: textarea
+    id: pack
+    attributes: { label: Context pack, description: "Output of node scripts/kg.mjs pack <files>", render: markdown }

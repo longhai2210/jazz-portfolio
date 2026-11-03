@@ -39,3 +39,5 @@ coverage/
 # Understand-Anything knowledge graph (local cache, only the ignore file is shared)
 .ua/*
 !.ua/.understandignore
+.understand-anything/*
+!.understand-anything/.understandignore
