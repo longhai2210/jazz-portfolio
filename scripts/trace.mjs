@@ -6,9 +6,12 @@
 //                                                    implemented/verified spec has no test
 //   node scripts/trace.mjs --check --ac AC-X-001.1,AC-X-001.2   fail if these ACs have no test (task gate G4)
 //   node scripts/trace.mjs --check --ac-from-text "$PR_BODY"     same, ACs taken from free text
+//   --changed-since <ref>  also reject .skip/.only/xit in test files changed since <ref>
 //   --quiet hides the matrix (useful in CI and for agents)
 // A test "covers" an AC when the AC ID appears in a test file, normally as the test title prefix:
 //   it("AC-BOOK-003.1: rejects overlapping periods", ...)
+// .skip/.only/xit fail the check in test files that prove an AC (and in changed test files with
+// --changed-since). Legacy test files are left alone so old skips don't block adoption.
 import { readFileSync, writeFileSync, readdirSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
@@ -16,9 +19,13 @@ import { join } from 'node:path';
 const argv = process.argv.slice(2);
 const flag = (f) => argv.includes(f);
 const val = (f) => { const i = argv.indexOf(f); return i >= 0 ? argv[i + 1] : null; };
-const feature = argv.find((a, i) => !a.startsWith('--') && !['--ac', '--ac-from-text'].includes(argv[i - 1]));
+const VALUE_FLAGS = ['--ac', '--ac-from-text', '--changed-since'];
+const feature = argv.find((a, i) => !a.startsWith('--') && !VALUE_FLAGS.includes(argv[i - 1]));
 const AC_RE = /AC-[A-Z][A-Z0-9]*-\d{3}\.\d+/g;
-const REQ_RE = /REQ-[A-Z][A-Z0-9]*-\d{3}/g;
+const git = (...a) => {
+  try { return execFileSync('git', a, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); }
+  catch { return null; }
+};
 
 const SPECS = 'specs';
 if (!existsSync(SPECS)) { console.log('no specs/ folder yet'); process.exit(0); }
@@ -31,7 +38,7 @@ const errors = [];
 const allAcs = new Map(); // id -> {feature, req, status}
 const specs = [];
 for (const f of features) {
-  const text = readFileSync(join(SPECS, f, 'requirements.md'), 'utf8');
+  const text = readFileSync(join(SPECS, f, 'requirements.md'), 'utf8').replace(/\r\n/g, '\n');
   const status = (text.match(/^status:\s*(\S+)/m) || [])[1] || 'draft';
   let req = null;
   const reqs = new Map();
@@ -56,16 +63,17 @@ for (const f of features) {
   specs.push({ f, status, reqs });
 }
 
-// test files: tracked + untracked, typical test locations
-let files = [];
-try {
-  files = execFileSync('git', ['ls-files', '--cached', '--others', '--exclude-standard'], { encoding: 'utf8' }).split('\n');
-} catch { files = []; }
-const testFiles = files.filter((p) => /\.(test|spec)\.[cm]?[jt]sx?$|(^|\/)(e2e|__tests__|tests?)\/.+\.[cm]?[jt]sx?$/.test(p));
+// test files: tracked + untracked, typical test locations (any package of a monorepo)
+const files = (git('ls-files', '--cached', '--others', '--exclude-standard') || '').split('\n');
+const TEST_RE = /\.(test|spec)\.[cm]?[jt]sx?$|(^|\/)(e2e|__tests__|tests?)\/.+\.[cm]?[jt]sx?$/;
+const testFiles = files.filter((p) => TEST_RE.test(p));
 const covered = new Map(); // ac -> [files]
+const acFiles = new Set();
 for (const p of testFiles) {
   let t; try { t = readFileSync(p, 'utf8'); } catch { continue; }
-  for (const id of new Set(t.match(AC_RE) || [])) (covered.get(id) || covered.set(id, []).get(id)).push(p);
+  const ids = new Set(t.match(AC_RE) || []);
+  if (ids.size) acFiles.add(p);
+  for (const id of ids) (covered.get(id) || covered.set(id, []).get(id)).push(p);
 }
 
 // report
@@ -91,7 +99,14 @@ if (flag('--check')) {
   } else {
     for (const [a, m] of allAcs) if (['implemented', 'verified'].includes(m.status) && !covered.has(a)) errors.push(`${a} (${m.feature}, ${m.status}) has no test`);
   }
-  for (const p of testFiles) {
+  const skipScope = new Set(acFiles);
+  const since = val('--changed-since');
+  if (since) {
+    const changed = git('diff', '--name-only', `${since}...HEAD`);
+    if (changed === null) errors.push(`--changed-since ${since}: ref not found (fetch it first)`);
+    else for (const p of changed.split('\n')) if (TEST_RE.test(p) && existsSync(p)) skipScope.add(p);
+  }
+  for (const p of skipScope) {
     let t; try { t = readFileSync(p, 'utf8'); } catch { continue; }
     if (/\b(it|test|describe)\.(skip|only)\s*\(|\bx(it|describe)\s*\(/.test(t)) errors.push(`${p}: contains .skip/.only/xit; remove before merge`);
   }

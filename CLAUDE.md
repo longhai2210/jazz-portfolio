@@ -30,6 +30,8 @@ pnpm + Turborepo monorepo, TypeScript. `apps/web`: Next.js 15 App Router, React 
 - Every new API DTO is validated with class-validator.
 - Tests: Jest, next to the code. Files are `*.spec.ts` in the API and `*.test.ts(x)` in web and shared. Web tests default to the node environment; a component test starts with the `@jest-environment jsdom` docblock (see `apps/web/src/test/smoke.test.tsx`).
 - Every API call handles loading, empty and error states.
+- This repo is public, so specs and issues are public too.
+- Keep the architecture map and conventions in this file current: update them in the PR of any feature that adds a page, module or convention.
 
 ## Recipes
 - Add a public page: create `app/[locale]/(portfolio)/<route>/page.tsx` as an RSC, fetch through a `cache()` function in `lib/*-data.ts` with a tag from `CACHE_TAGS`, then add its messages to all three locales.
@@ -42,10 +44,46 @@ pnpm + Turborepo monorepo, TypeScript. `apps/web`: Next.js 15 App Router, React 
 - Disabling lint rules, skipping or weakening tests, `any` to silence types
 - Guessing when a spec is unclear: ask instead
 
+<!-- ai-workflow:begin (generated from .claude/ai-workflow.json; change that file and run /ai-workflow upgrade instead of editing this block) -->
 ## AI workflow
-- Task tracker: github
-- Specs: specs/<feature>/ (see specs/README.md). Every AC is proven by a test titled with its ID. This repo is public, so specs and issues are public too.
-- Roles: subagents in .claude/agents (designer, dev, tester, reviewer); the main session is the Lead via /ai-workflow.
-- Knowledge graph (optional, local, never committed): query with `node scripts/kg.mjs`, never open .ua/ files; the user runs /understand to update it. Without a graph, use the architecture map above, then Glob/Grep.
-- Keep the architecture map and conventions above current: update them in the PR of any feature that adds a page, module or convention.
-- Gates: G0 spec approved, G1 tasks cover every AC, G2 design approved, G3 verify green, G4 ACs tested (`node scripts/trace.mjs`), G5 review approved, G6 demo accepted.
+
+- Default branch `master`. Branches: `feature/<feature>`, then `task/<ID>` (dev) and `test/<ID>` (tester).
+- Tracker: GitHub Issues with the `task` label, plus `feature:<feature>`.
+- Install (CI and every new worktree): `pnpm install --frozen-lockfile`
+- Worktree setup, first command in a new worktree: `pnpm install --frozen-lockfile && pnpm --filter @jazz-portfolio/database run db:generate`
+- Verify everything (gate G3, green before reporting done): `pnpm run verify`
+
+### Packages
+| Package | Stack | Scoped verify | Test examples | i18n |
+|---|---|---|---|---|
+| `apps/api` | nestjs (backend), jest | `pnpm --filter "@jazz-portfolio/api^..." run build && pnpm --filter @jazz-portfolio/api run lint && pnpm --filter @jazz-portfolio/api run type-check && pnpm --filter @jazz-portfolio/api run test` | `apps/api/src/blog/blog.service.spec.ts` | no |
+| `apps/web` | next (frontend), jest | `pnpm --filter "@jazz-portfolio/web^..." run build && pnpm --filter @jazz-portfolio/web run lint && pnpm --filter @jazz-portfolio/web run type-check && pnpm --filter @jazz-portfolio/web run test` | `apps/web/src/test/smoke.test.tsx`<br>`apps/web/src/i18n/i18n.pbt.test.ts` | next-intl, `apps/web/src/i18n` |
+| `packages/config/eslint` | library, no tests | - | - | no |
+| `packages/config/tsconfig` | library, no tests | - | - | no |
+| `packages/database` | library, no tests | - | - | no |
+| `packages/shared` | library, jest | `pnpm --filter @jazz-portfolio/shared run type-check && pnpm --filter @jazz-portfolio/shared run test` | `packages/shared/src/api-routes.test.ts` | no |
+
+Design tokens: `apps/web/src/styles/globals.css`
+
+### Rules map
+Read the rule file for a path before changing or reviewing it (`node scripts/rules-check.mjs --for <files>` prints them).
+- No rule files yet: conventions live in this file.
+
+### Hot files
+Shared files every feature touches; one wiring task per plan owns them, scheduled last.
+- `packages/shared/src/api-routes.ts`
+- `packages/shared/src/index.ts`
+- `packages/database/prisma/schema.prisma`
+- `apps/api/src/app.module.ts`
+- `apps/web/src/hooks/admin/query-keys.ts`
+- `apps/web/src/lib/api-public.ts`
+- `apps/web/src/i18n/messages/en.json`
+- `apps/web/src/i18n/messages/vi.json`
+- `apps/web/src/i18n/messages/ja.json`
+
+- Specs: `specs/<feature>/` (see specs/README.md). Every AC is proven by a test titled with its ID.
+- Roles: subagents in `.claude/agents` (designer, dev, tester, reviewer); the main session is the Lead via `/ai-workflow`.
+- Knowledge graph (optional, local, never committed): `node scripts/kg.mjs`. Without it, use the architecture map, then Glob/Grep.
+- Checks: `node scripts/trace.mjs --check`, `node scripts/rules-check.mjs`, `node scripts/scope-check.mjs --task <ID>`.
+- Gates: G0 spec approved (user), G1 tasks cover every AC, G2 design approved (user, UI only), G3 verify green, G4 ACs tested, G5 review approved, G6 demo accepted (user).
+<!-- ai-workflow:end -->

@@ -7,11 +7,14 @@
 //   node scripts/kg.mjs find <regex> [--type file]  ranked nodes by name, path, tags, summary
 //   node scripts/kg.mjs show <path|id>              one node: summary, layer, symbols inside
 //   node scripts/kg.mjs deps <path|id>              what it uses and what uses it (file level)
-//   node scripts/kg.mjs impact [files...] [--base main] [--depth 2]
+//   node scripts/kg.mjs impact [files...] [--base <branch>] [--head <ref>] [--depth 2]
 //                                                   upstream blast radius + tests to run
 //   node scripts/kg.mjs pack <path|regex>...        markdown context pack for a task issue
 //
 // Options: --limit N (default 15), --full (untruncated summaries), UA_GRAPH=<path> to override.
+// --base defaults to the repository's default branch (origin/HEAD, else .claude/ai-workflow.json).
+// --head defaults to HEAD (then uncommitted and untracked files count too); e.g. a reviewer in the
+// main checkout runs: impact --base feature/<feature> --head task/<ID>
 
 import { readFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
@@ -19,7 +22,7 @@ import { dirname, resolve, join, relative, isAbsolute } from 'node:path';
 
 const argv = process.argv.slice(2);
 const cmd = argv.shift();
-const opts = { limit: 15, depth: 2, full: false, type: null, base: null };
+const opts = { limit: 15, depth: 2, full: false, type: null, base: null, head: 'HEAD' };
 const args = [];
 for (let i = 0; i < argv.length; i++) {
   const a = argv[i];
@@ -28,6 +31,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--depth') opts.depth = Number(argv[++i]);
   else if (a === '--type') opts.type = argv[++i];
   else if (a === '--base') opts.base = argv[++i];
+  else if (a === '--head') opts.head = argv[++i];
   else args.push(a);
 }
 
@@ -39,6 +43,18 @@ const git = (...a) => {
   }
 };
 const lines = (s) => (s ? s.split('\n').filter(Boolean) : []);
+
+// Default branch: origin/HEAD first, then the value recorded at install time.
+function defaultBranch() {
+  const head = git('symbolic-ref', '--quiet', '--short', 'refs/remotes/origin/HEAD');
+  if (head) return head.replace(/^origin\//, '');
+  try {
+    const top = git('rev-parse', '--show-toplevel') || process.cwd();
+    const cfg = JSON.parse(readFileSync(join(top, '.claude', 'ai-workflow.json'), 'utf8'));
+    if (cfg.defaultBranch) return cfg.defaultBranch;
+  } catch { /* no config */ }
+  return 'master';
+}
 
 // ---------- locate the graph (main checkout, even from a worktree) ----------
 const topLevel = git('rev-parse', '--show-toplevel') || process.cwd();
@@ -192,12 +208,13 @@ function deps() {
 
 function changedFiles() {
   if (args.length) return args.map(relPath);
-  const base = opts.base || 'main';
-  const mb = git('merge-base', base, 'HEAD');
+  const base = opts.base || defaultBranch();
+  const head = opts.head;
+  const mb = git('merge-base', base, head) || git('merge-base', `origin/${base}`, head);
   const set = new Set([
-    ...(mb ? lines(git('diff', '--name-only', mb, 'HEAD', '--', '.')) : []),
-    ...lines(git('diff', '--name-only', 'HEAD', '--', '.')),
-    ...lines(git('ls-files', '--others', '--exclude-standard', '--', '.')),
+    ...(mb ? lines(git('diff', '--name-only', mb, head, '--', '.')) : []),
+    ...(head === 'HEAD' ? lines(git('diff', '--name-only', 'HEAD', '--', '.')) : []),
+    ...(head === 'HEAD' ? lines(git('ls-files', '--others', '--exclude-standard', '--', '.')) : []),
   ]);
   return [...set].filter((f) => !/^\.(ua|understand-anything)\//.test(f));
 }
@@ -229,7 +246,7 @@ function impact() {
   const tests = new Set([...seen.keys()].map((id) => byId.get(id)?.filePath).filter(isTest));
   changed.filter(isTest).forEach((t) => tests.add(t));
   // Tests named after a changed or affected file (Foo.ts -> Foo.test.ts), even if the graph lacks them.
-  const tracked = lines(git('ls-files', '--', '*.test.*', '*.spec.*', 'e2e'));
+  const tracked = lines(git('ls-files', '--', '*.test.*', '*.spec.*', 'e2e', '*/e2e/*'));
   const stems = new Set(
     [...changed, ...[...seen.keys()].map((id) => byId.get(id)?.filePath)]
       .filter((p) => p && !isTest(p))
@@ -288,7 +305,7 @@ function pack() {
 }
 
 function usage() {
-  console.log('usage: node scripts/kg.mjs <status|find|show|deps|impact|pack> [args] [--limit N] [--depth N] [--type T] [--base B] [--full]');
+  console.log('usage: node scripts/kg.mjs <status|find|show|deps|impact|pack> [args] [--limit N] [--depth N] [--type T] [--base B] [--head H] [--full]');
   process.exit(1);
 }
 

@@ -1,0 +1,65 @@
+name: ai-gates
+on:
+  pull_request:
+  push:
+    branches: [@@DEFAULT_BRANCH@@]
+permissions:
+  contents: read
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+@@if:HAS_CI_ENV@@
+    env:
+      @@CI_ENV@@
+@@end@@
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+@@if:PNPM@@
+      - uses: pnpm/action-setup@v4
+@@if:PNPM_SETUP_VERSION@@
+        with:
+          version: @@PNPM_VERSION@@
+@@end@@
+@@end@@
+@@if:BUN@@
+      - uses: oven-sh/setup-bun@v2
+@@end@@
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: @@NODE_VERSION_FILE@@
+@@if:NODE_CACHE@@
+          cache: @@NODE_CACHE_NAME@@
+@@end@@
+@@if:YARN_BERRY@@
+      - run: corepack enable
+@@end@@
+      - name: Install
+        run: @@INSTALL_CMD@@
+@@if:HAS_CODEGEN@@
+      - name: Codegen
+        run: @@CODEGEN_CMD@@
+@@end@@
+      - name: G3 verify (lint, types, tests, build)
+        run: @@VERIFY_CMD@@
+      - name: G4 trace (spec format, covered ACs have tests, no skipped AC tests)
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          if [ -z "$BASE_REF" ]; then
+            node scripts/trace.mjs --check --quiet
+          elif [ -n "$PR_BODY" ]; then
+            node scripts/trace.mjs --check --quiet --changed-since "origin/$BASE_REF" --ac-from-text "$PR_BODY"
+          else
+            node scripts/trace.mjs --check --quiet --changed-since "origin/$BASE_REF"
+          fi
+      - name: Rules (example files in rule files still exist)
+        run: node scripts/rules-check.mjs
+@@if:HAS_E2E@@
+      - name: E2E
+        run: |
+          @@E2E_INSTALL_CMD@@
+          @@E2E_CMD@@
+@@end@@

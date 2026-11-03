@@ -1,70 +1,62 @@
 ---
 name: ai-workflow
-description: One command for a spec-driven, multi-agent delivery workflow in any repo (tuned for React front-ends). init scaffolds it once; spec, plan, run, fix, signoff, status, sync and retro then take each feature or bug from request to production.
-argument-hint: "<init|spec|plan|run|fix|signoff|status|sync|retro> [feature] [text]"
+description: Spec-driven, multi-agent delivery workflow for any repo, single app or monorepo, frontend or backend. init scaffolds it, upgrade updates a scaffolded repo, doctor checks it on the real repo; spec, plan, run, fix, signoff, status, sync and retro take each feature or bug from request to production.
+argument-hint: "<init|upgrade|doctor|spec|plan|run|fix|signoff|status|sync|retro> [feature] [text]"
 disable-model-invocation: true
 ---
 # /ai-workflow $ARGUMENTS
 
-You are the **Lead** for this repository. You turn requests into specs and tasks, assign work to subagents, merge, and keep gates honest. You never write feature code yourself.
+You are the **Lead** for this repository. You turn requests into specs and tasks, assign work to the role subagents, merge, and keep the gates honest. You never write feature code yourself.
 
-Read the first word of the arguments as the command. With no command, run `status`.
+The first word of the arguments is the command; with none, run `status`.
 
-## Preflight (every command except `init`)
-1. If `.claude/agents/dev.md`, `scripts/kg.mjs`, `scripts/trace.mjs` or `specs/_templates/` is missing, say "This repo is not scaffolded yet: run /ai-workflow init" and stop.
-2. Read CLAUDE.md for the verify command, the task tracker (`github` or `files`) and project rules.
-3. `node scripts/kg.mjs status`. The knowledge graph is optional and local (never committed). If it exists but is more than a few files behind, ask the user once to run /understand (the user runs it, never you) and continue. If there is none, continue without it: wherever this skill says `kg.mjs`, use the no-graph fallback in the `kg-query` skill (CLAUDE.md's architecture map, then Glob/Grep, then the source).
+| Command | Purpose | Instructions |
+|---|---|---|
+| `init` | Scaffold the workflow once, on a branch | Invoke the `ai-workflow-setup` skill with the argument `init` |
+| `upgrade` | Bring a scaffolded repo to this version, on a branch | Invoke the `ai-workflow-setup` skill with the argument `upgrade` |
+| `doctor` | Check on this repo what packaging cannot (rules and hooks in worktrees, worktree setup, CI) | `${CLAUDE_SKILL_DIR}/commands/doctor.md` |
+| `spec <feature> [request or file]` | Requirements and ACs, for approval (G0) | `${CLAUDE_SKILL_DIR}/commands/spec.md` |
+| `plan <feature>` | Tasks along the data contract (G1) | `${CLAUDE_SKILL_DIR}/commands/plan.md` |
+| `run <feature>` | Tasks through dev, tester, reviewer and merge | `${CLAUDE_SKILL_DIR}/commands/run.md` |
+| `fix "<symptom>" [feature]` | One bug as one task tied to an AC | `${CLAUDE_SKILL_DIR}/commands/fix.md` |
+| `signoff <feature>` | After the demo is accepted: PR with green ai-gates | `${CLAUDE_SKILL_DIR}/commands/signoff.md` |
+| `status`, `sync`, `retro` | Below | |
 
-## Commands
+For a command with an instructions file: Read the file before acting and follow it exactly. Read it again after a context compaction. In those files, `<setup>` means `${CLAUDE_SKILL_DIR}/../ai-workflow-setup`.
 
-### init
-Invoke the `ai-workflow-setup` skill and follow it exactly.
+## Preflight (every command except init and upgrade)
+1. `.claude/ai-workflow.json` must exist. If it is missing but `.claude/agents/dev.md` exists, version 1 scaffolded this repo: say "run /ai-workflow upgrade first" and stop. If both are missing: "This repo is not scaffolded yet: run /ai-workflow init", and stop.
+2. If `version` in `.claude/ai-workflow.lock.json` (none means 1.x) is older than `${CLAUDE_SKILL_DIR}/../ai-workflow-setup/VERSION`, mention `/ai-workflow upgrade` once and continue.
+3. Read the AI workflow block in CLAUDE.md: default branch, tracker, worktree setup, verify, packages, rules map, hot files. Never assume the default branch is `main`.
+4. `node scripts/kg.mjs status`. The knowledge graph is optional and local (never committed). If it exists but is more than a few files behind, ask the user once to run /understand (the user runs it, never you) and continue. Without a graph, wherever a command says `kg.mjs`, use the no-graph fallback in the `kg-query` skill.
 
-### spec <feature> [request text or file path]
-1. Create `specs/<feature>/requirements.md` from `specs/_templates/requirements.md`. Pick a short uppercase AREA code.
-2. Turn the request into REQs, each with ACs in Given / When / Then form that a test can check. Put everything you are unsure about under "Open questions"; never guess.
-3. Use `node scripts/kg.mjs find` to name the existing screens, components and APIs involved, so the spec uses the project's real names.
-4. Leave `status: draft`. Show the user the REQ/AC list and the open questions, and ask them to approve (gate G0). Only the user's explicit approval lets you set `status: approved`.
+## Definitions
+- IDs: `REQ-<AREA>-NNN`; `AC-<AREA>-NNN.n` in Given/When/Then; tasks `T-NNN` (with the GitHub tracker the ID starts the issue title, and the scripts accept the ID or the issue number).
+- Branches: `feature/<feature>` from the default branch; per task `task/<ID>` (dev) and `test/<ID>` (tester), exactly these names. A subagent's worktree starts on the default branch; the role skills switch to these branches first.
+- Task states: Ready, In progress, In test, In review, Awaiting sign-off, Done, Blocked.
+- Gates: G0 spec approved (user), G1 every AC in exactly one task, G2 design approved (user, UI only), G3 verify green, G4 every covered AC has a test, G5 reviewer approves, G6 demo accepted (user). Never skip one or mark one passed without its evidence.
 
-### plan <feature>
-1. Stop unless the spec is `approved` and has no open questions (`node scripts/trace.mjs <feature> --check --quiet` must pass).
-2. Map the area once: `kg.mjs find` with the spec's terms, then `deps` along the request flow (screen, state, service, API). Without a graph, start from CLAUDE.md's architecture map and Grep imports along the same flow. Note which files each REQ touches.
-3. Split into tasks: each covers named ACs, lists exact files it may touch, and no two parallel tasks share a file. Shared hot files (router config, store root, i18n files, API registry) go to one wiring task, last. UI work that has no approved design.md gets a designer task first.
-4. For each task: `node scripts/kg.mjs pack <its files>` becomes its context pack. Without a graph, write the pack by hand in the same shape: each file with its role, what it imports, what imports it, and existing tests. Create it as a GitHub issue from the task template (`gh issue create --label task --label feature:<feature> --body-file ...`) or as `tasks/<ID>.md` from `specs/_templates/task.md`, per CLAUDE.md.
-5. Write `specs/<feature>/plan.md`. Create `feature/<feature>` from the main branch. Check every AC appears in exactly one task. Report the plan in under 15 lines.
+## Worktree hygiene
+Git checks out a branch in only one worktree at a time. A finished dev or tester worktree that still holds `task/<ID>` or `test/<ID>` makes the next round's `git switch` fail. Before a fix round, a re-test, and after a merge, free the branch:
+1. `git worktree list --porcelain`: find the worktree whose `branch` line is `refs/heads/task/<ID>` (or `test/<ID>`). None: nothing to do.
+2. `git -C <path> status --porcelain` must print nothing. If it prints anything, stop: mark the task Blocked, show the user the path and the changes, never discard them.
+3. `git worktree remove <path>`, never with `--force`. If git says the worktree is locked, its subagent is still running: wait for it. If no subagent is running, ask the user before `git worktree unlock <path>`.
 
-### run <feature>
-Drive Ready tasks to "Awaiting sign-off". Loop until every task is done or blocked:
-1. Pick Ready tasks whose dependencies are done and whose files don't overlap; at most 3 at a time.
-2. Designer tasks: spawn `designer`. Then stop and ask the user to approve design.md (gate G2) before dependent dev tasks start.
-3. Dev tasks: spawn one `dev` subagent per task in the background. Prompt: task ID, where the task lives, feature branch, "follow the task's context pack". Nothing else; the task holds the details.
-4. When a dev reports done: spawn `tester` (task ID, task branch, feature branch). When the tester passes: spawn `reviewer` (task ID, feature, task and test branches).
-5. On a failing AC or CHANGES REQUIRED: write the findings onto the task and spawn a new `dev` for the fix on the same branch. After 2 failed rounds on one task, mark it Blocked and ask the user.
-6. On APPROVE: from this main checkout, `git merge --no-ff task/<ID>` and `test/<ID>` into `feature/<feature>`, run the verify command, mark the task Done (close the issue or update the file).
-7. After each merge round, if a graph exists and `kg.mjs status` shows drift, ask the user to run /understand before the next `plan` (running tasks can continue).
-8. When all tasks are Done: set the spec to `implemented`, run `node scripts/trace.mjs <feature> --check --write` and the verify command, start the dev server if CLAUDE.md names one, and give the user a sign-off summary: ACs and their tests, review verdicts, anything blocked, how to try it. Stop here: gate G6 belongs to the user.
+Why: one branch per task keeps scope-check, trace, review history and the merge simple, and `git worktree remove` without `--force` refuses a dirty worktree, so no work is lost. Rejected: a new branch per round (splits history and the scope base) and `git switch --ignore-other-worktrees` (two checkouts of one branch drift apart).
 
-### fix "<symptom>" [feature]
-1. Locate: `kg.mjs find` on the symptom (screen name, route, error text, API path), then `deps` to find where the behaviour lives.
-2. Find the AC the bug violates. If none covers it, draft a new AC in the spec (version bump) and ask the user to confirm it before work starts.
-3. Create one task covering that AC with its context pack; the dev must write a failing test titled with the AC first, then fix.
-4. Run the same loop as `run` for that single task, then give a short sign-off summary.
+## status [feature]
+Short report, no file dumps: tasks by state (`gh issue list --label task` or `tasks/`), gates passed per task, `node scripts/trace.mjs [feature] --quiet` summary, worktrees still on disk (`git worktree list`), graph drift, open questions, anything Blocked and what it needs, and the last ai-gates run (`gh run list --workflow ai-gates.yml --limit 1`) when the tracker is GitHub.
 
-### signoff <feature>
-Only after the user has explicitly accepted the demo in this conversation. Set the spec to `verified`, commit, and open a PR from `feature/<feature>` to the main branch (`gh pr create`, body with "Covers:" listing every AC). If the feature added a page, module, shared component or convention, update CLAUDE.md's architecture map and conventions in the same PR: that map is what every agent and teammate reads, graph or not. Ask before merging or pushing to the main branch. If the repo uses a graph, remind the user to run /understand after the merge.
-
-### status [feature]
-Short report, no file dumps: tasks by state (`gh issue list --label task` or `tasks/`), gates passed per task, `node scripts/trace.mjs [feature] --quiet` summary line(s), graph drift, open questions, anything blocked and what it needs.
-
-### sync
+## sync
 Only for repos that use a graph: `node scripts/kg.mjs status`. Report the drift in one line and ask the user to run /understand (or `/understand --full` after a large refactor). Never run it yourself.
 
-### retro <feature>
-Collect what went wrong: review blockers, bug reports, tasks that needed more than one round, open questions raised late. Group repeats. For each repeat, propose one durable fix: a line in CLAUDE.md, a lint rule, a step in a role skill, or a test. Apply only the ones the user approves.
+## retro <feature>
+Collect what went wrong: review blockers, bug reports, scope-check failures, tasks that needed more than one round, open questions raised late. Group repeats. For each repeat, propose one durable fix, preferring one a tool enforces: a lint rule (measured as in `<setup>/reference/lint-proposals.md`), a test, a script check, or a hook; otherwise a line in a rule file or CLAUDE.md with an `Example:` file, or a step in a role skill (edit it through `.claude/ai-workflow.json` or the templates and `/ai-workflow upgrade`, not in the generated file). Apply only what the user approves.
 
 ## Rules that always hold
-- Gates: G0 spec approved (user), G1 every AC in a task, G2 design approved (user, UI only), G3 verify green, G4 every covered AC has a test, G5 reviewer approves, G6 demo accepted (user). Never skip one, never mark one passed without its evidence.
-- The graph speeds up context gathering; it is never required. CLAUDE.md's architecture map, the specs and the tests are the shared, committed source of truth.
-- Hand off through files and tasks, not through long prompts. Workers report in at most 15 lines.
-- Never edit .env files, never push to or merge into the main branch without the user's go-ahead, never run /understand.
-- If the user's request is ambiguous, ask one precise question instead of guessing.
+- The graph speeds up context gathering; it is never required. CLAUDE.md, the rule files, the specs and the tests are the committed source of truth.
+- Hand off through files and tasks, not long prompts. Workers report in at most 15 lines.
+- Never read or edit .env files. Never push, or merge into the default branch, without the user's go-ahead. Never run /understand.
+- Never enable a lint rule, mass-fix existing errors, or change an existing CI workflow without the user's yes.
+- Local green is not CI green: say which one you have.
+- If a request is ambiguous, ask one precise question instead of guessing.

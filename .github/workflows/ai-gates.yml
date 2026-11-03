@@ -3,29 +3,40 @@ on:
   pull_request:
   push:
     branches: [master]
+permissions:
+  contents: read
 jobs:
   gates:
     runs-on: ubuntu-latest
+    env:
+      NEXT_PUBLIC_API_URL: "http://localhost:3001/api"
+      NEXT_PUBLIC_SITE_URL: "http://localhost:3000"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @jazz-portfolio/database db:generate
+      - name: Install
+        run: pnpm install --frozen-lockfile
+      - name: Codegen
+        run: pnpm --filter @jazz-portfolio/database run db:generate
       - name: G3 verify (lint, types, tests, build)
         run: pnpm run verify
-        env:
-          # Build-time placeholders, same as ci.yml.
-          NEXT_PUBLIC_API_URL: http://localhost:3001/api
-          NEXT_PUBLIC_SITE_URL: http://localhost:3000
-      - name: G4 trace (spec format, covered ACs have tests, no skipped tests)
+      - name: G4 trace (spec format, covered ACs have tests, no skipped AC tests)
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          if [ -n "$PR_BODY" ]; then node scripts/trace.mjs --check --quiet --ac-from-text "$PR_BODY"; else node scripts/trace.mjs --check --quiet; fi
-      - name: E2E (only when e2e/ exists)
-        if: hashFiles('e2e/**') != ''
-        run: npx playwright install --with-deps chromium && pnpm run e2e
+          if [ -z "$BASE_REF" ]; then
+            node scripts/trace.mjs --check --quiet
+          elif [ -n "$PR_BODY" ]; then
+            node scripts/trace.mjs --check --quiet --changed-since "origin/$BASE_REF" --ac-from-text "$PR_BODY"
+          else
+            node scripts/trace.mjs --check --quiet --changed-since "origin/$BASE_REF"
+          fi
+      - name: Rules (example files in rule files still exist)
+        run: node scripts/rules-check.mjs

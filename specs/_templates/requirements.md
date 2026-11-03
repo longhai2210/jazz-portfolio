@@ -14,6 +14,7 @@ One or two sentences: who gets what, and why.
 ## Scope
 - In:
 - Out (non-goals):
+- Packages touched: <e.g. packages/shared (types), apps/api (endpoint), apps/web (screen)>
 
 ## Requirements
 
