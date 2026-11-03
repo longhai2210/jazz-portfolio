@@ -14,7 +14,14 @@
       "Bash(git diff *)",
       "Bash(git log *)",
       "Bash(git show *)",
-      "Bash(gh issue view *)"
+      "Bash(gh issue view *)",
+      "Bash(node scripts/scope-check.mjs *)",
+      "Bash(node scripts/rules-check.mjs *)",
+      "Bash(git status *)",
+      "Bash(git worktree list *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh run list *)"
     ],
     "deny": [
       "Read(./.env)",
@@ -28,7 +35,11 @@
       "Read(./apps/*/.env)",
       "Read(./apps/*/.env.local)",
       "Edit(./apps/*/.env)",
-      "Edit(./apps/*/.env.local)"
+      "Edit(./apps/*/.env.local)",
+      "Read(.env*)",
+      "Edit(.env*)",
+      "Read(!.env.example)",
+      "Edit(!.env.example)"
     ]
   },
   "hooks": {

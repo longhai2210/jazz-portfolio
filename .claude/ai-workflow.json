@@ -1,0 +1,198 @@
+{
+  "version": "2.0.0",
+  "project": "jazz-portfolio",
+  "defaultBranch": "master",
+  "packageManager": "pnpm",
+  "packageManagerField": "pnpm@9.15.0",
+  "pnpmVersion": null,
+  "yarnBerry": false,
+  "nodeVersionFile": ".nvmrc",
+  "createNvmrc": null,
+  "monorepo": {
+    "tools": [
+      "pnpm-workspaces",
+      "turbo"
+    ]
+  },
+  "tracker": "github",
+  "hasFrontend": true,
+  "commands": {
+    "install": "pnpm install --frozen-lockfile",
+    "codegen": "pnpm --filter @jazz-portfolio/database run db:generate",
+    "worktreeSetup": "pnpm install --frozen-lockfile && pnpm --filter @jazz-portfolio/database run db:generate",
+    "verify": "pnpm run verify",
+    "e2e": null,
+    "e2eInstall": null
+  },
+  "scripts": [],
+  "packages": [
+    {
+      "name": "@jazz-portfolio/api",
+      "dir": "apps/api",
+      "kind": "backend",
+      "framework": "nestjs",
+      "language": "ts",
+      "testRunner": "jest",
+      "testingLibrary": false,
+      "nestTesting": true,
+      "supertest": false,
+      "msw": null,
+      "playwright": null,
+      "i18n": null,
+      "scopedVerify": "pnpm --filter \"@jazz-portfolio/api^...\" run build && pnpm --filter @jazz-portfolio/api run lint && pnpm --filter @jazz-portfolio/api run type-check && pnpm --filter @jazz-portfolio/api run test",
+      "testExamples": [
+        "apps/api/src/blog/blog.service.spec.ts"
+      ],
+      "tokens": []
+    },
+    {
+      "name": "@jazz-portfolio/web",
+      "dir": "apps/web",
+      "kind": "frontend",
+      "framework": "next",
+      "language": "ts",
+      "testRunner": "jest",
+      "testingLibrary": true,
+      "nestTesting": false,
+      "supertest": false,
+      "msw": null,
+      "playwright": null,
+      "i18n": {
+        "lib": "next-intl",
+        "dirs": [
+          "apps/web/src/i18n"
+        ]
+      },
+      "scopedVerify": "pnpm --filter \"@jazz-portfolio/web^...\" run build && pnpm --filter @jazz-portfolio/web run lint && pnpm --filter @jazz-portfolio/web run type-check && pnpm --filter @jazz-portfolio/web run test",
+      "testExamples": [
+        "apps/web/src/test/smoke.test.tsx",
+        "apps/web/src/i18n/i18n.pbt.test.ts"
+      ],
+      "tokens": [
+        "apps/web/src/styles/globals.css"
+      ]
+    },
+    {
+      "name": "@jazz-portfolio/eslint-config",
+      "dir": "packages/config/eslint",
+      "kind": "library",
+      "framework": "library",
+      "language": "js",
+      "testRunner": null,
+      "testingLibrary": false,
+      "nestTesting": false,
+      "supertest": false,
+      "msw": null,
+      "playwright": null,
+      "i18n": null,
+      "scopedVerify": null,
+      "testExamples": [],
+      "tokens": []
+    },
+    {
+      "name": "@jazz-portfolio/tsconfig",
+      "dir": "packages/config/tsconfig",
+      "kind": "library",
+      "framework": "library",
+      "language": "js",
+      "testRunner": null,
+      "testingLibrary": false,
+      "nestTesting": false,
+      "supertest": false,
+      "msw": null,
+      "playwright": null,
+      "i18n": null,
+      "scopedVerify": null,
+      "testExamples": [],
+      "tokens": []
+    },
+    {
+      "name": "@jazz-portfolio/database",
+      "dir": "packages/database",
+      "kind": "library",
+      "framework": "library",
+      "language": "ts",
+      "testRunner": null,
+      "testingLibrary": false,
+      "nestTesting": false,
+      "supertest": false,
+      "msw": null,
+      "playwright": null,
+      "i18n": null,
+      "scopedVerify": null,
+      "testExamples": [],
+      "tokens": []
+    },
+    {
+      "name": "@jazz-portfolio/shared",
+      "dir": "packages/shared",
+      "kind": "library",
+      "framework": "library",
+      "language": "ts",
+      "testRunner": "jest",
+      "testingLibrary": false,
+      "nestTesting": false,
+      "supertest": false,
+      "msw": null,
+      "playwright": null,
+      "i18n": null,
+      "scopedVerify": "pnpm --filter @jazz-portfolio/shared run type-check && pnpm --filter @jazz-portfolio/shared run test",
+      "testExamples": [
+        "packages/shared/src/api-routes.test.ts"
+      ],
+      "tokens": []
+    }
+  ],
+  "rules": [],
+  "hotFiles": [
+    "packages/shared/src/api-routes.ts",
+    "packages/shared/src/index.ts",
+    "packages/database/prisma/schema.prisma",
+    "apps/api/src/app.module.ts",
+    "apps/web/src/hooks/admin/query-keys.ts",
+    "apps/web/src/lib/api-public.ts",
+    "apps/web/src/i18n/messages/en.json",
+    "apps/web/src/i18n/messages/vi.json",
+    "apps/web/src/i18n/messages/ja.json"
+  ],
+  "roles": {
+    "tester": {
+      "allow": [
+        "**/*.{test,spec}.{ts,tsx,js,jsx,mjs,cjs,mts,cts}",
+        "**/__tests__/**",
+        "**/__mocks__/**",
+        "**/__snapshots__/**",
+        "**/__fixtures__/**",
+        "**/test/**",
+        "**/tests/**",
+        "**/e2e/**",
+        "specs/*/qa.md"
+      ]
+    },
+    "designer": {
+      "allow": [
+        "specs/*/design.md",
+        "specs/*/mockups/**"
+      ]
+    }
+  },
+  "artifacts": [
+    "**/*.tsbuildinfo",
+    "**/node_modules/**",
+    "**/.next/**",
+    "**/.turbo/**",
+    "**/coverage/**",
+    "apps/api/dist/**",
+    "apps/web/.next/**",
+    "packages/config/eslint/dist/**",
+    "packages/config/tsconfig/dist/**",
+    "packages/database/dist/**",
+    "packages/shared/dist/**"
+  ],
+  "ci": {
+    "env": {
+      "NEXT_PUBLIC_API_URL": "http://localhost:3001/api",
+      "NEXT_PUBLIC_SITE_URL": "http://localhost:3000"
+    }
+  }
+}

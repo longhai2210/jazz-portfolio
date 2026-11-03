@@ -14,10 +14,19 @@ body:
   - type: dropdown
     id: role
     attributes: { label: Role, options: [dev, designer] }
+  - type: input
+    id: stack
+    attributes: { label: Stack, description: "Package dir and framework", placeholder: "apps/web (Next.js, Jest)" }
   - type: textarea
     id: files
-    attributes: { label: Files it may touch }
+    attributes: { label: Files it may touch, description: "One path or glob per line, as a list" }
     validations: { required: true }
+  - type: input
+    id: scoped-verify
+    attributes: { label: Scoped verify, description: "The package's scoped verify command from CLAUDE.md" }
+  - type: textarea
+    id: rules
+    attributes: { label: Rules, description: "Rule files from node scripts/rules-check.mjs --for <files>" }
   - type: input
     id: depends
     attributes: { label: Depends on }

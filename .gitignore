@@ -7,6 +7,7 @@ dist/
 .next/
 out/
 build/
+*.tsbuildinfo
 
 # Environment
 .env
@@ -41,3 +42,7 @@ coverage/
 !.ua/.understandignore
 .understand-anything/*
 !.understand-anything/.understandignore
+
+# ai-workflow
+.claude/worktrees/
+.claude/settings.local.json

@@ -1,0 +1,35 @@
+name: Task
+description: One unit of work for the AI workflow, linked to acceptance criteria
+title: "T-000 "
+labels: ["task"]
+body:
+  - type: input
+    id: feature
+    attributes: { label: Feature, placeholder: "booking" }
+    validations: { required: true }
+  - type: input
+    id: covers
+    attributes: { label: Covers, description: "AC IDs, comma separated", placeholder: "AC-BOOK-001.1, AC-BOOK-001.2" }
+    validations: { required: true }
+  - type: dropdown
+    id: role
+    attributes: { label: Role, options: [dev, designer] }
+  - type: input
+    id: stack
+    attributes: { label: Stack, description: "Package dir and framework", placeholder: "apps/web (Next.js, Jest)" }
+  - type: textarea
+    id: files
+    attributes: { label: Files it may touch, description: "One path or glob per line, as a list" }
+    validations: { required: true }
+  - type: input
+    id: scoped-verify
+    attributes: { label: Scoped verify, description: "The package's scoped verify command from CLAUDE.md" }
+  - type: textarea
+    id: rules
+    attributes: { label: Rules, description: "Rule files from node scripts/rules-check.mjs --for <files>" }
+  - type: input
+    id: depends
+    attributes: { label: Depends on }
+  - type: textarea
+    id: pack
+    attributes: { label: Context pack, description: "Output of node scripts/kg.mjs pack <files>", render: markdown }

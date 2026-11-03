@@ -1,0 +1,38 @@
+{
+  "files": [
+    { "path": "scripts/kg.mjs", "exec": true },
+    { "path": "scripts/trace.mjs", "exec": true },
+    { "path": "scripts/scope-check.mjs", "exec": true },
+    { "path": "scripts/rules-check.mjs", "exec": true },
+    { "path": ".claude/hooks/ua-sync-reminder.mjs", "exec": true },
+    { "path": ".claude/hooks/guard-paths.mjs", "exec": true },
+    { "path": ".claude/hooks/guard-bash.mjs", "exec": true },
+    { "path": ".claude/settings.json", "mode": "merge-settings" },
+    { "path": ".claude/agents/dev.md", "loose": "agent" },
+    { "path": ".claude/agents/tester.md", "loose": "agent" },
+    { "path": ".claude/agents/reviewer.md", "loose": "agent" },
+    { "path": ".claude/agents/designer.md", "loose": "agent", "when": "HAS_FRONTEND" },
+    { "path": ".claude/skills/kg-query/SKILL.md" },
+    { "path": ".claude/skills/implement-task/SKILL.md" },
+    { "path": ".claude/skills/verify-task/SKILL.md" },
+    { "path": ".claude/skills/review-task/SKILL.md" },
+    { "path": "specs/README.md" },
+    { "path": "specs/_templates/requirements.md" },
+    { "path": "specs/_templates/design.md", "when": "HAS_FRONTEND" },
+    { "path": "specs/_templates/plan.md" },
+    { "path": "specs/_templates/qa.md" },
+    { "path": "specs/_templates/task.md" },
+    { "path": "tasks/README.md", "when": "FILES_TRACKER" },
+    { "path": ".github/workflows/ai-gates.yml" },
+    { "path": ".github/pull_request_template.md", "mode": "if-absent" },
+    { "path": ".github/ISSUE_TEMPLATE/task.yml", "when": "GITHUB_TRACKER" }
+  ],
+  "gitignore": [
+    ".ua/*",
+    "!.ua/.understandignore",
+    ".understand-anything/*",
+    "!.understand-anything/.understandignore",
+    ".claude/worktrees/",
+    ".claude/settings.local.json"
+  ]
+}

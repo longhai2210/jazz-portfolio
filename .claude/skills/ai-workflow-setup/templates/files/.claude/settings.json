@@ -1,0 +1,53 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "0"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/kg.mjs *)",
+      "Bash(node scripts/trace.mjs *)",
+      "Bash(node scripts/scope-check.mjs *)",
+      "Bash(node scripts/rules-check.mjs *)",
+      "Bash(@@VERIFY_CMD@@)",
+      "Bash(git status)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git worktree list *)",
+      "Bash(gh issue view *)",
+      "Bash(gh pr view *)",
+      "Bash(gh pr checks *)",
+      "Bash(gh run list *)"
+    ],
+    "deny": [
+      "Read(.env*)",
+      "Read(!.env.example)",
+      "Edit(.env*)",
+      "Edit(!.env.example)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/ua-sync-reminder.mjs\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/ua-sync-reminder.mjs\""
+          }
+        ]
+      }
+    ]
+  }
+}

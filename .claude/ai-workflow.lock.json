@@ -1,0 +1,86 @@
+{
+  "skill": "ai-workflow",
+  "version": "2.0.0",
+  "updatedAt": "2026-11-03T14:04:20.111Z",
+  "files": {
+    "scripts/kg.mjs": {
+      "hash": "757cc57deddbfb03"
+    },
+    "scripts/trace.mjs": {
+      "hash": "bed8c13850f4af00"
+    },
+    "scripts/scope-check.mjs": {
+      "hash": "4d5b87caa5c5c7f3"
+    },
+    "scripts/rules-check.mjs": {
+      "hash": "10a270613481354b"
+    },
+    ".claude/hooks/ua-sync-reminder.mjs": {
+      "hash": "5033a14210b57a43"
+    },
+    ".claude/hooks/guard-paths.mjs": {
+      "hash": "63e4b62cc7778242"
+    },
+    ".claude/hooks/guard-bash.mjs": {
+      "hash": "b7ace74a2942bf70"
+    },
+    ".claude/settings.json": {
+      "hash": "1d9127863e70ae8b"
+    },
+    ".claude/agents/dev.md": {
+      "hash": "da9ee52d13f51e55",
+      "loose": "cd5680871d3a5a1f"
+    },
+    ".claude/agents/tester.md": {
+      "hash": "f125aeec68ddd882",
+      "loose": "60a351d2f9880cda"
+    },
+    ".claude/agents/reviewer.md": {
+      "hash": "0c91f3a0fd1577f6",
+      "loose": "d51c289dfab61eb3"
+    },
+    ".claude/agents/designer.md": {
+      "hash": "13c9148e559c606f",
+      "loose": "d27c0631494e636b"
+    },
+    ".claude/skills/kg-query/SKILL.md": {
+      "hash": "79978bf1210d813e"
+    },
+    ".claude/skills/implement-task/SKILL.md": {
+      "hash": "10d4c7bfa3c6d10e"
+    },
+    ".claude/skills/verify-task/SKILL.md": {
+      "hash": "c91a19fa88d01d3f"
+    },
+    ".claude/skills/review-task/SKILL.md": {
+      "hash": "c7d89dd72172a858"
+    },
+    "specs/README.md": {
+      "hash": "f33e4cd27ce6cfc9"
+    },
+    "specs/_templates/requirements.md": {
+      "hash": "b7e90f9a2fe15571"
+    },
+    "specs/_templates/design.md": {
+      "hash": "1071524547447c8c"
+    },
+    "specs/_templates/plan.md": {
+      "hash": "ce00c5fb7421eb03"
+    },
+    "specs/_templates/qa.md": {
+      "hash": "588a50f168280da4"
+    },
+    "specs/_templates/task.md": {
+      "hash": "8a5c6de2b37d0b2d"
+    },
+    ".github/workflows/ai-gates.yml": {
+      "hash": "d796981743c16ddd"
+    },
+    ".github/ISSUE_TEMPLATE/task.yml": {
+      "hash": "ed1c87ee38425122"
+    },
+    "CLAUDE.md#ai-workflow": {
+      "hash": "8785066eef6ffbae"
+    }
+  }
+}

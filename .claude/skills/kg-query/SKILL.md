@@ -14,6 +14,7 @@ The graph in the main checkout's `.ua/` maps files, functions, imports and calls
 | What does it use, who uses it? | `node scripts/kg.mjs deps <path>` |
 | What could my change break, which tests to run? | `node scripts/kg.mjs impact --base <branch>` or `impact <files...>` |
 | Context for a task | `node scripts/kg.mjs pack <paths or keywords>` |
+| Which rule files apply? | `node scripts/rules-check.mjs --for <files...>` |
 
 Cheapest first: (1) the task's context pack, (2) `show`/`deps` for what it misses, (3) read the source, (4) only then grep, and only in folders the graph pointed to.
 
@@ -27,9 +28,9 @@ The graph is optional; the workflow works without it. Same questions, other tool
 
 | Need | Without a graph |
 |---|---|
-| Where is X? | CLAUDE.md's architecture map, then Glob on file names, then Grep inside those folders |
-| What does it use, who uses it? | Read its imports; Grep `from ['"].*<file stem>` for importers |
-| What could my change break, which tests to run? | Grep importers of each changed file, then their importers; run the tests next to all of them, then the full test command |
+| Where is X? | CLAUDE.md's architecture map and Packages table, then Glob on file names, then Grep inside those folders |
+| What does it use, who uses it? | Read its imports; Grep `from ['"].*<file stem>` for importers (in a monorepo also Grep the package name) |
+| What could my change break, which tests to run? | Grep importers of each changed file, then their importers; run the tests next to all of them, then the package's scoped verify |
 | Context for a task | The context pack the Lead wrote by hand in the task |
 
 Workers never ask for /understand; the Lead decides.
