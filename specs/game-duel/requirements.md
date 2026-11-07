@@ -2,7 +2,7 @@
 id: DUEL
 title: Trận đấu Trading Fours (khối xám)
 status: approved
-version: 0.1
+version: 0.2
 owner: longhai2210
 ---
 
@@ -51,7 +51,8 @@ Mọi số dưới đây là hằng số có tên trong một file cấu hình c
 | `QUOTE_BONUS` | 5 mỗi lick khác nhau, tối đa 2 lick | Cộng ngoài thang 100 |
 | `STAR_THRESHOLDS` | 1 sao 40, 2 sao 65, 3 sao 85 | Từ 1 sao là thắng |
 | `CALL_DENSITY` | Lounge 3–4 nốt mỗi ô, chỉ vị trí chẵn; Session 5–7 nốt mỗi ô; Late Set 5–7 nốt mỗi ô, có swing | Câu gọi soạn sẵn |
-| `CALIBRATION_CLICKS` | 8, bỏ 2 lần gõ đầu | |
+| `CALIBRATION_CLICKS` | 8, bỏ 2 lần gõ đầu | 2 lần gõ đầu tiên theo thời gian |
+| `CALIBRATION_BPM` | 90 | Dưới 100 BPM để mỗi lần gõ được ghép với đúng click của nó, kể cả lần lệch +300 ms |
 | `CALIBRATION_MAX_MS` | 250 | Lần gõ lệch hơn thì bỏ |
 | `CALIBRATION_MIN_VALID` | 4 | |
 | `BEST_BAR_MIN_HITS` | 3 lần gõ đạt OK trở lên | |
@@ -227,3 +228,4 @@ Các mục sau là điều kiện qua Giai đoạn 2 hoặc số đo, không có
 ## Change log
 - 0.1 draft
 - 0.1 approved by owner (G0), 2026-11-07. Câu hỏi về bộ sample được chốt theo đề xuất (để sau playtest) và chuyển vào Out.
+- 0.2 làm rõ, không đổi AC: thêm hằng số `CALIBRATION_BPM` = 90 và ghi rõ "2 lần gõ đầu" là theo thời gian. Lần gõ nằm ngoài mọi cửa sổ OK là gõ thừa, theo AC-DUEL-003.5. Task bị ảnh hưởng: T-003.
