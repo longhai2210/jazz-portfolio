@@ -3,6 +3,7 @@
  * median deviation of the valid taps. The judge subtracts it from every tap (see `correctedTime`).
  */
 import {
+  CALIBRATION_BPM,
   CALIBRATION_CLICKS,
   CALIBRATION_MAX_MS,
   CALIBRATION_MIN_VALID,
@@ -22,7 +23,7 @@ export interface CalibrationResult {
 /** Audio-clock times (seconds) of the calibration clicks: one per beat from `startTime`. */
 export function calibrationClickTimes(
   startTime: number,
-  bpm: number,
+  bpm: number = CALIBRATION_BPM,
   count: number = CALIBRATION_CLICKS,
 ): number[] {
   const beat = secondsPerBeat(bpm);

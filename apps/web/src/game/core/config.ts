@@ -95,7 +95,13 @@ export const CALL_DENSITY: Readonly<Record<Difficulty, CallDensity>> = {
 /** Clicks played during calibration. */
 export const CALIBRATION_CLICKS = 8;
 
-/** Leading calibration taps that are ignored. */
+/**
+ * Calibration click tempo in BPM, one click per beat. Kept under 100 BPM so every tap pairs with
+ * its own click, even one 300 ms late.
+ */
+export const CALIBRATION_BPM = 90;
+
+/** Leading calibration taps that are ignored (the first ones in time order). */
 export const CALIBRATION_SKIP_TAPS = 2;
 
 /** A calibration tap deviating more than this (ms, absolute) is ignored. */

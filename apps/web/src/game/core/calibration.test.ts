@@ -5,11 +5,11 @@ import {
   tapDeviationsMs,
 } from './calibration';
 import {
+  CALIBRATION_BPM,
   CALIBRATION_CLICKS,
   CALIBRATION_MAX_MS,
   CALIBRATION_MIN_VALID,
   CALIBRATION_SKIP_TAPS,
-  DUEL_BPM,
 } from './config';
 
 describe('latency calibration', () => {
@@ -24,12 +24,15 @@ describe('latency calibration', () => {
     expect(result).toEqual({ offsetMs: 52, validTaps: 5, needsRetry: false });
   });
 
-  it('AC-DUEL-002.1: the same 52 ms offset comes from click and tap times at 84 BPM', () => {
-    const clicks = calibrationClickTimes(3, DUEL_BPM[1]);
+  it('AC-DUEL-002.1: the same 52 ms offset comes from click and tap times at the 90 BPM calibration tempo', () => {
+    expect(CALIBRATION_BPM).toBe(90);
+    const clicks = calibrationClickTimes(3);
     const deviations = [-200, 180, 40, 55, 60, 48, 52, 300];
     const taps = clicks.map((click, i) => click + deviations[i] / 1000);
 
     expect(clicks).toHaveLength(CALIBRATION_CLICKS);
+    expect(clicks[1] - clicks[0]).toBeCloseTo(60 / CALIBRATION_BPM, 12);
+    expect(calibrationClickTimes(3, CALIBRATION_BPM)).toEqual(clicks);
     expect(tapDeviationsMs(clicks, taps)).toEqual(deviations);
     expect(calibrate(clicks, taps)).toEqual({ offsetMs: 52, validTaps: 5, needsRetry: false });
   });
@@ -40,7 +43,7 @@ describe('latency calibration', () => {
   });
 
   it('AC-DUEL-002.1: taps are taken in time order, whatever order they arrive in', () => {
-    const clicks = calibrationClickTimes(0, DUEL_BPM[1]);
+    const clicks = calibrationClickTimes(0);
     // In time order: two skipped taps at +240 ms, four at +50 ms, two dropped at +300 ms.
     const deviations = [240, 240, 50, 50, 50, 50, 300, 300];
     const taps = clicks.map((click, i) => click + deviations[i] / 1000);
