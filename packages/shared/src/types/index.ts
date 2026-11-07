@@ -228,6 +228,7 @@ export interface CreateBlocklistItemRequest {
 // === Feature Settings ===
 export interface FeatureSettingsDto {
   isBlogEnabled: boolean;
+  isGameEnabled: boolean;
   areCommentsEnabled: boolean;
   commentModerationMode: CommentModerationMode;
   isCommentCaptchaEnabled: boolean;
@@ -250,6 +251,7 @@ export interface FeatureSettingsStatusDto {
 export interface PublicSettingsDto {
   isContactFormEnabled: boolean;
   isBlogEnabled: boolean;
+  isGameEnabled: boolean;
   areCommentsEnabled: boolean;
   isCommentCaptchaEnabled: boolean;
 }

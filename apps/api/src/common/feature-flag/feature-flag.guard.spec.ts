@@ -11,6 +11,7 @@ describe('FeatureFlagGuard', () => {
   const defaultSettings: CachedSiteSettings = {
     isContactFormEnabled: true,
     isBlogEnabled: false,
+    isGameEnabled: false,
     areCommentsEnabled: false,
     commentModerationMode: 'ALL',
     isCommentCaptchaEnabled: false,
