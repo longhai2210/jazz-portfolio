@@ -2,7 +2,7 @@
 id: DUEL
 title: Trận đấu Trading Fours (khối xám)
 status: approved
-version: 0.2
+version: 0.3
 owner: longhai2210
 ---
 
@@ -142,7 +142,7 @@ Source: thiết kế mục 6.1, 6.4
 Source: thiết kế mục 6.3
 
 - AC-DUEL-009.1 Given lượt Solo, when các ô có gõ tạo ít nhất 3 hình vị trí khác nhau, then tiêu chí đa dạng nhịp được 1; đúng 2 hình được 0,5; còn lại được 0.
-- AC-DUEL-009.2 Given lượt Solo có ít nhất một khoảng không gõ dài từ 2 vị trí lưới (1 phách) trở lên nằm giữa hai lần gõ, when chấm, then tiêu chí khoảng lặng được 1; không có thì được 0.
+- AC-DUEL-009.2 Given lượt Solo có ít nhất một khoảng không gõ dài từ 2 vị trí lưới (1 phách) trở lên nằm giữa hai lần gõ, tức có ít nhất 2 vị trí trống liên tiếp giữa hai lần gõ (gõ ở 0 và 3 là có; gõ ở 0 và 2 là không), when chấm, then tiêu chí khoảng lặng được 1; không có thì được 0.
 - AC-DUEL-009.3 Given một nút chiếm hơn 60% số lần gõ, không tính các ô là trích dẫn, when chấm, then tiêu chí không lặp một nút được 0; ngược lại được 1.
 - AC-DUEL-009.4 Given lượt Solo có ít hơn 3 lần gõ, when chấm, then Cảm nhạc bằng 0; còn lại Cảm nhạc là trung bình của ba tiêu chí.
 
@@ -229,3 +229,4 @@ Các mục sau là điều kiện qua Giai đoạn 2 hoặc số đo, không có
 - 0.1 draft
 - 0.1 approved by owner (G0), 2026-11-07. Câu hỏi về bộ sample được chốt theo đề xuất (để sau playtest) và chuyển vào Out.
 - 0.2 làm rõ, không đổi AC: thêm hằng số `CALIBRATION_BPM` = 90 và ghi rõ "2 lần gõ đầu" là theo thời gian. Lần gõ nằm ngoài mọi cửa sổ OK là gõ thừa, theo AC-DUEL-003.5. Task bị ảnh hưởng: T-003.
+- 0.3 làm rõ AC-DUEL-009.2: khoảng lặng là ít nhất 2 vị trí trống liên tiếp giữa hai lần gõ, kèm ví dụ, để gõ đều từng phách không được tính là có khoảng lặng. Ở Lounge, làn nhịp hiện vạch phách ở cả hai lượt và vị trí nốt cả khi đối thủ chơi (AC-DUEL-011.2 không cấm). Task bị ảnh hưởng: T-005.
