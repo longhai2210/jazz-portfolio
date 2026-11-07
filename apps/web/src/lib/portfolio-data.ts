@@ -65,6 +65,7 @@ export const getPublicSettings = cache(
     return {
       isContactFormEnabled: true,
       isBlogEnabled: false,
+      isGameEnabled: false,
       areCommentsEnabled: false,
       isCommentCaptchaEnabled: false,
     };
