@@ -27,6 +27,6 @@ Tasks in the same lane run one after another; different lanes run in parallel an
 - **G1:** 78/78 AC, mỗi AC nằm đúng một task (đã kiểm bằng cách đối chiếu dòng Covers của 12 task với danh sách AC trong spec).
 - **Ngoại lệ về file dùng chung:** `schema.prisma` thuộc T-001 chứ không thuộc task nối. File này là gốc của hợp đồng dữ liệu, mọi task API và web đọc cột mới đều cần nó trước. T-001 là task duy nhất của plan chạm vào nó. Các file dùng chung còn lại (ba file messages) và `CLAUDE.md` thuộc T-012, làm cuối.
 - **T-001 gồm cả dòng dự phòng trong `portfolio-data.ts`:** thêm trường bắt buộc vào `PublicSettingsDto` sẽ làm type-check của web hỏng nếu giá trị dự phòng chưa có `isGameEnabled`. Vì vậy dòng đó đi cùng task để verify toàn repo (G3) vẫn xanh.
-- **Chữ giao diện:** T-008 đến T-011 dùng khóa next-intl theo bảng chữ trong `design.md`. Khóa chỉ vào `messages/*.json` ở T-012, nên test của các task đó dùng messages giả.
+- **Chữ giao diện:** T-009 đến T-011 dùng khóa next-intl theo bảng chữ trong `design.md`. T-008 là giao diện admin nên dùng chữ tiếng Anh cố định, không qua next-intl. Khóa chỉ vào `messages/*.json` ở T-012, nên test của các task đó dùng messages giả.
 - **G2:** T-008, T-009, T-010 chỉ bắt đầu sau khi chủ dự án duyệt `design.md` của T-002.
 - **Song song ngay từ đầu:** T-001, T-002, T-003. Sau T-003 thì T-004, T-005, T-007 chạy song song.
