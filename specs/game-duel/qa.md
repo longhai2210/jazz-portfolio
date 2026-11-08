@@ -47,3 +47,12 @@ Test file: `apps/web/src/game/core/ac-score.test.ts` (tester); dev's own directi
 | AC-DUEL-011.2 | ac-score.test.ts (Lounge markers and lines on both sides, Session, Late Set, assist windows) | pass | 2026-11-08 |
 
 Gaps: AC-DUEL-005.1 does not say whether a pair with an unmatched note is "wrong" or "uncounted"; the test only asserts it is not correct. Pure core, no UI.
+
+## T-008
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-015.7 | ContentSettingsForm.qa.test.tsx (off to on sends true; saved true off sends false; untouched keeps value; independent of Blog off) | pass | 2026-11-08 |
+| AC-DUEL-015.7 | ContentSettingsForm.qa.test.tsx (design states: 404 warning when off, neutral note when on, loading, load error, saving) | pass | 2026-11-08 |
+
+Verify: web build of deps, lint, type-check, jest (17 suites, 123 tests) green. Gaps: component test only, no browser e2e; the real PUT round trip is covered by other tasks (AC-DUEL-015.1 to 015.3).
