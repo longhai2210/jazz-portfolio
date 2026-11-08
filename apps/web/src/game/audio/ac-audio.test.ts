@@ -3,40 +3,59 @@
  * an independent fake of the Web Audio API.
  */
 import { createGameAudio, unlockAudio, isWebAudioSupported } from './index';
-import type { AudioContextLike } from './types';
+import type {
+  AudioBufferLike,
+  AudioBufferSourceNodeLike,
+  AudioContextConstructor,
+  AudioContextLike,
+  AudioGlobalScope,
+  AudioNodeLike,
+  AudioParamLike,
+  BiquadFilterNodeLike,
+  GainNodeLike,
+  OscillatorNodeLike,
+} from './types';
 
-class Param {
+class Param implements AudioParamLike {
   constructor(public value = 1) {}
   setValueAtTime(v: number) { this.value = v; return this; }
   linearRampToValueAtTime() { return this; }
   exponentialRampToValueAtTime() { return this; }
 }
-class Node {
-  connect(d: unknown) { return d; }
+class Node implements AudioNodeLike {
+  connect(d: AudioNodeLike) { return d; }
   disconnect() {}
 }
-class Source extends Node {
+class GainN extends Node implements GainNodeLike {
+  readonly gain = new Param(1);
+}
+class FilterN extends Node implements BiquadFilterNodeLike {
+  type: BiquadFilterType = 'lowpass';
+  readonly frequency = new Param();
+  readonly Q = new Param();
+}
+class Source extends Node implements OscillatorNodeLike, AudioBufferSourceNodeLike {
   starts: (number | undefined)[] = [];
   stop() {}
   start(when?: number) { this.starts.push(when); }
-  buffer: unknown = null;
-  type = 'sine';
-  frequency = new Param(440);
-  detune = new Param(0);
+  buffer: AudioBufferLike | null = null;
+  type: OscillatorType = 'sine';
+  readonly frequency = new Param(440);
+  readonly detune = new Param(0);
 }
 
-class Ctx {
+class Ctx implements AudioContextLike {
   static instances: Ctx[] = [];
   currentTime = 0;
   sampleRate = 44100;
-  state: 'suspended' | 'running' | 'closed' = 'suspended';
+  state: AudioContextState = 'suspended';
   destination = new Node();
   sources: Source[] = [];
   calls: string[] = [];
   constructor() { Ctx.instances.push(this); }
-  createGain() { return Object.assign(new Node(), { gain: new Param(1) }); }
+  createGain() { return new GainN(); }
   createOscillator() { const s = new Source(); this.sources.push(s); return s; }
-  createBiquadFilter() { return Object.assign(new Node(), { type: 'lowpass', frequency: new Param(), Q: new Param() }); }
+  createBiquadFilter() { return new FilterN(); }
   createBuffer(_c: number, length: number, sampleRate: number) {
     return { length, sampleRate, getChannelData: () => new Float32Array(length) };
   }
@@ -45,7 +64,7 @@ class Ctx {
   async suspend() { this.calls.push('suspend'); this.state = 'suspended'; }
   async close() { this.calls.push('close'); this.state = 'closed'; }
 }
-const asScope = (c: unknown) => ({ AudioContext: c as never });
+const asScope = (c: AudioContextConstructor): AudioGlobalScope => ({ AudioContext: c });
 
 beforeEach(() => { Ctx.instances = []; });
 
@@ -62,7 +81,7 @@ describe('AC-DUEL-013.1: unlock creates/resumes the context inside the gesture',
 
   it('AC-DUEL-013.1: resumes an existing suspended context instead of creating another', async () => {
     const ctx = new Ctx();
-    const r = await unlockAudio({ scope: asScope(Ctx), context: ctx as unknown as AudioContextLike });
+    const r = await unlockAudio({ scope: asScope(Ctx), context: ctx });
     expect(Ctx.instances).toHaveLength(1);
     expect(ctx.calls).toContain('resume');
     expect(r.ok).toBe(true);
@@ -71,14 +90,14 @@ describe('AC-DUEL-013.1: unlock creates/resumes the context inside the gesture',
   it('AC-DUEL-013.1: replaces a closed context with a new running one', async () => {
     const ctx = new Ctx();
     ctx.state = 'closed';
-    const r = await unlockAudio({ scope: asScope(Ctx), context: ctx as unknown as AudioContextLike });
+    const r = await unlockAudio({ scope: asScope(Ctx), context: ctx });
     expect(Ctx.instances).toHaveLength(2);
     expect(r.ok).toBe(true);
     if (r.ok) expect(r.context).not.toBe(ctx);
   });
 
   it('AC-DUEL-013.1: works with the prefixed webkitAudioContext', async () => {
-    const r = await unlockAudio({ scope: { webkitAudioContext: Ctx as never } });
+    const r = await unlockAudio({ scope: { webkitAudioContext: Ctx } });
     expect(r.ok).toBe(true);
   });
 
@@ -103,7 +122,7 @@ describe('AC-DUEL-013.2: no Web Audio', () => {
   });
 
   it('AC-DUEL-013.2: a constructor that throws is also unsupported', async () => {
-    class Boom { constructor() { throw new Error('NotSupportedError'); } }
+    class Boom extends Ctx { constructor() { super(); throw new Error("NotSupportedError"); } }
     await expect(unlockAudio({ scope: asScope(Boom) })).resolves.toEqual({ ok: false, reason: 'unsupported' });
   });
 });
@@ -113,7 +132,7 @@ describe('AC-DUEL-013.5: player note plays immediately', () => {
     const ctx = new Ctx();
     ctx.state = 'running';
     ctx.currentTime = 12.34;
-    const audio = createGameAudio(ctx as unknown as AudioContextLike);
+    const audio = createGameAudio(ctx, { timer: { start: () => () => undefined } });
     return { ctx, audio };
   }
 
@@ -125,7 +144,7 @@ describe('AC-DUEL-013.5: player note plays immediately', () => {
       expect(t).toBeCloseTo(12.34, 6);
       const started = ctx.sources.slice(before).filter((s) => s.starts.length > 0);
       expect(started.length).toBeGreaterThan(0);
-      for (const s of started) expect(s.starts[0] ?? 0).toBeLessThanOrEqual(12.34 + 1e-6);
+      for (const s of started) expect(s.starts[0]).toBe(12.34);
     }
   });
 
@@ -136,7 +155,8 @@ describe('AC-DUEL-013.5: player note plays immediately', () => {
       const before = ctx.sources.length;
       audio.playPlayerNote(b);
       const osc = ctx.sources.slice(before).find((s) => s.starts.length > 0);
-      freqs.push(osc!.frequency.value);
+      expect(osc).toBeDefined();
+      freqs.push(osc?.frequency.value ?? 0);
     }
     expect(freqs).toEqual([...freqs].sort((a, b) => a - b));
     expect(new Set(freqs).size).toBe(4);
@@ -149,7 +169,7 @@ describe('AC-DUEL-013.5: player note plays immediately', () => {
     expect(() => { for (let i = 0; i < 50; i++) audio.playPlayerNote(2); }).not.toThrow();
   });
 
-  it('AC-DUEL-013.5: suspend and close reach the context (used by T-010)', async () => {
+  it('suspend and close reach the context (used by T-010)', async () => {
     const { ctx, audio } = make();
     await audio.suspend();
     await audio.close();
