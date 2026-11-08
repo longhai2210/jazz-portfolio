@@ -69,3 +69,15 @@ Lead rulings applied: AC-DUEL-008.1 averages Timing over all bar taps with a Mis
 | AC-DUEL-012.1-012.3 | ac-lick-call.test.ts (all three choices, shadow flag on all clubs, unknown character throws) | pass | 2026-11-08 |
 
 Gap: pure core, no UI; the equal-steps/fewer-extra-taps tie-break is tested through `pickQuote` with synthetic matches because no real tap set gives two equal-length licks different extra counts.
+
+## T-007 - 2026-11-08
+
+Test file: `apps/web/src/game/audio/ac-audio.test.ts` (tester, own fake of Web Audio); dev's tests in the same folder also pass. Web suite: 16 suites, 132 tests pass; lint and type-check clean.
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-013.1 | ac-audio.test.ts (context created and `resume()` called before the first await, state running; reuse suspended; replace closed; webkit prefix; stuck, hanging and rejecting resume give a result, no throw) | pass | 2026-11-08 |
+| AC-DUEL-013.2 | ac-audio.test.ts (no Web Audio and throwing constructor give `unsupported`, no throw) | pass | 2026-11-08 |
+| AC-DUEL-013.5 | ac-audio.test.ts (each button starts at `currentTime`, 4 rising pitches, follows clock, rapid-fire; suspend and close reach the context) | pass | 2026-11-08 |
+
+Gaps: the "message and back button" half of 013.2 is UI (T-010); the audio layer only returns `unsupported`. Real browser gesture policy and audible output are not testable in Jest (fake context). Needs `packages/shared` built before type-check. Graph has no entry for the new files, so regression was the whole web suite.
