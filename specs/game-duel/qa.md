@@ -24,3 +24,26 @@ Test file: `apps/web/src/game/core/ac-clock.test.ts` (tester); dev's own tests i
 | AC-DUEL-003.1-003.6 | ac-clock.test.ts (boundaries, Lounge/Late Set, assist, pairing) | pass | 2026-11-07 |
 
 Gap: pure core, no UI; no e2e tool. Web needed `packages/shared` built before type-check.
+
+## T-005 (spec 0.3) - 2026-11-08
+
+Test file: `apps/web/src/game/core/ac-score.test.ts` (tester); dev's own direction/feel/scoring/difficulty tests also pass. Whole web suite: 15 suites, 106 tests green.
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-005.1 | ac-score.test.ts (same way, unmatched note is not correct) | pass | 2026-11-08 |
+| AC-DUEL-005.2 | ac-score.test.ts (opposite correct; same way and repeated button wrong) | pass | 2026-11-08 |
+| AC-DUEL-005.3 | ac-score.test.ts (repeat pair uncounted) | pass | 2026-11-08 |
+| AC-DUEL-005.4 | ac-score.test.ts (2/3, empty and no counted pair = 1, unordered input) | pass | 2026-11-08 |
+| AC-DUEL-009.1 | ac-score.test.ts (3, 2, 1 patterns, empty) | pass | 2026-11-08 |
+| AC-DUEL-009.2 | ac-score.test.ts (0 and 3 yes; 0 and 2 no; 0 and 1 no; steady beats no; across bar line, unordered) | pass | 2026-11-08 |
+| AC-DUEL-009.3 | ac-score.test.ts (75% = 0, exactly 60% = 1, quote bars excluded) | pass | 2026-11-08 |
+| AC-DUEL-009.4 | ac-score.test.ts (under 3 taps = 0, mean of criteria) | pass | 2026-11-08 |
+| AC-DUEL-010.1 | ac-score.test.ts (penalty, floor at 0) | pass | 2026-11-08 |
+| AC-DUEL-010.2 | ac-score.test.ts (nearest step, offset, no taps = 0) | pass | 2026-11-08 |
+| AC-DUEL-010.3 | ac-score.test.ts | pass | 2026-11-08 |
+| AC-DUEL-010.4 | ac-score.test.ts (39/40/65/85 and just below) | pass | 2026-11-08 |
+| AC-DUEL-010.5 | ac-score.test.ts (100 points, 3 stars, no float drift at 85) | pass | 2026-11-08 |
+| AC-DUEL-011.2 | ac-score.test.ts (Lounge markers and lines on both sides, Session, Late Set, assist windows) | pass | 2026-11-08 |
+
+Gaps: AC-DUEL-005.1 does not say whether a pair with an unmatched note is "wrong" or "uncounted"; the test only asserts it is not correct. Pure core, no UI.
