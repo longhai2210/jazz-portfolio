@@ -81,3 +81,20 @@ Test file: `apps/web/src/game/audio/ac-audio.test.ts` (tester, own fake of Web A
 | AC-DUEL-013.5 | ac-audio.test.ts (each button starts at `currentTime`, 4 rising pitches, follows clock, rapid-fire; suspend and close reach the context) | pass | 2026-11-08 |
 
 Gaps: the "message and back button" half of 013.2 is UI (T-010); the audio layer only returns `unsupported`. Real browser gesture policy and audible output are not testable in Jest (fake context). Needs `packages/shared` built before type-check. Graph has no entry for the new files, so regression was the whole web suite.
+
+## T-006 (spec 0.4) - 2026-11-08
+
+Test file: `apps/web/src/game/core/ac-session.test.ts` (tester, 33 tests); dev's session/campaign tests also pass. Web scoped verify green: 30 suites, 337 tests. Lead rulings applied: 25 bars, no rest bars; in Echo/Answer a tap on an opponent bar may pair with the first or last note inside its OK window, and an unpaired tap on an opponent bar is never an extra tap.
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-002.3 | ac-session.test.ts (same offset in both duels, restart, offset removed from taps, NaN rejected) | pass | 2026-11-08 |
+| AC-DUEL-003.7 | ac-session.test.ts (opponent taps uncounted, no score change, edge pairing first/last note, stray not extra, Solo taps outside bars 21-24 dropped) | pass | 2026-11-08 |
+| AC-DUEL-004.1 | ac-session.test.ts (turnLayout/barRole 25 bars, event order echo/answer/solo/end) | pass | 2026-11-08 |
+| AC-DUEL-004.2 | ac-session.test.ts (composed calls for 3 characters x 3 levels, countIn calls) | pass | 2026-11-08 |
+| AC-DUEL-006.7 | ac-session.test.ts (lickSound at first beat of next bar; none without quote) | pass | 2026-11-08 |
+| AC-DUEL-006.8 | ac-session.test.ts (Duck shape in Echo/Answer: no sound, no quote) | pass | 2026-11-08 |
+| AC-DUEL-012.4 | ac-session.test.ts (default Ren: Aki 84, Sayo 96; other characters) | pass | 2026-11-08 |
+| AC-DUEL-014.2 | ac-session.test.ts (taps dropped, count-in, replay, Answer-turn pause keeps Echo) | pass | 2026-11-08 |
+
+Note: a Solo tap up to ~160 ms before bar 21 step 0 snaps to that step and is judged (Miss), not dropped; only taps that snap outside bars 21-24 are dropped. Consistent with spec 0.4 wording. Gap: pure core, no e2e.
