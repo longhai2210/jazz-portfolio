@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CMS Game toggle (game-duel)</title>
+<link rel="stylesheet" href="game.css">
+<style>
+  /* Admin uses Tailwind in production; these classes mirror the Blog toggle card in
+     apps/web/src/components/admin/settings/ContentSettingsForm.tsx. */
+  .card { background: rgba(17,17,24,.5); border: 1px solid var(--color-jazz-slate); padding: 24px; border-radius: 16px; display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; max-width: 760px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+  .card h3 { font-size: 14px; font-weight: 700; }
+  .card p { font-size: 12px; color: var(--color-jazz-text-muted); margin: 4px 0 0; }
+  code { color: var(--color-jazz-gold); font-family: var(--font-mono); }
+  .card { box-sizing: border-box; width: 100%; }
+  .row > div { min-width: 0; }
+  .row > label { flex: none; display: inline-flex; }
+  .switch { display: block; position: relative; width: 44px; height: 24px; background: var(--color-jazz-charcoal); border-radius: 999px; flex: none; }
+  .switch::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--color-jazz-slate); border: 1px solid var(--color-jazz-slate); }
+  .switch.on { background: var(--color-jazz-gold); }
+  .switch.on::after { left: 22px; background: var(--color-jazz-black); }
+  .warn { font-family: var(--font-mono); font-size: 11px; color: #fbbf24; background: rgba(69,26,3,.2); border: 1px solid rgba(245,158,11,.2); border-radius: 8px; padding: 10px; }
+  .info { font-family: var(--font-mono); font-size: 11px; color: var(--color-jazz-text-muted); background: var(--color-jazz-charcoal); border: 1px solid var(--color-jazz-slate); border-radius: 8px; padding: 10px; }
+</style>
+</head>
+<body>
+<div class="sheet">
+  <h1>CMS: Game toggle</h1>
+  <p class="note">REQ-DUEL-015.7. A new card in ContentSettingsForm, placed after the Comments card and before Moderation. Same markup as the Blog card. English only (admin has no next-intl). Saved with the existing Save Settings button as isGameEnabled.</p>
+
+  <div class="frame-label">1. Off (default). Visitors get 404 on /{locale}/game.</div>
+  <div class="card">
+    <div class="row">
+      <div>
+        <h3>Enable Public Game</h3>
+        <p>When enabled, the Midnight Session duel is playable at <code>/[locale]/game</code>. It is hidden from search engines and the sitemap.</p>
+      </div>
+      <label><span class="switch" role="switch" aria-checked="false" aria-label="Enable Public Game"></span></label>
+    </div>
+    <div class="warn">&#9888;&#65039; Note: <code style="color:inherit">/[locale]/game</code> returns 404 Not Found while the Game is disabled.</div>
+  </div>
+
+  <div class="frame-label">2. On, not yet saved or after save. The 404 note disappears; the existing green success banner (not shown) appears after save.</div>
+  <div class="card">
+    <div class="row">
+      <div>
+        <h3>Enable Public Game</h3>
+        <p>When enabled, the Midnight Session duel is playable at <code>/[locale]/game</code>. It is hidden from search engines and the sitemap.</p>
+      </div>
+      <label><span class="switch on" role="switch" aria-checked="true" aria-label="Enable Public Game"></span></label>
+    </div>
+    <div class="info">The page is live for anyone with the link. It is not linked from the site menu yet.</div>
+  </div>
+</div>
+</body>
+</html>

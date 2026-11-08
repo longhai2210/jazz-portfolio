@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Results and summary (game-duel)</title>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<div class="sheet">
+  <h1>Results and summary</h1>
+  <p class="note">REQ-DUEL-010, 011.3, 011.4, 013.6, 013.7, 013.9, 017.3. Stars are drawn as filled or outline glyphs and have a text label, so color is not the only signal.</p>
+
+  <div class="frame-label">1. Win, match 1: 3 stars, two licks quoted (bonus +10), button to match 2 (AC-DUEL-013.6, 013.7)</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel" style="max-width:520px">
+      <h2>Aki is back in the band</h2>
+      <div class="stars" role="img" aria-label="3 of 3 stars"><span class="on"></span><span class="on"></span><span class="on"></span></div>
+      <div class="scores">
+        <div class="score-row"><span>Rhythm</span><div class="meter"><i style="width:92%"></i></div><output>92%</output></div>
+        <div class="score-row"><span>Direction</span><div class="meter"><i style="width:100%"></i></div><output>100%</output></div>
+        <div class="score-row"><span>Feel</span><div class="meter"><i style="width:67%"></i></div><output>67%</output></div>
+        <div class="score-row"><span>Quote bonus</span><div class="meter"><i style="width:100%"></i></div><output>+10</output></div>
+        <div class="total-row"><span>Total</span><span>95</span></div>
+      </div>
+      <div class="quotes"><h3>Licks quoted</h3><div class="quote-tags"><span class="quote-tag">Duck x2</span><span class="quote-tag">Frog</span></div></div>
+      <div class="actions"><button class="btn primary">On to match 2</button><button class="btn">Replay this take</button></div>
+    </div>
+  </div>
+
+  <div class="frame-label">2. Loss (0 stars, below 40): only replay is offered (AC-DUEL-013.7). No quotes: a quiet line instead of an empty list.</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel" style="max-width:520px">
+      <h2>Not this take</h2>
+      <div class="stars" role="img" aria-label="0 of 3 stars"><span class="off"></span><span class="off"></span><span class="off"></span></div>
+      <div class="scores">
+        <div class="score-row"><span>Rhythm</span><div class="meter"><i style="width:38%"></i></div><output>38%</output></div>
+        <div class="score-row"><span>Direction</span><div class="meter"><i style="width:50%"></i></div><output>50%</output></div>
+        <div class="score-row"><span>Feel</span><div class="meter"><i style="width:33%"></i></div><output>33%</output></div>
+        <div class="total-row"><span>Total</span><span>38</span></div>
+      </div>
+      <div class="quotes"><h3>Licks quoted</h3><p style="color:var(--color-jazz-text-dim);font-size:13px">None this take.</p></div>
+      <div class="actions"><button class="btn primary">Replay this take</button></div>
+    </div>
+  </div>
+
+  <div class="frame-label">3. Second loss in a row on the same match: offer to widen the timing windows by 15% (AC-DUEL-011.3). Declining keeps the windows. The offer is inline, not a modal, so replay stays reachable.</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel" style="max-width:520px">
+      <h2>Not this take</h2>
+      <div class="stars" role="img" aria-label="0 of 3 stars"><span class="off"></span><span class="off"></span><span class="off"></span></div>
+      <div class="scores"><div class="total-row"><span>Total</span><span>31</span></div></div>
+      <div class="notice offer" role="group" aria-labelledby="offer-h">
+        <b id="offer-h" style="color:var(--color-jazz-gold)">Want a little more room?</b><br>
+        Widen the timing windows by 15% for the rest of this run. The result screen will say so.
+        <div class="actions" style="justify-content:flex-start;margin-top:10px"><button class="btn primary">Widen windows</button><button class="btn ghost">No thanks</button></div>
+      </div>
+      <div class="actions"><button class="btn primary">Replay this take</button></div>
+    </div>
+  </div>
+
+  <div class="frame-label">4. Result after accepting help: note under the total (AC-DUEL-011.4)</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel" style="max-width:520px">
+      <h2>Aki is back in the band</h2>
+      <div class="stars" role="img" aria-label="1 of 3 stars"><span class="on"></span><span class="off"></span><span class="off"></span></div>
+      <div class="scores"><div class="total-row"><span>Total</span><span>52</span></div></div>
+      <div class="notice" role="note">Timing windows were widened by 15%.</div>
+      <div class="actions"><button class="btn primary">On to match 2</button><button class="btn">Replay this take</button></div>
+    </div>
+  </div>
+
+  <div class="frame-label">5. Summary after match 2 (AC-DUEL-013.7). Plays again from the start. Shell receives match, stars, win and best bar via onMatchEnd (AC-DUEL-017.3); nothing extra on screen.</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel" style="max-width:640px">
+      <h2>Session complete</h2>
+      <div class="sum-cols">
+        <div class="sum-card"><b>Match 1 &middot; Aki</b><div class="stars" role="img" aria-label="3 of 3 stars"><span class="on"></span><span class="on"></span><span class="on"></span></div><span style="font-family:var(--font-mono);font-size:13px">95 points</span></div>
+        <div class="sum-card"><b>Match 2 &middot; Sayo</b><div class="stars" role="img" aria-label="2 of 3 stars"><span class="on"></span><span class="on"></span><span class="off"></span></div><span style="font-family:var(--font-mono);font-size:13px">71 points</span></div>
+      </div>
+      <div class="quotes"><h3>Licks quoted</h3><div class="quote-tags"><span class="quote-tag">Duck</span><span class="quote-tag">Frog</span><span class="quote-tag">Wind chime</span></div></div>
+      <div class="actions"><button class="btn primary">Play again from the start</button><a class="btn" href="#">Back to portfolio</a></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

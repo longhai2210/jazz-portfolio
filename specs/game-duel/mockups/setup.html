@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calibration and difficulty (game-duel)</title>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<div class="sheet">
+  <h1>Calibration and difficulty</h1>
+  <p class="note">REQ-DUEL-002, 011.1, 013.1, 013.2, 013.9. Order: Play button (unlocks audio) -> difficulty -> calibration -> match 1. Skipped when the shell passes difficulty and offset (AC-DUEL-017.1).</p>
+
+  <div class="frame-label">1. Start (the Play button is the user gesture that unlocks audio, AC-DUEL-013.1)</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel">
+      <h2>Midnight Session</h2>
+      <p>Trade fours with a shadow of the band. Listen, answer, then play your own solo. Use D F J K or tap the four zones.</p>
+      <button class="btn primary">Play</button>
+    </div>
+  </div>
+
+  <div class="frame-label">2. No Web Audio (AC-DUEL-013.2). Replaces the Play button area; never a blank screen.</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel" role="alert">
+      <h2>This browser cannot play the game</h2>
+      <p>The game needs Web Audio, which this browser does not offer. Try a recent version of Chrome, Firefox, Safari or Edge.</p>
+      <a class="btn primary" href="#">Back to portfolio</a>
+    </div>
+  </div>
+
+  <div class="frame-label">3. Difficulty (Lounge preselected, AC-DUEL-011.1). Radio group: arrow keys move, Enter confirms.</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel" style="max-width:820px">
+      <h2>Choose your difficulty</h2>
+      <div class="diff-list" role="radiogroup" aria-label="Difficulty">
+        <button class="diff-card" role="radio" aria-checked="true"><b>Lounge</b><span>Wide timing. Every target note is shown. Easy to play with the sound off.</span><small>Timing x1.4</small></button>
+        <button class="diff-card" role="radio" aria-checked="false"><b>Session</b><span>Normal timing. Beat lines stay on, targets show only while the opponent plays.</span><small>Timing x1.0</small></button>
+        <button class="diff-card" role="radio" aria-checked="false"><b>Late Set</b><span>Tight timing, swung rhythm. No targets and no beat lines: use your ears.</span><small>Timing x0.8</small></button>
+      </div>
+      <button class="btn primary">Continue</button>
+    </div>
+  </div>
+
+  <div class="frame-label">4a. Calibration, running. 8 clicks play; the first 2 are practice (dashed). Tap pad or press any of D F J K / Space.</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel">
+      <h2>Tap along to the click</h2>
+      <p>Tap the pad with each click. This measures the delay of your screen and headphones.</p>
+      <div class="cal-dots" role="progressbar" aria-valuemin="0" aria-valuemax="8" aria-valuenow="5" aria-label="Clicks 5 of 8">
+        <i class="cal-dot skipped"></i><i class="cal-dot skipped"></i><i class="cal-dot done"></i><i class="cal-dot done"></i><i class="cal-dot now"></i><i class="cal-dot"></i><i class="cal-dot"></i><i class="cal-dot"></i>
+      </div>
+      <p style="font-family:var(--font-mono)">5 of 8</p>
+      <button class="tap-pad">Tap</button>
+    </div>
+  </div>
+
+  <div class="frame-label">4b. Calibration, result accepted (AC-DUEL-002.1)</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel">
+      <h2>Delay set to 52 ms</h2>
+      <p>Both matches use this value.</p>
+      <div class="actions"><button class="btn primary">Start match 1</button><button class="btn ghost">Calibrate again</button></div>
+    </div>
+  </div>
+
+  <div class="frame-label">4c. Calibration, too few valid taps (AC-DUEL-002.2). Offset is 0 and the screen invites a retry; the player may still continue.</div>
+  <div class="stage flow">
+    <div class="topbar" style="margin:-24px -24px 12px"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div></div>
+    <div class="panel">
+      <h2>We could not measure the delay</h2>
+      <div class="notice warn" role="status">Too few taps landed close to the clicks. Delay is set to 0 ms.</div>
+      <div class="actions"><button class="btn primary">Try again</button><button class="btn ghost">Continue without it</button></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
