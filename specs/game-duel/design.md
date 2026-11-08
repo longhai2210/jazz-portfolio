@@ -68,7 +68,7 @@ Desktop layout (landscape, 16:9 target): top bar, HUD row, round tabs, lane boar
 |---|---|---|---|
 | Lounge | on | hollow shapes (all targets) | filled |
 | Session | on | hidden | filled |
-| Late Set | off | hidden | filled; swung positions drawn at their real time |
+| Late Set | off | hidden | hidden (audio only, AC-DUEL-011.2 and Decision 7) |
 
 - **Phone (landscape, `duel.html` frame D, AC-DUEL-013.4):** lanes shrink to 26 px rows with shape-only key labels; the lower half of the screen is split into four full-height touch zones (D F J K from left to right); lick book is a drawer opened by a music-note button in the top bar (44 px), closed by default; Back to portfolio becomes an arrow with an `aria-label`. In portrait, show a full-screen hint "Turn your phone sideways to play" plus the Back to portfolio button; the match does not start in portrait. If the player rotates to portrait during a match, the game pauses.
 - **Count-in:** the first bar of each match, and after resume, shows 4 beat dots and numbers 1 to 4 over the board, same visuals as screen 8.

@@ -2,7 +2,7 @@
 id: DUEL
 title: Trận đấu Trading Fours (khối xám)
 status: approved
-version: 0.3
+version: 0.4
 owner: longhai2210
 ---
 
@@ -230,3 +230,8 @@ Các mục sau là điều kiện qua Giai đoạn 2 hoặc số đo, không có
 - 0.1 approved by owner (G0), 2026-11-07. Câu hỏi về bộ sample được chốt theo đề xuất (để sau playtest) và chuyển vào Out.
 - 0.2 làm rõ, không đổi AC: thêm hằng số `CALIBRATION_BPM` = 90 và ghi rõ "2 lần gõ đầu" là theo thời gian. Lần gõ nằm ngoài mọi cửa sổ OK là gõ thừa, theo AC-DUEL-003.5. Task bị ảnh hưởng: T-003.
 - 0.3 làm rõ AC-DUEL-009.2: khoảng lặng là ít nhất 2 vị trí trống liên tiếp giữa hai lần gõ, kèm ví dụ, để gõ đều từng phách không được tính là có khoảng lặng. Ở Lounge, làn nhịp hiện vạch phách ở cả hai lượt và vị trí nốt cả khi đối thủ chơi (AC-DUEL-011.2 không cấm). Task bị ảnh hưởng: T-005.
+- 0.4 làm rõ, không đổi AC:
+  - AC-DUEL-005.1: cặp có nốt mục tiêu chưa được ghép vẫn được tính và là sai; chỉ cặp đối thủ lặp nút mới không được tính (AC-DUEL-005.3).
+  - Lượt Solo: một lần gõ được đưa về lưới mà rơi ra ngoài 4 ô Solo của người chơi (trước ô đầu hoặc sau vị trí 7 của ô cuối) thì bỏ khỏi mọi điểm của lượt Solo, theo AC-DUEL-003.7.
+  - Bảng độ khó trong design.md: ở Late Set, khi đối thủ chơi cũng không hiện vị trí nốt, khớp AC-DUEL-011.2.
+  - Task bị ảnh hưởng: T-006 (lọc lần gõ ngoài ô Solo), T-009 (làn nhịp Late Set).
