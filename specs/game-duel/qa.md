@@ -81,3 +81,12 @@ Test file: `apps/web/src/game/audio/ac-audio.test.ts` (tester, own fake of Web A
 | AC-DUEL-013.5 | ac-audio.test.ts (each button starts at `currentTime`, 4 rising pitches, follows clock, rapid-fire; suspend and close reach the context) | pass | 2026-11-08 |
 
 Gaps: the "message and back button" half of 013.2 is UI (T-010); the audio layer only returns `unsupported`. Real browser gesture policy and audible output are not testable in Jest (fake context). Needs `packages/shared` built before type-check. Graph has no entry for the new files, so regression was the whole web suite.
+
+## T-008
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-015.7 | ContentSettingsForm.qa.test.tsx (off to on sends true; saved true off sends false; untouched keeps value; independent of Blog off) | pass | 2026-11-08 |
+| AC-DUEL-015.7 | ContentSettingsForm.qa.test.tsx (design states: 404 warning when off, neutral note when on, loading, load error, saving) | pass | 2026-11-08 |
+
+Verify: web build of deps, lint, type-check, jest (17 suites, 123 tests) green. Gaps: component test only, no browser e2e; the real PUT round trip is covered by other tasks (AC-DUEL-015.1 to 015.3).
