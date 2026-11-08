@@ -123,3 +123,24 @@ Test file: `apps/web/src/game/core/ac-session.test.ts` (tester, 33 tests); dev's
 | AC-DUEL-014.2 | ac-session.test.ts (taps dropped, count-in, replay, Answer-turn pause keeps Echo) | pass | 2026-11-08 |
 
 Note: a Solo tap up to ~160 ms before bar 21 step 0 snaps to that step and is judged (Miss), not dropped; only taps that snap outside bars 21-24 are dropped. Consistent with spec 0.4 wording. Gap: pure core, no e2e.
+
+## T-010
+
+Test file: `apps/web/src/game/ui/ac-t010.test.tsx` (tester, 21 tests, jsdom; next-intl and next/link mocked with the dev's `screens/testing` helpers, fake `AudioContext` installed as `window.AudioContext`, fake timers). Every test unmounts and the harness asserts every created context was closed and no `setInterval` (the audio scheduler tick) stays live. Dev's `DuelGame.test.tsx` also passes. `src/game`: 36 suites, 463 tests green.
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-011.1 | ac-t010 (3 radios, Lounge preselected, each choosable, Continue uses the choice; passed difficulty skips the screen) | pass | 2026-11-08 |
+| AC-DUEL-011.3 | ac-t010 (no offer after 1 loss, offer on the 2nd, decline keeps windows, no re-offer on a 3rd) | pass | 2026-11-08 |
+| AC-DUEL-011.4 | ac-t010 (accept: note on later results, carried into match 2, cleared by Play again from the start) | pass | 2026-11-08 |
+| AC-DUEL-013.2 | ac-t010 (no Web Audio and a throwing constructor: alert with way home, no context) | pass | 2026-11-08 |
+| AC-DUEL-013.6 | ac-t010 (stars, Rhythm/Direction/Feel, empty quotes, Replay restarts same match, match 2 too) | pass | 2026-11-08 |
+| AC-DUEL-013.7 | ac-t010 (loss in match 1 and 2: Replay only; summary with Play again; assist carried into match 2) | pass | 2026-11-08 |
+| AC-DUEL-013.9 | ac-t010 (vi locale: start, difficulty, calibration, calibration fail, duel, result all link to /vi) | pass | 2026-11-08 |
+| AC-DUEL-014.1 | ac-t010 (hidden tab once, keys ignored while paused, visible does not resume, Esc in count-in, pause button, Resume count-in) | pass | 2026-11-08 |
+| AC-DUEL-014.3 | ac-t010 (pause overlay link closes once and goes to /vi; unmount while paused closes once) | pass | 2026-11-08 |
+| AC-DUEL-017.1 | ac-t010 (offset 0 and Late Set not treated as missing; offset kept in match 2; character mapping) | pass | 2026-11-08 |
+| AC-DUEL-017.2 | ac-t010 (startDuel 2 with best bar: bar 1 as played, bar 2 mirrored K F D; without: all composed) | pass | 2026-11-08 |
+| AC-DUEL-017.3 | ac-t010 (win report with best bar; match 2 loss reported once, not again on re-render) | pass | 2026-11-08 |
+
+Gaps: no browser e2e, so real autoplay policy and real Web Audio timing are unproven. `jest.getTimerCount()` is unusable here (React leaves one pending timer after an async act, even on the unsupported screen), so leak checks track `setInterval` and `close()`. Full `apps/web` run: 4 suites fail only with "Cannot find module '@jazz-portfolio/shared'" (shared not built in this worktree; admin/settings and portfolio-data tests, unrelated).
