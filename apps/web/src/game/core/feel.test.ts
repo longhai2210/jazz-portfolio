@@ -1,7 +1,7 @@
 import { FEEL_SINGLE_BUTTON_MAX } from './config';
 import {
   buttonVariety,
-  FEEL_MIN_REST_STEPS,
+  FEEL_MIN_REST_EMPTY_STEPS,
   rest,
   rhythmVariety,
   scoreFeel,
@@ -42,9 +42,13 @@ describe('solo feel', () => {
     expect(rhythmVariety(samePattern)).toBe(0);
   });
 
-  it('AC-DUEL-009.2: a rest of at least 1 beat between two taps scores 1, none scores 0', () => {
-    // Steps 1 and 2 are empty between the taps at 0 and 3.
+  it('AC-DUEL-009.2: at least 2 consecutive empty grid steps between two taps score 1, none scores 0', () => {
+    // The spec's example: taps at 0 and 3 leave steps 1 and 2 empty, a rest; 0 and 2 leave only step 1.
+    expect(rest(bar(20, [0, 3]))).toBe(1);
+    expect(rest(bar(20, [0, 2]))).toBe(0);
     expect(rest(bar(20, [0, 3, 4]))).toBe(1);
+    // Steady quarter notes across the turn have no rest.
+    expect(rest([...bar(20, [0, 2, 4, 6]), ...bar(21, [0, 2, 4, 6]), ...bar(22, [0, 2])])).toBe(0);
     // Across a bar line: step 7 of bar 20, then step 2 of bar 21.
     expect(rest([...bar(20, [5, 6, 7]), ...bar(21, [2, 3])])).toBe(1);
     // Taps given out of time order.
@@ -59,9 +63,12 @@ describe('solo feel', () => {
     expect(rest([])).toBe(0);
   });
 
-  it(`rest threshold: two taps FEEL_MIN_REST_STEPS (${FEEL_MIN_REST_STEPS}) grid steps apart count as a rest`, () => {
-    expect(FEEL_MIN_REST_STEPS).toBe(2);
-    expect(rest(bar(20, [0, 2]))).toBe(1);
+  it(`rest threshold: FEEL_MIN_REST_EMPTY_STEPS (${FEEL_MIN_REST_EMPTY_STEPS}) empty steps make a rest, one fewer does not`, () => {
+    expect(FEEL_MIN_REST_EMPTY_STEPS).toBe(2);
+    // Across a bar line: step 6 of bar 20, then step 1 of bar 21 leaves steps 7 and 0 empty.
+    expect(rest([...bar(20, [6]), ...bar(21, [1])])).toBe(1);
+    // Step 7 of bar 20, then step 1 of bar 21 leaves only step 0 empty.
+    expect(rest([...bar(20, [7]), ...bar(21, [1])])).toBe(0);
     expect(rest(bar(20, [0, 1]))).toBe(0);
   });
 

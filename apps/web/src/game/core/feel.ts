@@ -27,7 +27,7 @@ export interface FeelInput {
 export interface FeelResult {
   /** 1 for at least 3 distinct step patterns among the bars with taps, 0.5 for exactly 2, else 0. */
   readonly rhythmVariety: number;
-  /** 1 when two consecutive taps are at least FEEL_MIN_REST_STEPS grid steps apart, else 0. */
+  /** 1 when two consecutive taps have at least FEEL_MIN_REST_EMPTY_STEPS empty grid steps between them, else 0. */
   readonly rest: number;
   /** 0 when one button takes more than FEEL_SINGLE_BUTTON_MAX of the taps outside quote bars, else 1. */
   readonly buttonVariety: number;
@@ -51,10 +51,11 @@ export const RHYTHM_VARIETY_CREDIT: readonly {
 ];
 
 /**
- * A rest is a stretch with no tap between two consecutive taps whose grid steps are at least this
- * far apart: 2 steps is 1 beat. Steps count across bar lines.
+ * A rest is at least this many consecutive empty grid steps between two taps (2 steps is 1 beat):
+ * taps at steps 0 and 3 have a rest, taps at 0 and 2 do not, so steady quarter notes have none.
+ * Steps count across bar lines.
  */
-export const FEEL_MIN_REST_STEPS = 2;
+export const FEEL_MIN_REST_EMPTY_STEPS = 2;
 
 /** Position of a placed tap on the grid of the whole duel, in steps. */
 function gridIndex(tap: PlacedTap): number {
@@ -76,11 +77,12 @@ export function rhythmVariety(taps: readonly PlacedTap[]): number {
   return tier ? tier.credit : 0;
 }
 
-/** Rests: 1 when two consecutive taps lie at least FEEL_MIN_REST_STEPS grid steps apart. */
+/** Rests: 1 when two consecutive taps have at least FEEL_MIN_REST_EMPTY_STEPS empty steps between them. */
 export function rest(taps: readonly PlacedTap[]): number {
   const indices = taps.map(gridIndex).sort((a, b) => a - b);
   for (let index = 1; index < indices.length; index += 1) {
-    if (indices[index] - indices[index - 1] >= FEEL_MIN_REST_STEPS) return 1;
+    const emptySteps = indices[index] - indices[index - 1] - 1;
+    if (emptySteps >= FEEL_MIN_REST_EMPTY_STEPS) return 1;
   }
   return 0;
 }
