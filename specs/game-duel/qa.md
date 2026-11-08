@@ -81,3 +81,19 @@ Test file: `apps/web/src/game/audio/ac-audio.test.ts` (tester, own fake of Web A
 | AC-DUEL-013.5 | ac-audio.test.ts (each button starts at `currentTime`, 4 rising pitches, follows clock, rapid-fire; suspend and close reach the context) | pass | 2026-11-08 |
 
 Gaps: the "message and back button" half of 013.2 is UI (T-010); the audio layer only returns `unsupported`. Real browser gesture policy and audible output are not testable in Jest (fake context). Needs `packages/shared` built before type-check. Graph has no entry for the new files, so regression was the whole web suite.
+
+## T-009 (spec 0.4) - 2026-11-08
+
+Test file: `apps/web/src/game/ui/ac-t009.test.tsx` (tester, 42 tests, own next-intl mock); dev's own lanes/input/lick-book tests also pass. Whole web suite: 35 suites, 354 tests green; lint and type-check clean (after building packages/shared).
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-007.4 | ac-t009.test.tsx (label only over player-built bars, none when composed, separate runs, none on player turn, empty call) | pass | 2026-11-08 |
+| AC-DUEL-011.2 / spec 0.4 | same file (Late Set: no note markers or beat lines in either turn; Session hides player targets; taps still drawn) | pass | 2026-11-08 |
+| AC-DUEL-013.3 | same file (DFJK, repeat ignored, re-press, Ctrl+F, input field, disabled, unmount) | pass | 2026-11-08 |
+| AC-DUEL-013.4 | same file (4 pads in order, pointer-down not click, right button, disabled, pressed state) | pass | 2026-11-08 |
+| AC-DUEL-013.8 | same file (3 licks x 8 dots, filled steps, off-beat marks, lit/unlit) | pass | 2026-11-08 |
+| AC-DUEL-013.10 | same file (no motion classes either setting, transition none under reduce, text-only feedback, live region quotes/misses only) | pass | 2026-11-08 |
+| AC-DUEL-013.11 | same file (4 distinct shapes and colors, K top to D bottom, markers and pads share shapes) | pass | 2026-11-08 |
+
+Gaps: jsdom cannot check real colors, layout or touch hardware; no e2e tool. Real vi/ja strings are not tested (messages arrive in T-012; the mock returns keys).
