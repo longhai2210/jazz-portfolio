@@ -24,3 +24,25 @@ Test file: `apps/web/src/game/core/ac-clock.test.ts` (tester); dev's own tests i
 | AC-DUEL-003.1-003.6 | ac-clock.test.ts (boundaries, Lounge/Late Set, assist, pairing) | pass | 2026-11-07 |
 
 Gap: pure core, no UI; no e2e tool. Web needed `packages/shared` built before type-check.
+
+## T-004 - 2026-11-08
+
+Test file: `apps/web/src/game/core/ac-lick-call.test.ts` (tester); dev's lick/call/best-bar/roster/data tests also pass (143 tests in `src/game/core`). Lint and type-check of web clean.
+Lead rulings applied: AC-DUEL-008.1 averages Timing over all bar taps with a Miss as 0 and counts taps for the minimum of 3; every Shadow has the shadow palette flag.
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-004.3 | ac-lick-call.test.ts (every character x level x turn: 4 bars, density, Lounge even steps only; callProblems negatives) | pass | 2026-11-08 |
+| AC-DUEL-006.1 | ac-lick-call.test.ts (3-6 steps, odd step, unique; lickProblems rejects bad sets) | pass | 2026-11-08 |
+| AC-DUEL-006.2 | ac-lick-call.test.ts (Duck + extra at 0, 90 ms Great boundary, other-bar taps ignored) | pass | 2026-11-08 |
+| AC-DUEL-006.3 | ac-lick-call.test.ts (two extra taps) | pass | 2026-11-08 |
+| AC-DUEL-006.4 | ac-lick-call.test.ts (OK at 120 ms and 91 ms) | pass | 2026-11-08 |
+| AC-DUEL-006.5 | ac-lick-call.test.ts (more steps, fewer extras, learned order) | pass | 2026-11-08 |
+| AC-DUEL-006.6 | ac-lick-call.test.ts (Duck x2 + Frog = 10; three licks = 10) | pass | 2026-11-08 |
+| AC-DUEL-007.1-007.3 | ac-lick-call.test.ts (duel 1 composed; duel 2 phrase and inversion D,J,K -> K,F,D; no best bar composed) | pass | 2026-11-08 |
+| AC-DUEL-008.1 | ac-lick-call.test.ts (Miss counts 0, 3-tap minimum, tie to earlier bar) | pass | 2026-11-08 |
+| AC-DUEL-008.2 | ac-lick-call.test.ts (30 ms early/late snapped to step; offset applied) | pass | 2026-11-08 |
+| AC-DUEL-008.3 | ac-lick-call.test.ts | pass | 2026-11-08 |
+| AC-DUEL-012.1-012.3 | ac-lick-call.test.ts (all three choices, shadow flag on all clubs, unknown character throws) | pass | 2026-11-08 |
+
+Gap: pure core, no UI; the equal-steps/fewer-extra-taps tie-break is tested through `pickQuote` with synthetic matches because no real tap set gives two equal-length licks different extra counts.
