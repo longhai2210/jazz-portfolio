@@ -196,3 +196,16 @@ Notes:
 | AC-DUEL-014.3 | same file (plain left click closes once and navigates to /en); `ac-t010.test.tsx` pause-overlay case still passes | pass | 2026-11-20 |
 
 Notes: `next/link` is replaced by the repo's `screens/testing/link` stand-in, so real browser new-tab behaviour is unproven (no e2e). `src/game/ui` run: one run had 3 timeouts in DuelGame.test.tsx and ac-t010.test.tsx (known load flakiness, fixed by T-016); a re-run showed none. Not counted against T-015.
+
+## T-012
+
+| AC | Test | Result | Date |
+|---|---|---|---|
+| AC-DUEL-016.1 | `apps/web/src/i18n/game-messages.ac.test.ts`: vi and ja have a non-empty string for every en key | pass | 2026-11-20 |
+| AC-DUEL-016.1 | same file: key sets of en, vi, ja are identical | pass | 2026-11-20 |
+| AC-DUEL-016.1 | same file: every string in all three files equals the i18n table in design.md (parsed from the table itself) | pass | 2026-11-20 |
+| AC-DUEL-016.1 | same file: `{x}` placeholders agree across languages | pass | 2026-11-20 |
+| AC-DUEL-016.1 | same file: every literal key used by `src/game` and `app/[locale]/game` (plus the difficulty, lick and round families built from templates) exists in en, vi, ja | pass | 2026-11-20 |
+| AC-DUEL-016.1 | same file: no unused key in the namespace | pass | 2026-11-20 |
+
+Notes: the dynamic key families (`difficulty.<id>.name|desc`, `lick.<id>`, `round.<turn>`) are listed by hand in the test, not derived from the code. `loading.tsx` uses `common.loading`, outside `game`. Regression: `src/i18n` and `src/app` suites pass (38 tests); web lint and type-check pass after building `packages/shared`. No browser e2e: a real locale switch is not exercised.
