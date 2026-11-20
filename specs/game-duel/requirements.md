@@ -1,7 +1,7 @@
 ---
 id: DUEL
 title: Trận đấu Trading Fours (khối xám)
-status: approved
+status: implemented
 version: 0.6
 owner: longhai2210
 ---
