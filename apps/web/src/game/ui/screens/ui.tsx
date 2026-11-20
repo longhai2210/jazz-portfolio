@@ -1,6 +1,12 @@
 'use client';
 
-import { createContext, useContext, type ComponentProps, type ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  type ComponentProps,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import Link from 'next/link';
 import { useLocale, useTranslations } from 'next-intl';
 
@@ -41,8 +47,20 @@ const HOME_LINK_CLASSES: Readonly<Record<'bar' | 'icon', string>> = {
 };
 
 /**
- * "Back to portfolio", to the portfolio home page in the language in use (AC-DUEL-013.9). It
- * releases the audio first (AC-DUEL-014.3); the page then leaves through the router.
+ * A plain left click, the only click that leaves this tab. Ctrl, Cmd, Shift or Alt, or another
+ * button, opens the link elsewhere (new tab, window, download) and the game here goes on.
+ */
+function leavesThisTab(event: MouseEvent<HTMLAnchorElement>): boolean {
+  return (
+    event.button === 0 && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey
+  );
+}
+
+/**
+ * "Back to portfolio", to the portfolio home page in the language in use (AC-DUEL-013.9). A plain
+ * left click releases the audio first (AC-DUEL-014.3); the page then leaves through the router.
+ * Opening it in a new tab keeps the audio of this tab, so a paused match can resume
+ * (AC-DUEL-013.13). The middle button sends `auxclick`, which has no handler here.
  */
 export function HomeLink({ variant = 'bar' }: { readonly variant?: HomeLinkVariant }) {
   const t = useTranslations('game');
@@ -55,7 +73,9 @@ export function HomeLink({ variant = 'bar' }: { readonly variant?: HomeLinkVaria
   return (
     <Link
       href={`/${locale}`}
-      onClick={() => leave()}
+      onClick={(event) => {
+        if (leavesThisTab(event)) leave();
+      }}
       aria-label={variant === 'icon' ? label : undefined}
       className={className}
       data-testid="home-link"
