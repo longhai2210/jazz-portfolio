@@ -153,3 +153,17 @@ Gaps: no browser e2e, so real autoplay policy and real Web Audio timing are unpr
 | AC-DUEL-015.6 | same file (metadata robots index:false, follow:false); `apps/web/src/app/sitemap.qa.test.ts` (no /game URL or alternate, flag on and off) | pass | 2026-11-20 |
 
 Notes: next-intl, next/navigation notFound and getPublicSettings are mocked. Gap: no browser e2e, so the real HTTP 404 status is not tested. Under full-suite load, `DuelGame.test.tsx` and `ac-t010.test.tsx` time out (4 tests); they pass in isolation and are outside T-011. `packages/shared` must be built before the web suite.
+
+## T-014
+
+Test file: `apps/web/src/game/ui/ac-t014.test.tsx` (tester, 5 tests, jsdom, same harness as ac-t010; `resume()` on the fake context is held on a deferred promise so the tab can be hidden while Resume waits on the audio). Dev's `duel-controller.test.ts` also passes. `src/game`: 38 suites, 473 tests; green apart from one load timeout (below).
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-DUEL-014.1 | ac-t014 (hidden while Resume waits: dialog stays, no count-in, context suspended, suspend called again) | pass | 2026-11-20 |
+| AC-DUEL-014.1 | ac-t014 (hidden then visible before audio wakes: still paused and suspended) | pass | 2026-11-20 |
+| AC-DUEL-014.1 | ac-t014 (Resume while tab already hidden: stays paused, suspended) | pass | 2026-11-20 |
+| AC-DUEL-014.1 | ac-t014 (visible throughout: held Resume completes into a count-in) | pass | 2026-11-20 |
+| AC-DUEL-014.1 | ac-t014 (after an interrupted resume, a second Resume works) | pass | 2026-11-20 |
+
+Regression: ac-t010, ac-t014 and duel-controller suites pass together (31 tests). Flaky, not counted against T-014: in the full `src/game` run, ac-t010 "AC-DUEL-017.1 passed offset" timed out at 5 s under parallel load (same family as the known AC-DUEL-013.7 timeouts); it passes when rerun. Gap: no browser e2e, so real tab-visibility and autoplay behaviour are unproven.
