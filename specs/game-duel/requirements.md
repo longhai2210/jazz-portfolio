@@ -2,7 +2,7 @@
 id: DUEL
 title: Trận đấu Trading Fours (khối xám)
 status: approved
-version: 0.5
+version: 0.6
 owner: longhai2210
 ---
 
@@ -18,7 +18,7 @@ Thiết kế gốc: `docs/game/midnight-session.md` (mục 3.1, 4.1, 6, 7, 11, 1
   - Lõi TypeScript thuần trong `apps/web/src/game/core`, không phụ thuộc three hay React: đồng hồ nhịp, hiệu chỉnh độ trễ, chấm nhịp, hướng giai điệu, lick và trích dẫn, câu gọi, chọn ô hay nhất, cảm nhạc, điểm và sao, độ khó và hỗ trợ, đội hình Bóng.
   - Âm thanh trong `apps/web/src/game/audio`: lập lịch theo `AudioContext.currentTime`, âm tổng hợp tạm cho trống, giọng của Bóng, 4 nốt của người chơi và tiếng của lick.
   - Màn chơi khối xám trong `apps/web/src/game/ui`, hình 2D đơn giản: hiệu chỉnh, chọn độ khó, hai trận liền nhau, sổ lick, màn kết quả, tạm dừng, nút về portfolio.
-  - Route tối thiểu `apps/web/src/app/[locale]/game/` gồm `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, nằm ngoài `(portfolio)` nên không có máy nghe nhạc của site. Màn chơi nạp bằng `dynamic(..., { ssr: false })`.
+  - Route tối thiểu `apps/web/src/app/[locale]/game/` gồm `page.tsx`, `layout.tsx`, `loading.tsx`, `error.tsx`, nằm ngoài `(portfolio)` nên không có máy nghe nhạc của site. `page.tsx` import thẳng màn chơi (client component). Next 15 không cho `dynamic(..., { ssr: false })` trong server component, và màn chơi an toàn khi render trên server: không đụng `window` hay âm thanh lúc render, store không lưu lại.
   - Công tắc `isGameEnabled` từ database đến CMS, hợp đồng ở `specs/game-duel/api.md`.
   - Chữ giao diện qua next-intl, namespace `game`, đủ en, vi, ja.
 - Out (non-goals):
@@ -242,3 +242,4 @@ Các mục sau là điều kiện qua Giai đoạn 2 hoặc số đo, không có
   - Thêm AC-DUEL-013.13: mở nút về portfolio sang tab mới không làm hỏng trận. Task T-015.
   - Lỗi tab bị ẩn đúng lúc đang tiếp tục trận vi phạm AC-DUEL-014.1 có sẵn. Task T-014.
   - design.md thêm khóa `start.blocked`, `start.error`, `start.retry`, `error.title`, `error.body`, `error.retry`.
+- 0.6 chỉ sửa phần Scope, không đổi AC: `page.tsx` import thẳng màn chơi thay vì `dynamic(..., { ssr: false })`, vì Next 15 không cho cách đó trong server component (phát hiện ở review T-011).
