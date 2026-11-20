@@ -25,6 +25,9 @@ const GAME_MESSAGES: Readonly<Record<FakeLocale, Messages>> = {
     'start.intro':
       'Trade fours with a shadow of the band. Listen, answer, then play your own solo. Use D F J K or tap the four zones.',
     'start.play': 'Play',
+    'start.blocked': 'The browser did not start the sound. Press Try again to turn it on.',
+    'start.error': 'Something went wrong while starting the match.',
+    'start.retry': 'Try again',
     'unsupported.title': 'This browser cannot play the game',
     'unsupported.body':
       'The game needs Web Audio, which this browser does not offer. Try a recent version of Chrome, Firefox, Safari or Edge.',
@@ -121,6 +124,9 @@ const GAME_MESSAGES: Readonly<Record<FakeLocale, Messages>> = {
     'start.intro':
       'Đấu trading fours với một bóng của ban nhạc. Nghe, đáp lại, rồi chơi solo của riêng bạn. Dùng phím D F J K hoặc chạm vào bốn vùng.',
     'start.play': 'Chơi',
+    'start.blocked': 'Trình duyệt chưa bật âm thanh. Bấm Thử lại để bật.',
+    'start.error': 'Có lỗi khi bắt đầu trận.',
+    'start.retry': 'Thử lại',
     'unsupported.title': 'Trình duyệt này không chơi được game',
     'unsupported.body':
       'Game cần Web Audio mà trình duyệt này không có. Hãy thử bản mới của Chrome, Firefox, Safari hoặc Edge.',

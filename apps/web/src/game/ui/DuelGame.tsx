@@ -17,7 +17,7 @@ import DifficultyScreen from './screens/DifficultyScreen';
 import { createDuelController, type DuelController } from './screens/duel-controller';
 import DuelScreen from './screens/DuelScreen';
 import ResultScreen from './screens/ResultScreen';
-import StartScreen from './screens/StartScreen';
+import StartScreen, { type StartProblem } from './screens/StartScreen';
 import SummaryScreen from './screens/SummaryScreen';
 import { LeaveGameContext } from './screens/ui';
 import UnsupportedScreen from './screens/UnsupportedScreen';
@@ -118,6 +118,8 @@ export default function DuelGame({
   const chooseDifficulty = useGameStore((s) => s.chooseDifficulty);
 
   const [audio, setAudio] = useState<GameAudio | null>(null);
+  /** Why the last Play press did not start the match, shown on the start screen. */
+  const [startProblem, setStartProblem] = useState<StartProblem | null>(null);
   const audioRef = useRef<GameAudio | null>(null);
   /** A context the browser kept suspended: the next Play press retries it. */
   const blockedContext = useRef<AudioContextLike | null>(null);
@@ -179,33 +181,63 @@ export default function DuelGame({
     else startRun(chosenDifficulty, offsetMs);
   }
 
+  /**
+   * A start that threw (AC-DUEL-013.12): releases the audio made for it, so no timer keeps
+   * running and the next press unlocks afresh, then shows the error on the start screen.
+   */
+  function failStart(unlockedContext: AudioContextLike | null) {
+    const created = audioRef.current;
+    audioRef.current = null;
+    if (created !== null) void created.close();
+    else unlockedContext?.close().catch(() => undefined);
+    if (!mounted.current) return;
+    setAudio(null);
+    useGameStore.getState().setUnlocking(false);
+    useGameStore.getState().setScreen('start');
+    setStartProblem('error');
+  }
+
+  /** The Play and Try again click. It never rejects: every failure shows on the start screen. */
   async function play() {
     if (useGameStore.getState().unlocking || audioRef.current !== null) return;
-    // Straight from the click, before any await, so the gesture unlocks audio (AC-DUEL-013.1).
-    const unlocked = unlockAudio({ context: blockedContext.current });
-    useGameStore.getState().setUnlocking(true);
-    const result = await unlocked;
-    if (!mounted.current) {
-      if (result.ok || result.reason === 'blocked') result.context.close().catch(() => undefined);
-      return;
+    let unlockedContext: AudioContextLike | null = null;
+    try {
+      // Straight from the click, before any await, so the gesture unlocks audio (AC-DUEL-013.1).
+      const unlocked = unlockAudio({ context: blockedContext.current });
+      useGameStore.getState().setUnlocking(true);
+      const result = await unlocked;
+      if (!mounted.current) {
+        if (result.ok || result.reason === 'blocked') result.context.close().catch(() => undefined);
+        return;
+      }
+      useGameStore.getState().setUnlocking(false);
+      if (!result.ok) {
+        if (result.reason === 'unsupported') {
+          useGameStore.getState().setScreen('unsupported');
+        } else {
+          blockedContext.current = result.context;
+          setStartProblem('blocked');
+        }
+        return;
+      }
+      unlockedContext = result.context;
+      blockedContext.current = null;
+      const created = createGameAudio(result.context);
+      audioRef.current = created;
+      setAudio(created);
+      afterUnlock();
+      setStartProblem(null);
+    } catch {
+      failStart(unlockedContext);
     }
-    useGameStore.getState().setUnlocking(false);
-    if (!result.ok) {
-      if (result.reason === 'unsupported') useGameStore.getState().setScreen('unsupported');
-      else blockedContext.current = result.context;
-      return;
-    }
-    blockedContext.current = null;
-    const created = createGameAudio(result.context);
-    audioRef.current = created;
-    setAudio(created);
-    afterUnlock();
   }
 
   let content = null;
   switch (screen) {
     case 'start':
-      content = <StartScreen unlocking={unlocking} onPlay={() => void play()} />;
+      content = (
+        <StartScreen unlocking={unlocking} problem={startProblem} onPlay={() => void play()} />
+      );
       break;
     case 'unsupported':
       content = <UnsupportedScreen />;
