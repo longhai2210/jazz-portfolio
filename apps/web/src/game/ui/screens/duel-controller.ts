@@ -38,9 +38,15 @@ export interface DuelController {
   tick(): void;
   /** A tap of the player: its note plays at once (AC-DUEL-013.5), then the take judges it. */
   tap(tap: Tap): void;
-  /** Pauses a take in play and suspends the audio clock (AC-DUEL-014.1). */
+  /**
+   * Pauses a take in play and suspends the audio clock (AC-DUEL-014.1). Called while a resume
+   * waits on the audio, it makes that resume stay paused.
+   */
   pause(): void;
-  /** Resumes a paused take with a count-in bar (AC-DUEL-014.2); stays paused if audio stays off. */
+  /**
+   * Resumes a paused take with a count-in bar (AC-DUEL-014.2). Stays paused if audio stays off, or
+   * if the tab is hidden or a pause is asked for before the audio runs (AC-DUEL-014.1).
+   */
   resume(): Promise<void>;
 }
 
@@ -66,8 +72,14 @@ function samePhase(a: SessionPhase | null, b: SessionPhase): boolean {
   }
 }
 
+function isTabHidden(): boolean {
+  return typeof document !== 'undefined' && document.visibilityState === 'hidden';
+}
+
 export function createDuelController({ audio, onEnd }: DuelControllerOptions): DuelController {
   let resuming = false;
+  /** A pause asked for while a resume waits on the audio, for example the tab being hidden. */
+  let pauseWhileResuming = false;
 
   function store() {
     return useGameStore.getState();
@@ -173,6 +185,10 @@ export function createDuelController({ audio, onEnd }: DuelControllerOptions): D
     },
 
     pause() {
+      if (resuming && store().session?.status === 'paused') {
+        pauseWhileResuming = true;
+        return;
+      }
       if (store().session?.status !== 'playing') return;
       handle(step({ type: 'pause', time: audio.currentTime }));
       // A pause after the last Solo bar ends the duel instead: the result is already up.
@@ -186,13 +202,22 @@ export function createDuelController({ audio, onEnd }: DuelControllerOptions): D
     async resume() {
       if (resuming || store().session?.status !== 'paused') return;
       resuming = true;
+      pauseWhileResuming = false;
       try {
         await audio.resume();
       } finally {
         resuming = false;
       }
-      // The player left meanwhile, or the browser kept the audio off: stay paused.
-      if (store().session?.status !== 'paused' || audio.context.state !== 'running') return;
+      // The player left meanwhile: nothing to resume.
+      if (store().session?.status !== 'paused') return;
+      // The tab was hidden (or a pause asked for) while the audio woke up: the pause still holds.
+      if (pauseWhileResuming || isTabHidden()) {
+        pauseWhileResuming = false;
+        await audio.suspend();
+        return;
+      }
+      // The browser kept the audio off: stay paused.
+      if (audio.context.state !== 'running') return;
       handle(step({ type: 'resume', time: audio.currentTime + START_LEAD_S }));
       updateView();
     },
