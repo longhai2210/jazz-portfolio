@@ -15,7 +15,10 @@ Feature branch: `feature/game-duel` (from `master`)
 | T-009 (#11) Giao diện: làn nhịp, nhập liệu, sổ lick | AC-DUEL-007.4, 013.3, 013.4, 013.8, 013.10, 013.11 | apps/web | `apps/web/src/game/ui/{lanes,input,lick-book}/**` | T-002 (G2), T-005, T-007 | B |
 | T-010 (#12) Giao diện: DuelGame và các màn phụ | AC-DUEL-011.1, 011.3, 011.4, 013.6, 013.7, 013.9, 014.1, 014.3, 017.1–017.3 | apps/web | `apps/web/src/game/ui/{DuelGame.tsx,DuelGame.test.tsx,screens/**}`, `apps/web/src/stores/gameStore{,.test}.ts` | T-002 (G2), T-006, T-007, T-009 | B |
 | T-011 (#13) Route /game: bật tắt, noindex, loading, error | AC-DUEL-015.5, 015.6 | apps/web | `apps/web/src/app/[locale]/game/{page,page.test,layout,loading,error}.tsx`, `apps/web/src/app/sitemap.test.ts` | T-001, T-010 | B |
-| T-012 (#14) Nối file dùng chung: messages và CLAUDE.md | AC-DUEL-016.1 | apps/web | `apps/web/src/i18n/messages/{en,vi,ja}.json`, `apps/web/src/i18n/game-messages.test.ts`, `CLAUDE.md` | T-001 đến T-011 | W |
+| T-013 (#15) Sửa lỗi: báo lỗi khi bắt đầu trận thất bại | AC-DUEL-013.12 | apps/web | `apps/web/src/game/ui/{DuelGame.tsx,DuelGame.start.test.tsx}`, `screens/{StartScreen.tsx,testing/intl.ts}` | none | B |
+| T-014 (#16) Sửa lỗi: tab ẩn khi đang tiếp tục trận | AC-DUEL-014.1 (sửa lỗi) | apps/web | `apps/web/src/game/ui/screens/duel-controller{.ts,.test.ts}` | none | G |
+| T-015 (#17) Sửa lỗi: mở nút về portfolio sang tab mới | AC-DUEL-013.13 | apps/web | `apps/web/src/game/ui/screens/ui{.tsx,.test.tsx}` | none | H |
+| T-012 (#14) Nối file dùng chung: messages và CLAUDE.md | AC-DUEL-016.1 | apps/web | `apps/web/src/i18n/messages/{en,vi,ja}.json`, `apps/web/src/i18n/game-messages.test.ts`, `CLAUDE.md` | T-001 đến T-011, T-013 đến T-015 | W |
 
 Order along the data contract: schema and migrations, then shared packages, then backend, then frontend.
 One task owns each shared package change; tasks that consume it depend on it.
@@ -30,3 +33,4 @@ Tasks in the same lane run one after another; different lanes run in parallel an
 - **Chữ giao diện:** T-009 đến T-011 dùng khóa next-intl theo bảng chữ trong `design.md`. T-008 là giao diện admin nên dùng chữ tiếng Anh cố định, không qua next-intl. Khóa chỉ vào `messages/*.json` ở T-012, nên test của các task đó dùng messages giả.
 - **G2:** T-008, T-009, T-010 chỉ bắt đầu sau khi chủ dự án duyệt `design.md` của T-002.
 - **Song song ngay từ đầu:** T-001, T-002, T-003. Sau T-003 thì T-004, T-005, T-007 chạy song song.
+- **Task sửa lỗi (spec 0.5, 2026-11-20):** T-013 đến T-015 đến từ review T-010, mở theo quy trình `fix`. T-014 sửa một AC đã thuộc T-010, nên AC-DUEL-014.1 được phủ bởi hai task: T-010 làm tính năng, T-014 sửa lỗi. T-012 làm sau cả ba.
