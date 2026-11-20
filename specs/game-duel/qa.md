@@ -187,3 +187,12 @@ Notes:
 - ja is not covered: the fake `next-intl` in `screens/testing/intl.ts` only has en and vi. The real `i18n/messages/*.json` hold no `game` namespace on this branch, so the shipped ja strings could not be checked here.
 - Regression: `pnpm exec jest src/game` (38 suites). `DuelGame.test.tsx` and `ac-t010.test.tsx` time out under load (AC-DUEL-013.7, AC-DUEL-017.3, AC-DUEL-017.1; AC-DUEL-013.6 once as a knock-on). `DuelGame.test.tsx` passes 24/24 with `--testTimeout=60000`. Known flaky, outside T-013.
 - Web lint and type-check pass. No browser e2e tool: real autoplay-policy behaviour is not covered.
+
+## T-015
+
+| AC | Test | Result | Date |
+|---|---|---|---|
+| AC-DUEL-013.13 | `apps/web/src/game/ui/screens/ac-t015.test.tsx` (Ctrl, Cmd, Shift, Ctrl+Shift, middle click as click and as auxclick, across bar, icon and primary variants: audio not closed; href stays the locale home) | pass | 2026-11-20 |
+| AC-DUEL-014.3 | same file (plain left click closes once and navigates to /en); `ac-t010.test.tsx` pause-overlay case still passes | pass | 2026-11-20 |
+
+Notes: `next/link` is replaced by the repo's `screens/testing/link` stand-in, so real browser new-tab behaviour is unproven (no e2e). `src/game/ui` run: one run had 3 timeouts in DuelGame.test.tsx and ac-t010.test.tsx (known load flakiness, fixed by T-016); a re-run showed none. Not counted against T-015.
