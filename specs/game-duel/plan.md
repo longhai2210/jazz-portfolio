@@ -18,7 +18,8 @@ Feature branch: `feature/game-duel` (from `master`)
 | T-013 (#15) Sửa lỗi: báo lỗi khi bắt đầu trận thất bại | AC-DUEL-013.12 | apps/web | `apps/web/src/game/ui/{DuelGame.tsx,DuelGame.start.test.tsx}`, `screens/{StartScreen.tsx,testing/intl.ts}` | none | B |
 | T-014 (#16) Sửa lỗi: tab ẩn khi đang tiếp tục trận | AC-DUEL-014.1 (sửa lỗi) | apps/web | `apps/web/src/game/ui/screens/duel-controller{.ts,.test.ts}` | none | G |
 | T-015 (#17) Sửa lỗi: mở nút về portfolio sang tab mới | AC-DUEL-013.13 | apps/web | `apps/web/src/game/ui/screens/ui{.tsx,.test.tsx}` | none | H |
-| T-012 (#14) Nối file dùng chung: messages và CLAUDE.md | AC-DUEL-016.1 | apps/web | `apps/web/src/i18n/messages/{en,vi,ja}.json`, `apps/web/src/i18n/game-messages.test.ts`, `CLAUDE.md` | T-001 đến T-011, T-013 đến T-015 | W |
+| T-016 (#18) Ổn định test AC-DUEL-013.7 bị timeout | none (test) | apps/web | `apps/web/src/game/ui/{DuelGame.test.tsx,ac-t010.test.tsx}` | none | I |
+| T-012 (#14) Nối file dùng chung: messages và CLAUDE.md | AC-DUEL-016.1 | apps/web | `apps/web/src/i18n/messages/{en,vi,ja}.json`, `apps/web/src/i18n/game-messages.test.ts`, `CLAUDE.md` | T-001 đến T-011, T-013 đến T-016 | W |
 
 Order along the data contract: schema and migrations, then shared packages, then backend, then frontend.
 One task owns each shared package change; tasks that consume it depend on it.
