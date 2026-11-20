@@ -153,3 +153,12 @@ Gaps: no browser e2e, so real autoplay policy and real Web Audio timing are unpr
 | AC-DUEL-015.6 | same file (metadata robots index:false, follow:false); `apps/web/src/app/sitemap.qa.test.ts` (no /game URL or alternate, flag on and off) | pass | 2026-11-20 |
 
 Notes: next-intl, next/navigation notFound and getPublicSettings are mocked. Gap: no browser e2e, so the real HTTP 404 status is not tested. Under full-suite load, `DuelGame.test.tsx` and `ac-t010.test.tsx` time out (4 tests); they pass in isolation and are outside T-011. `packages/shared` must be built before the web suite.
+
+## T-015
+
+| AC | Test | Result | Date |
+|---|---|---|---|
+| AC-DUEL-013.13 | `apps/web/src/game/ui/screens/ac-t015.test.tsx` (Ctrl, Cmd, Shift, Ctrl+Shift, middle click as click and as auxclick, across bar, icon and primary variants: audio not closed; href stays the locale home) | pass | 2026-11-20 |
+| AC-DUEL-014.3 | same file (plain left click closes once and navigates to /en); `ac-t010.test.tsx` pause-overlay case still passes | pass | 2026-11-20 |
+
+Notes: `next/link` is replaced by the repo's `screens/testing/link` stand-in, so real browser new-tab behaviour is unproven (no e2e). `src/game/ui` run: one run had 3 timeouts in DuelGame.test.tsx and ac-t010.test.tsx (known load flakiness, fixed by T-016); a re-run showed none. Not counted against T-015.
