@@ -144,3 +144,12 @@ Test file: `apps/web/src/game/ui/ac-t010.test.tsx` (tester, 21 tests, jsdom; nex
 | AC-DUEL-017.3 | ac-t010 (win report with best bar; match 2 loss reported once, not again on re-render) | pass | 2026-11-08 |
 
 Gaps: no browser e2e, so real autoplay policy and real Web Audio timing are unproven. `jest.getTimerCount()` is unusable here (React leaves one pending timer after an async act, even on the unsupported screen), so leak checks track `setInterval` and `close()`. Full `apps/web` run: 4 suites fail only with "Cannot find module '@jazz-portfolio/shared'" (shared not built in this worktree; admin/settings and portfolio-data tests, unrelated).
+
+## T-011
+
+| AC | Test | Result | Date |
+|---|---|---|---|
+| AC-DUEL-015.5 | `apps/web/src/app/[locale]/game/game-switch.qa.test.tsx` (page and layout call notFound when off or flag missing; render when on) | pass | 2026-11-20 |
+| AC-DUEL-015.6 | same file (metadata robots index:false, follow:false); `apps/web/src/app/sitemap.qa.test.ts` (no /game URL or alternate, flag on and off) | pass | 2026-11-20 |
+
+Notes: next-intl, next/navigation notFound and getPublicSettings are mocked. Gap: no browser e2e, so the real HTTP 404 status is not tested. Under full-suite load, `DuelGame.test.tsx` and `ac-t010.test.tsx` time out (4 tests); they pass in isolation and are outside T-011. `packages/shared` must be built before the web suite.
