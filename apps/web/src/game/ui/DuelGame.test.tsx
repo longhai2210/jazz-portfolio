@@ -103,8 +103,16 @@ function tapAt(time: number, button: Button): void {
   fireEvent.keyUp(window, { code, key });
 }
 
+/**
+ * Plays every tap of `plan` inside one `act`: each tap still sets the audio clock and fires its
+ * keydown and keyup, but React renders once at the end instead of after each of ~40 taps (which
+ * cost 2 s a take). The scoring reads the store and the audio clock, not the rendered tree.
+ */
 function playPlan(plan: TakePlan): void {
-  for (const tap of planTaps(session(), plan)) tapAt(tap.time, tap.button);
+  const taps = planTaps(session(), plan);
+  act(() => {
+    for (const tap of taps) tapAt(tap.time, tap.button);
+  });
 }
 
 /** Moves the clock past the last bar: the take ends with the taps it has. */
