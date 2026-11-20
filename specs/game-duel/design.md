@@ -36,7 +36,7 @@ The same shape appears on the lane key label, on the touch pad, and on every not
 
 ### 1. Start (`setup.html` frame 1)
 - Content: title "Midnight Session", one line of instructions, **Play** button (its click calls the audio unlock, AC-DUEL-013.1). Top bar with Back to portfolio.
-- States: normal; unlocking (Play disabled for the moment `resume()` is pending); audio unsupported (screen 2).
+- States: normal; unlocking (Play disabled for the moment `resume()` is pending); audio unsupported (screen 2); sound blocked by the browser (`role="alert"` notice `start.blocked` plus a **Try again** button, AC-DUEL-013.12); start failed (`start.error` plus **Try again**, AC-DUEL-013.12). Try again runs the same handler as Play, so the unlock still happens inside the click.
 - Shown only when the shell passes no difficulty (AC-DUEL-011.1). When the shell passes difficulty and offset, audio is still unlocked by a Play press, but difficulty and calibration are skipped (AC-DUEL-017.1).
 
 ### 2. Unsupported (`setup.html` frame 2)
