@@ -167,3 +167,23 @@ Test file: `apps/web/src/game/ui/ac-t014.test.tsx` (tester, 5 tests, jsdom, same
 | AC-DUEL-014.1 | ac-t014 (after an interrupted resume, a second Resume works) | pass | 2026-11-20 |
 
 Regression: ac-t010, ac-t014 and duel-controller suites pass together (31 tests). Flaky, not counted against T-014: in the full `src/game` run, ac-t010 "AC-DUEL-017.1 passed offset" timed out at 5 s under parallel load (same family as the known AC-DUEL-013.7 timeouts); it passes when rerun. Gap: no browser e2e, so real tab-visibility and autoplay behaviour are unproven.
+
+## T-013
+
+Tests: `apps/web/src/game/ui/ac-t013.test.tsx` (written from the AC; the dev's `DuelGame.start.test.tsx` also passes). Date: 2026-11-20.
+
+| AC | Test | Result |
+|---|---|---|
+| AC-DUEL-013.12 | blocked unlock shows the blocked message, Try again, and an enabled Play | pass |
+| AC-DUEL-013.12 | the unlock (`resume`) runs synchronously inside the click, on Play and on Try again | pass |
+| AC-DUEL-013.12 | Try again after the browser allows sound starts the match, alert gone | pass |
+| AC-DUEL-013.12 | rejected resume: message shown, no unhandled rejection, Play pressable again | pass |
+| AC-DUEL-013.12 | start that throws: error shown, Play and Try again enabled, store back to `start`, next press starts | pass |
+| AC-DUEL-013.12 | three failing presses in a row: never stuck, no repeating timer left, no unhandled rejection | pass |
+| AC-DUEL-013.12 | successful start shows no alert | pass |
+| AC-DUEL-013.12 | blocked and error messages in vi | pass |
+
+Notes:
+- ja is not covered: the fake `next-intl` in `screens/testing/intl.ts` only has en and vi. The real `i18n/messages/*.json` hold no `game` namespace on this branch, so the shipped ja strings could not be checked here.
+- Regression: `pnpm exec jest src/game` (38 suites). `DuelGame.test.tsx` and `ac-t010.test.tsx` time out under load (AC-DUEL-013.7, AC-DUEL-017.3, AC-DUEL-017.1; AC-DUEL-013.6 once as a knock-on). `DuelGame.test.tsx` passes 24/24 with `--testTimeout=60000`. Known flaky, outside T-013.
+- Web lint and type-check pass. No browser e2e tool: real autoplay-policy behaviour is not covered.
