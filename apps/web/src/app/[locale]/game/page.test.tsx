@@ -33,26 +33,44 @@ jest.mock('next/link', () =>
   ),
 );
 /**
- * The game's fake `game` messages, plus the one `common` key the loading screen uses (copied from
- * `messages/en.json` and `vi.json`). A key missing here throws.
+ * The real `messages/en.json` and `vi.json`: the route's loading and error screens use keys of
+ * `common` and `game` (`error.*` included), so these tests also check those keys exist. A key
+ * missing from the messages, or a `{x}` without its value, throws. The locale comes from the
+ * game's `setFakeLocale`, which `HomeLink` reads through `useLocale`.
  */
 jest.mock('next-intl', () => {
   const intl = jest.requireActual<typeof import('@/game/ui/screens/testing/intl')>(
     '@/game/ui/screens/testing/intl',
   );
-  const common: Readonly<Record<'en' | 'vi', Readonly<Record<string, string>>>> = {
-    en: { loading: 'Loading...' },
-    vi: { loading: 'Đang tải...' },
+  type Messages = Readonly<Record<string, unknown>>;
+  const messages: Readonly<Record<'en' | 'vi', Messages>> = {
+    en: jest.requireActual<Messages>('@/i18n/messages/en.json'),
+    vi: jest.requireActual<Messages>('@/i18n/messages/vi.json'),
   };
+  const lookup = (path: string): unknown =>
+    path
+      .split('.')
+      .reduce<unknown>(
+        (node, part) =>
+          typeof node === 'object' && node !== null
+            ? (node as Readonly<Record<string, unknown>>)[part]
+            : undefined,
+        messages[intl.nextIntlMock.useLocale()],
+      );
   return {
     useLocale: intl.nextIntlMock.useLocale,
     useTranslations:
       (namespace: string) =>
-      (key: string, values?: Readonly<Record<string, string | number>>): string => {
-        if (namespace !== 'common') return intl.translate(namespace, key, values);
-        const message = common[intl.nextIntlMock.useLocale()][key];
-        if (message === undefined) throw new Error(`common.${key} has no fake message`);
-        return message;
+      (key: string, values: Readonly<Record<string, string | number>> = {}): string => {
+        const message = lookup(`${namespace}.${key}`);
+        if (typeof message !== 'string') throw new Error(`${namespace}.${key} has no message`);
+        return message.replace(/\{(\w+)\}/g, (_, name: string) => {
+          const value = values[name];
+          if (value === undefined) {
+            throw new Error(`${namespace}.${key} needs a value for {${name}}`);
+          }
+          return String(value);
+        });
       },
   };
 });
@@ -87,8 +105,8 @@ describe('/{locale}/game page', () => {
     expect(notFoundMock).toHaveBeenCalledTimes(1);
   });
 
-  it('AC-DUEL-015.5: calls notFound() when the settings fallback has the game off', async () => {
-    // getPublicSettings falls back to isGameEnabled false when the API is down (AC-DUEL-015.4).
+  it('AC-DUEL-015.5: calls notFound() while the game is off, with the Blog switch off too', async () => {
+    // The Game switch alone decides: the test above has Blog on, this one has it off.
     getPublicSettingsMock.mockResolvedValue({ ...settings(false), isBlogEnabled: false });
 
     await expect(GamePage()).rejects.toBe(mockNotFoundError);
@@ -99,7 +117,7 @@ describe('/{locale}/game page', () => {
     expect(metadata.robots).toEqual({ index: false, follow: false });
   });
 
-  it('AC-DUEL-015.6: renders the duel, with no inputs, while isGameEnabled is on', async () => {
+  it('renders the duel, with no inputs, while isGameEnabled is on', async () => {
     getPublicSettingsMock.mockResolvedValue(settings(true));
 
     const page = (await GamePage()) as ReactElement<Record<string, unknown>>;
@@ -147,10 +165,15 @@ describe('/{locale}/game error', () => {
     const error = new Error('boom');
     render(<GameError error={error} reset={reset} />);
 
-    const alert = screen.getByRole('alert');
-    expect(within(alert).getByRole('heading', { name: 'Midnight Session' })).toBeInTheDocument();
+    const alert = screen.getByRole('alert', { name: 'Something went wrong' });
+    expect(
+      within(alert).getByRole('heading', { name: 'Something went wrong' }),
+    ).toBeInTheDocument();
+    expect(alert).toHaveTextContent(
+      'The game hit an unexpected error. Your portfolio is unaffected.',
+    );
 
-    fireEvent.click(within(alert).getByRole('button', { name: 'Try again' }));
+    fireEvent.click(within(alert).getByRole('button', { name: 'Reload the game' }));
     expect(reset).toHaveBeenCalledTimes(1);
     expect(errorSpy).toHaveBeenCalledWith('Game route error:', error);
   });
@@ -159,6 +182,11 @@ describe('/{locale}/game error', () => {
     setFakeLocale('vi');
     render(<GameError error={new Error('boom')} reset={jest.fn()} />);
 
+    const alert = screen.getByRole('alert', { name: 'Đã có lỗi xảy ra' });
+    expect(alert).toHaveTextContent(
+      'Game gặp lỗi không mong muốn. Portfolio của bạn không bị ảnh hưởng.',
+    );
+    expect(within(alert).getByRole('button', { name: 'Tải lại game' })).toBeInTheDocument();
     const homeLinks = screen.getAllByRole('link', { name: /Về trang chủ/ });
     expect(homeLinks.length).toBeGreaterThan(0);
     fireEvent.click(homeLinks[homeLinks.length - 1]);

@@ -2,7 +2,14 @@
 
 import { useEffect, useId } from 'react';
 import { useTranslations } from 'next-intl';
-import { Actions, GameButton, HomeLink, PanelTitle, ScreenShell } from '@/game/ui/screens/ui';
+import {
+  Actions,
+  GameButton,
+  HomeLink,
+  PanelText,
+  PanelTitle,
+  ScreenShell,
+} from '@/game/ui/screens/ui';
 
 /**
  * Error boundary of `/{locale}/game`: a dark panel that never leaves the page blank, with a retry
@@ -26,10 +33,11 @@ export default function GameError({
   return (
     <div className="relative flex min-h-dvh flex-col bg-jazz-black font-body text-jazz-text">
       <ScreenShell role="alert" labelledBy={titleId}>
-        <PanelTitle id={titleId}>{t('title')}</PanelTitle>
+        <PanelTitle id={titleId}>{t('error.title')}</PanelTitle>
+        <PanelText>{t('error.body')}</PanelText>
         <Actions>
           <GameButton variant="primary" onClick={reset}>
-            {t('calibration.retry')}
+            {t('error.retry')}
           </GameButton>
           <HomeLink variant="secondary" />
         </Actions>
