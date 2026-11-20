@@ -70,13 +70,19 @@ function advanceTo(time: number): void {
     jest.advanceTimersByTime(17);
   });
 }
+// One `act` around all the taps: each still sets the audio clock and fires keydown and keyup, but
+// React renders once at the end instead of after each of ~40 taps (2 s a take). Scoring reads the
+// store and the audio clock, not the rendered tree.
 function playPlan(plan: TakePlan): void {
-  for (const tap of planTaps(session(), plan)) {
-    ctx().currentTime = tap.time;
-    const code = KEY[tap.button];
-    fireEvent.keyDown(window, { code, key: code.slice(3).toLowerCase() });
-    fireEvent.keyUp(window, { code, key: code.slice(3).toLowerCase() });
-  }
+  const taps = planTaps(session(), plan);
+  act(() => {
+    for (const tap of taps) {
+      ctx().currentTime = tap.time;
+      const code = KEY[tap.button];
+      fireEvent.keyDown(window, { code, key: code.slice(3).toLowerCase() });
+      fireEvent.keyUp(window, { code, key: code.slice(3).toLowerCase() });
+    }
+  });
 }
 const finishTake = () => advanceTo(clock().t0 + 100);
 const esc = () => fireEvent.keyDown(window, { key: 'Escape', code: 'Escape' });
