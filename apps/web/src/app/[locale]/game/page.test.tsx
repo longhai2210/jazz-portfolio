@@ -9,7 +9,6 @@ import { setFakeLocale } from '@/game/ui/screens/testing/intl';
 import { navigations } from '@/game/ui/screens/testing/link';
 import { getPublicSettings } from '@/lib/portfolio-data';
 import GameError from './error';
-import GameLayout from './layout';
 import GameLoading from './loading';
 import GamePage, { metadata } from './page';
 
@@ -76,7 +75,6 @@ afterEach(() => {
   jest.clearAllMocks();
   navigations.length = 0;
   setFakeLocale('en');
-  document.documentElement.removeAttribute('data-theme');
 });
 
 describe('/{locale}/game page', () => {
@@ -111,45 +109,6 @@ describe('/{locale}/game page', () => {
     expect(screen.getByTestId('duel-game')).toBeInTheDocument();
     // The route passes nothing, so the game asks for difficulty and calibration itself.
     expect(page.props).toEqual({});
-  });
-});
-
-describe('/{locale}/game layout', () => {
-  it('switches the page to the dark theme while mounted and restores the saved theme', () => {
-    document.documentElement.setAttribute('data-theme', 'light-jazz');
-
-    const { unmount } = render(
-      <GameLayout>
-        <p>game</p>
-      </GameLayout>,
-    );
-
-    expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
-    expect(screen.getByText('game')).toBeInTheDocument();
-
-    unmount();
-    expect(document.documentElement).toHaveAttribute('data-theme', 'light-jazz');
-  });
-
-  it('leaves no data-theme behind when the page had none', () => {
-    const { unmount } = render(
-      <GameLayout>
-        <p>game</p>
-      </GameLayout>,
-    );
-    expect(document.documentElement).toHaveAttribute('data-theme', 'dark');
-
-    unmount();
-    expect(document.documentElement).not.toHaveAttribute('data-theme');
-  });
-
-  it('gives the skip link of the locale layout its target', () => {
-    render(
-      <GameLayout>
-        <p>game</p>
-      </GameLayout>,
-    );
-    expect(document.getElementById('main-content')).toContainElement(screen.getByText('game'));
   });
 });
 
