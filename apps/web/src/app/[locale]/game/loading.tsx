@@ -4,8 +4,10 @@ import { useTranslations } from 'next-intl';
 import { ScreenShell } from '@/game/ui/screens/ui';
 
 /**
- * Shown while `/{locale}/game` checks the Game switch: the frame of the Start panel with the top
- * bar, so the way back to the portfolio is there from the first paint (AC-DUEL-013.9).
+ * Shown while the page segment of `/{locale}/game` renders. The Game switch is already checked by
+ * the layout, outside this Suspense boundary, so this only ever shows while the game is on. It is
+ * the frame of the Start panel with the top bar, so the way back to the portfolio is there from the
+ * first paint (AC-DUEL-013.9).
  */
 export default function GameLoading() {
   const t = useTranslations('common');

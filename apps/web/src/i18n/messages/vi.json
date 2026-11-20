@@ -60,5 +60,139 @@
     "errorServer": "Đã xảy ra lỗi. Tin nhắn của bạn chưa bị mất — vui lòng thử lại.",
     "charCountWarning": "Còn {remaining} ký tự.",
     "charCountLimit": "Đã đạt giới hạn ký tự."
+  },
+  "game": {
+    "title": "Midnight Session",
+    "home": {
+      "back": "Về trang chủ"
+    },
+    "start": {
+      "intro": "Đấu trading fours với một bóng của ban nhạc. Nghe, đáp lại, rồi chơi solo của riêng bạn. Dùng phím D F J K hoặc chạm vào bốn vùng.",
+      "play": "Chơi",
+      "blocked": "Trình duyệt chưa bật âm thanh. Bấm Thử lại để bật.",
+      "error": "Có lỗi khi bắt đầu trận.",
+      "retry": "Thử lại"
+    },
+    "error": {
+      "title": "Đã có lỗi xảy ra",
+      "body": "Game gặp lỗi không mong muốn. Portfolio của bạn không bị ảnh hưởng.",
+      "retry": "Tải lại game"
+    },
+    "unsupported": {
+      "title": "Trình duyệt này không chơi được game",
+      "body": "Game cần Web Audio mà trình duyệt này không có. Hãy thử bản mới của Chrome, Firefox, Safari hoặc Edge."
+    },
+    "rotate": {
+      "hint": "Xoay ngang điện thoại để chơi"
+    },
+    "difficulty": {
+      "title": "Chọn độ khó",
+      "lounge": {
+        "name": "Lounge",
+        "desc": "Cửa sổ nhịp rộng. Hiện mọi nốt cần gõ. Dễ chơi cả khi tắt tiếng."
+      },
+      "session": {
+        "name": "Session",
+        "desc": "Cửa sổ nhịp chuẩn. Vạch phách luôn hiện, vị trí nốt chỉ hiện khi đối thủ chơi."
+      },
+      "lateSet": {
+        "name": "Late Set",
+        "desc": "Cửa sổ nhịp hẹp, nhịp swing. Không hiện vị trí nốt hay vạch phách: hãy nghe bằng tai."
+      },
+      "timing": "Cửa sổ nhịp x{mult}",
+      "continue": "Tiếp tục"
+    },
+    "calibration": {
+      "title": "Gõ theo tiếng click",
+      "body": "Gõ vào ô theo mỗi tiếng click. Việc này đo độ trễ của màn hình và tai nghe.",
+      "tap": "Gõ",
+      "progress": "{count} trên {total}",
+      "done": "Độ trễ được đặt là {ms} ms",
+      "doneBody": "Cả hai trận dùng giá trị này.",
+      "startMatch": "Bắt đầu trận 1",
+      "again": "Hiệu chỉnh lại",
+      "failTitle": "Chưa đo được độ trễ",
+      "failBody": "Có quá ít lần gõ gần tiếng click. Độ trễ được đặt là 0 ms.",
+      "retry": "Thử lại",
+      "skip": "Tiếp tục không hiệu chỉnh"
+    },
+    "hud": {
+      "match": "Trận {n} trên 2",
+      "round": "Lượt {n} trên 3",
+      "bar": "Ô {n}",
+      "opponentPlays": "{name} chơi",
+      "yourTurn": "Đến lượt bạn",
+      "yourPhrase": "Câu của bạn",
+      "bpm": "{bpm} BPM",
+      "countIn": "Đếm nhịp"
+    },
+    "round": {
+      "echo": "Echo (lặp lại)",
+      "answer": "Answer (đáp ngược)",
+      "solo": "Solo",
+      "restart": "Lượt {n} trên 3 · {round} chơi lại"
+    },
+    "pause": {
+      "button": "Tạm dừng",
+      "title": "Đang tạm dừng",
+      "body": "Khi tiếp tục sẽ có một ô đếm nhịp. Lượt này chơi lại từ câu của đối thủ và điểm của lượt được tính lại từ đầu.",
+      "resume": "Tiếp tục"
+    },
+    "pad": {
+      "d": "Nút D, nốt thấp nhất",
+      "f": "Nút F, nốt thứ hai",
+      "j": "Nút J, nốt thứ ba",
+      "k": "Nút K, nốt cao nhất"
+    },
+    "feedback": {
+      "perfect": "Hoàn hảo",
+      "great": "Tốt",
+      "ok": "Tạm được",
+      "miss": "Trượt",
+      "extra": "Gõ thừa",
+      "quote": "Trích dẫn: {lick}!",
+      "quoteSub": "{lick} vang lên ở phách đầu ô kế tiếp"
+    },
+    "lickBook": {
+      "title": "Sổ lick",
+      "open": "Mở sổ lick",
+      "close": "Đóng sổ lick",
+      "note": "Ô vuông bo tròn đánh dấu vị trí lẻ. Vị trí 1 đến 8 đọc từ trái sang phải.",
+      "justQuoted": "Vừa trích"
+    },
+    "lick": {
+      "duck": "Vịt",
+      "frog": "Ếch",
+      "windChime": "Chuông gió"
+    },
+    "result": {
+      "winTitle": "{name} đã trở lại ban nhạc",
+      "loseTitle": "Take này chưa được",
+      "stars": "{count} trên 3 sao",
+      "rhythm": "Nhịp",
+      "direction": "Hướng",
+      "feel": "Cảm nhạc",
+      "quoteBonus": "Thưởng trích dẫn",
+      "total": "Tổng",
+      "quotesTitle": "Lick đã trích",
+      "quotesNone": "Take này chưa trích lick nào.",
+      "quoteCount": "{lick} x{count}",
+      "next": "Sang trận 2",
+      "replay": "Chơi lại take này",
+      "summary": "Xem tổng kết"
+    },
+    "assist": {
+      "title": "Muốn có thêm chút khoảng trống không?",
+      "body": "Nới cửa sổ nhịp thêm 15% cho phần còn lại của lần chơi này. Màn kết quả sẽ ghi chú điều đó.",
+      "accept": "Nới cửa sổ nhịp",
+      "decline": "Không, cảm ơn",
+      "note": "Cửa sổ nhịp đã được nới 15%."
+    },
+    "summary": {
+      "title": "Hoàn thành phiên",
+      "match": "Trận {n} · {name}",
+      "points": "{points} điểm",
+      "again": "Chơi lại từ đầu"
+    }
   }
 }
