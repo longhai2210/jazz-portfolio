@@ -116,6 +116,12 @@ Desktop layout (landscape, 16:9 target): top bar, HUD row, round tabs, lane boar
 | home.back | Back to portfolio | Về trang chủ | ポートフォリオに戻る |
 | start.intro | Trade fours with a shadow of the band. Listen, answer, then play your own solo. Use D F J K or tap the four zones. | Đấu trading fours với một bóng của ban nhạc. Nghe, đáp lại, rồi chơi solo của riêng bạn. Dùng phím D F J K hoặc chạm vào bốn vùng. | バンドの影とフォーズを交換しましょう。聞いて、応えて、最後は自分のソロを演奏します。D F J K キーか、4つのエリアをタップして操作します。 |
 | start.play | Play | Chơi | プレイ |
+| start.blocked | The browser did not start the sound. Press Try again to turn it on. | Trình duyệt chưa bật âm thanh. Bấm Thử lại để bật. | ブラウザが音声を開始しませんでした。「もう一度」を押して有効にしてください。 |
+| start.error | Something went wrong while starting the match. | Có lỗi khi bắt đầu trận. | 試合の開始中に問題が発生しました。 |
+| start.retry | Try again | Thử lại | もう一度 |
+| error.title | Something went wrong | Đã có lỗi xảy ra | 問題が発生しました |
+| error.body | The game hit an unexpected error. Your portfolio is unaffected. | Game gặp lỗi không mong muốn. Portfolio của bạn không bị ảnh hưởng. | ゲームで予期しないエラーが発生しました。ポートフォリオには影響ありません。 |
+| error.retry | Reload the game | Tải lại game | ゲームを再読み込み |
 | unsupported.title | This browser cannot play the game | Trình duyệt này không chơi được game | このブラウザではゲームを遊べません |
 | unsupported.body | The game needs Web Audio, which this browser does not offer. Try a recent version of Chrome, Firefox, Safari or Edge. | Game cần Web Audio mà trình duyệt này không có. Hãy thử bản mới của Chrome, Firefox, Safari hoặc Edge. | このゲームには Web Audio が必要ですが、このブラウザは対応していません。Chrome、Firefox、Safari、Edge の最新版をお試しください。 |
 | rotate.hint | Turn your phone sideways to play | Xoay ngang điện thoại để chơi | 横向きにしてプレイしてください |

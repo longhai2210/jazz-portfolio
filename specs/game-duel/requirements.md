@@ -2,7 +2,7 @@
 id: DUEL
 title: Trận đấu Trading Fours (khối xám)
 status: approved
-version: 0.4
+version: 0.5
 owner: longhai2210
 ---
 
@@ -185,6 +185,8 @@ Source: thiết kế mục 6, 14, 15 (Giai đoạn 2)
 - AC-DUEL-013.9 Given bất kỳ màn nào của game, when hiện, then luôn có nút về trang chủ portfolio đúng ngôn ngữ đang dùng.
 - AC-DUEL-013.10 Given `prefers-reduced-motion` đang bật, when có phản hồi Perfect hoặc trích dẫn, then không có rung hay nhấp nháy, chỉ đổi chữ và hình.
 - AC-DUEL-013.11 Given làn nhịp, when hiện, then 4 làn khác nhau cả về hình dạng lẫn màu.
+- AC-DUEL-013.12 Given bấm Chơi, when trình duyệt chặn âm thanh (`blocked`) hoặc việc khởi tạo trận ném lỗi, then màn bắt đầu hiện thông báo kèm nút thử lại, nút Chơi bấm lại được, và không có lỗi promise nào bị bỏ lỡ.
+- AC-DUEL-013.13 Given nút về portfolio, when người chơi mở nút đó sang tab mới (Ctrl, Cmd, Shift hoặc chuột giữa), then trận ở tab hiện tại không bị đóng âm thanh và vẫn tiếp tục được.
 
 ### REQ-DUEL-014 Tạm dừng
 Source: thiết kế mục 11
@@ -235,3 +237,8 @@ Các mục sau là điều kiện qua Giai đoạn 2 hoặc số đo, không có
   - Lượt Solo: một lần gõ được đưa về lưới mà rơi ra ngoài 4 ô Solo của người chơi (trước ô đầu hoặc sau vị trí 7 của ô cuối) thì bỏ khỏi mọi điểm của lượt Solo, theo AC-DUEL-003.7.
   - Bảng độ khó trong design.md: ở Late Set, khi đối thủ chơi cũng không hiện vị trí nốt, khớp AC-DUEL-011.2.
   - Task bị ảnh hưởng: T-006 (lọc lần gõ ngoài ô Solo), T-009 (làn nhịp Late Set).
+- 0.5 thêm 2 AC từ review T-010, chủ dự án giao Lead quyết (2026-11-20). Chủ dự án có thể đổi lại.
+  - Thêm AC-DUEL-013.12: báo lỗi khi bắt đầu trận thất bại. Task T-013.
+  - Thêm AC-DUEL-013.13: mở nút về portfolio sang tab mới không làm hỏng trận. Task T-015.
+  - Lỗi tab bị ẩn đúng lúc đang tiếp tục trận vi phạm AC-DUEL-014.1 có sẵn. Task T-014.
+  - design.md thêm khóa `start.blocked`, `start.error`, `start.retry`, `error.title`, `error.body`, `error.retry`.
