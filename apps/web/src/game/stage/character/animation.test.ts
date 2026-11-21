@@ -46,15 +46,19 @@ function poseLead(pose: CharacterPose): number {
 }
 
 /** Walks frame by frame at `speed` and returns the gait reached and the changes of leading leg. */
-function walk(speed: number, frames: readonly number[]): { gait: number; leadChanges: number } {
+function walk(
+  speed: number,
+  frames: readonly number[],
+  reducedMotion = false,
+): { gait: number; leadChanges: number } {
   let gait = 0;
-  let lead = poseLead(characterPose({ character: 'sayo', action: 'walk', time: 0, gait }));
+  let lead = poseLead(characterPose({ character: 'sayo', action: 'walk', time: 0, gait, reducedMotion }));
   let leadChanges = 0;
   let time = 0;
   for (const dt of frames) {
     gait = advanceGait(gait, speed, dt);
     time += dt;
-    const next = poseLead(characterPose({ character: 'sayo', action: 'walk', time, gait }));
+    const next = poseLead(characterPose({ character: 'sayo', action: 'walk', time, gait, reducedMotion }));
     if (next !== 0 && next !== lead) {
       leadChanges += 1;
       lead = next;
@@ -273,6 +277,83 @@ describe('playing music', () => {
     expect(boneDistance(plays[0], plays[1])).toBeGreaterThan(0.3);
     expect(boneDistance(plays[1], plays[2])).toBeGreaterThan(0.3);
     expect(boneDistance(plays[0], plays[2])).toBeGreaterThan(0.3);
+  });
+});
+
+describe('reduced motion', () => {
+  const duelPhases: SessionPhase[] = [
+    { kind: 'countIn', turn: 'echo', bar: 0, beat: 2 },
+    { kind: 'opponent', turn: 'answer', bar: 10, index: 1 },
+    { kind: 'player', turn: 'solo', bar: 22, index: 1 },
+  ];
+
+  it('AC-STAGE-007.2: with reduced motion, standing still stops breathing but keeps blinking', () => {
+    const still = (time: number) => characterPose({ character: 'sayo', action: 'idle', time, reducedMotion: true });
+    const first = still(0);
+
+    for (let i = 1; i <= 80; i++) {
+      const time = (i / 80) * 2 * BREATH_PERIOD_S;
+      const pose = still(time);
+      expect(boneDistance(pose, first)).toBe(0);
+      expect(pose.hipsY).toBe(0);
+      expect(pose.expressions.blink).toBe(characterPose({ character: 'sayo', action: 'idle', time }).expressions.blink);
+    }
+    const blinks = Array.from({ length: 2400 }, (_, i) => still(i / 40).expressions.blink);
+    expect(Math.max(...blinks)).toBeGreaterThan(0.5);
+  });
+
+  it('AC-STAGE-007.2: with reduced motion, neither character bounces in the club: listening and playing poses are held', () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...duelPhases),
+        fc.constantFrom(...CHARACTERS),
+        fc.double({ min: 0, max: 400, noNaN: true }),
+        fc.double({ min: 0, max: 600, noNaN: true }),
+        (phase, character, beat, time) => {
+          const roles = duelRoles(phase);
+          for (const [action, seed] of [[roles.player, 0], [roles.shadow, 1]] as const) {
+            const held = characterPose({ character, action, time, beat, seed, reducedMotion: true });
+            const onTheBeat = characterPose({ character, action, time: 0, beat: 0, seed, reducedMotion: true });
+            expect(held.hipsY).toBe(0);
+            expect(boneDistance(held, onTheBeat)).toBe(0);
+          }
+        },
+      ),
+    );
+    const sing = characterPose({ character: 'sayo', action: 'play', time: 1, beat: 3, reducedMotion: true });
+    const listen = characterPose({ character: 'sayo', action: 'listen', time: 1, beat: 3, reducedMotion: true });
+    expect(boneDistance(sing, listen)).toBeGreaterThan(1);
+  });
+
+  it('AC-STAGE-007.2: with reduced motion, the walk cycle stays, still v / WALK_STRIDE steps a second', () => {
+    expect(walk(STREET_WALK_SPEED, SIXTY_FPS_FOR_10_S, true)).toEqual(walk(STREET_WALK_SPEED, SIXTY_FPS_FOR_10_S));
+    expect(walk(STREET_WALK_SPEED, SIXTY_FPS_FOR_10_S, true).leadChanges).toBe(40);
+    fc.assert(
+      fc.property(
+        fc.double({ min: 0, max: 1000, noNaN: true }),
+        fc.double({ min: 0, max: 600, noNaN: true }),
+        (gait, time) => {
+          const normal = characterPose({ character: 'sayo', action: 'walk', time, gait });
+          expect(characterPose({ character: 'sayo', action: 'walk', time, gait, reducedMotion: true })).toEqual(normal);
+        },
+      ),
+    );
+  });
+
+  it('AC-STAGE-007.2: without the reduced-motion flag, poses are as before', () => {
+    fc.assert(
+      fc.property(
+        fc.constantFrom(...CHARACTERS),
+        fc.constantFrom<CharacterAction>('idle', 'walk', 'listen', 'play'),
+        fc.double({ min: 0, max: 600, noNaN: true }),
+        fc.option(fc.double({ min: 0, max: 400, noNaN: true })),
+        (character, action, time, beat) => {
+          expect(characterPose({ character, action, time, beat, reducedMotion: false })).toEqual(
+            characterPose({ character, action, time, beat }),
+          );
+        },
+      ),
+    );
   });
 });
 

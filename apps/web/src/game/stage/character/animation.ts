@@ -9,6 +9,8 @@
  * 2. breathing, while not walking;
  * 3. a bounce on every beat of the music, while not walking and a beat is given;
  * 4. blinking, always, and the mouth while singing.
+ * With reduced motion (design.md section 5), layers 2 and 3 are left out; the walk cycle, the
+ * held poses and layer 4 stay.
  *
  * Every input is a number the caller owns (clock time, gait, beat), so the same input always gives
  * the same pose: nothing here reads a clock or a random source.
@@ -119,6 +121,13 @@ export interface PoseInput {
   readonly beat?: number | null;
   /** Shifts breathing and blinking so two characters do not move in step. 0 by default. */
   readonly seed?: number;
+  /**
+   * The player asked for reduced motion (`prefers-reduced-motion: reduce`, design.md section 5):
+   * no breathing and no bounce on the beat, so listening and playing poses are held still. Blinking
+   * stays, and so does the walk cycle, still at |v| / `WALK_STRIDE` steps a second. False by
+   * default.
+   */
+  readonly reducedMotion?: boolean;
 }
 
 type Rotation = { x: number; y: number; z: number };
@@ -304,7 +313,7 @@ function singingMouth(beat: number | null): number {
 
 /** The pose of a character at one moment. */
 export function characterPose(input: PoseInput): CharacterPose {
-  const { character, action, time, gait = 0, beat = null, seed = 0 } = input;
+  const { character, action, time, gait = 0, beat = null, seed = 0, reducedMotion = false } = input;
   const pose = restPose();
 
   switch (action) {
@@ -328,7 +337,7 @@ export function characterPose(input: PoseInput): CharacterPose {
     }
   }
 
-  if (action !== 'walk') {
+  if (action !== 'walk' && !reducedMotion) {
     addBreath(pose, time, seed);
     if (beat !== null) addBounce(pose, beat);
   }
