@@ -70,13 +70,18 @@ describe('T-018 spec-level checks', () => {
     ['no stages', { ...manifest, stages: undefined }],
     ['no duck path', { ...manifest, props: { duck: { bytes: 1 } } }],
     ['an array', []],
-    ['a missing file', null],
   ])('AC-STAGE-001.3: manifest with %s gives a missing-assets result, no throw', async (_n, m) => {
     const r = await loadStageAssets({ fetch: makeFetch(m) });
     expect(r.ok).toBe(false);
+    if (!r.ok) expect(r.reason).toBe('manifest-invalid');
   });
 
-  it('AC-STAGE-001.4: a failing file gives a missing-assets result instead of throwing', async () => {
+  it('loader: a manifest that answers 404 gives a missing-assets result, no throw', async () => {
+    const r = await loadStageAssets({ fetch: makeFetch(null) });
+    expect(r.ok).toBe(false);
+  });
+
+  it('loader: a failing file gives a missing-assets result instead of throwing', async () => {
     const r = await loadStageAssets({ fetch: makeFetch(manifest, 's/b.glb') });
     expect(r.ok).toBe(false);
   });
