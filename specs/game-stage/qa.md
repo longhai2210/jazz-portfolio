@@ -10,4 +10,4 @@
 | AC-STAGE-004.1 | same | pass | 2026-11-21 |
 | AC-STAGE-004.2 | same | pass | 2026-11-21 |
 
-Regression: street folder is new and nothing imports it yet; web type-check and the street suites (56 tests) pass. Exact door-radius boundary is not asserted (spec does not say inclusive or exclusive).
+Regression: street folder is new and nothing imports it yet; web type-check and the street suites (56 tests) pass. The exact door-radius boundary is asserted in the developer's `door.test.ts` (lines 14-15): a distance of exactly 1.2 m counts as near, the agreed reading of "trong DOOR_PROMPT_RADIUS" (inclusive). `street.ac.test.ts` tests only clearly inside and clearly outside.
