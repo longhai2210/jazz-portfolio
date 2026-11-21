@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import DuelGame from '@/game/ui/DuelGame';
+import StageGame from '@/game/stage/StageGame';
 import { getPublicSettings } from '@/lib/portfolio-data';
 
 export const revalidate = 300;
@@ -16,17 +16,20 @@ export const metadata: Metadata = {
 };
 
 /**
- * `/{locale}/game`: not found while `isGameEnabled` is off (AC-DUEL-015.5), the duel otherwise. The
- * route passes no inputs, so the game shows its own difficulty and calibration steps (REQ-DUEL-017).
+ * `/{locale}/game`: not found while `isGameEnabled` is off (AC-DUEL-015.5), the game otherwise. The
+ * game opens the 3D street when the browser has WebGL2 and the stage assets are there, and the
+ * grey-box duel of `game-duel` when not (game-stage AC-STAGE-001.1, 001.2, 002.1). The route
+ * passes no inputs.
  *
- * `DuelGame` is a Client Component imported straight from this Server Component, because Next 15
- * rejects `dynamic(..., { ssr: false })` in a Server Component. The server renders only the Start
- * screen; the `AudioContext` is created in the browser, on the Play press.
+ * `StageGame` is a Client Component imported straight from this Server Component, because Next 15
+ * rejects `dynamic(..., { ssr: false })` in a Server Component. The server renders only the loading
+ * panel; the WebGL2 check, the downloads and the 3D module all run in the browser, and the
+ * `AudioContext` is created on the Play press.
  */
 export default async function GamePage() {
   const settings = await getPublicSettings();
   if (!settings.isGameEnabled) {
     notFound();
   }
-  return <DuelGame />;
+  return <StageGame />;
 }
