@@ -358,6 +358,8 @@ export default function StageGame({ loadScene = loadStreetScene }: StageGameProp
     // T-022 hands this audio on to the duel in the club; until then the street music just stops.
     void audioRef.current?.suspend();
     setNearDoor(false);
+    // Back on the street the controls hint shows again (design.md section 3).
+    setWalked(false);
     setPlace('club');
   }, []);
 

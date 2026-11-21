@@ -313,7 +313,7 @@ describe('StageGame: WebGL2, assets and the grey-box fallback', () => {
     expect(screen.getByRole('link', { name: /Back to portfolio/ })).toBeInTheDocument();
   });
 
-  it('AC-STAGE-001.1: a 3D module that fails to load falls back to the grey-box duel', async () => {
+  it('AC-STAGE-001.2: a 3D module that fails to load falls back to the grey-box duel with the missing-assets note', async () => {
     fakeWebGL2(true);
     serve(createFakeAssetServer());
     render(<StageGame loadScene={() => Promise.reject(new Error('chunk failed'))} />);
@@ -439,7 +439,7 @@ describe('StageGame: the loading panel', () => {
     expect(screen.getByText(CHECKING)).toBeInTheDocument();
   });
 
-  it('AC-STAGE-008.1: leaving the page while the files download cancels the downloads', async () => {
+  it('leaving the page while the files download cancels the downloads', async () => {
     fakeWebGL2(true);
     const stream = streetOnly(3_000_000);
     const scene = createFakeStreetScene();
