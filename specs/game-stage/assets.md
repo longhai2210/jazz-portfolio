@@ -58,3 +58,13 @@ Spec: `specs/game-stage/requirements.md`. Code dựng theo hợp đồng này v�
 ## Tay trống: `sprites/drummer.png`
 - Bóng ngược sáng 2D, nền trong suốt, vài khung hình đánh trống xếp ngang trong một ảnh.
 - Kích thước ≤ 1 MB.
+
+## Quy ước khi dùng (theo bản art đã dựng, 2026-11-21)
+- Hướng: trục +Z của glTF là hướng nhìn tới trước của `spawn`, `player_mark`, `rival_mark`, `duck_path_*`, nhân vật và vịt. Gốc của vịt ở mặt nước.
+- Các node logic nằm trên đường đi, ở độ cao mặt đất. `club_door` có extras `doorSetBackM` (khoảng lùi từ đường đi tới cửa); khoảng cách tới cửa chỉ tính theo trục X.
+- `cam_min`, `cam_max`: extras giữ khung hình tham chiếu của phố. `cam_duel` nhìn theo −Z, +Y lên trên, góc nhìn dọc nằm ở extras `fovDeg`.
+- Cảnh xa của phố: `bg_sky`, `bg_hills_far`, `bg_hills_near`, vật liệu không nhận sáng.
+- Đèn: các mesh `lamp_*` (gồm `lamp_windows`, `lamp_string`) dùng chung một vật liệu `lamp_glow` chỉ chúng dùng. File xuất ra ở trạng thái sáng; "tắt" là `emissiveIntensity` = 0.
+- Bóng: đặt `shadowPalette` vào cả `map` lẫn `shadeMultiplyTexture` của mọi vật liệu MToon trên bản clone (flipY false, lọc nearest, `shadeColorFactor` khoảng 0,7). Chỉ đổi `map` thì mặt tối vẫn giữ màu gốc. Clone cả vật liệu để đổi Bóng không ảnh hưởng nhân vật người chơi.
+- Lò xo (spring bone) của nhân vật lấy gốc rig làm tâm, nên di chuyển hay xoay `vrm.scene` không làm tóc hay đuôi bị kéo lệch.
+- Tay trống: các khung hình bằng nhau xếp ngang, neo ở giữa đáy tại `drummer_mark`; số khung và chiều cao hiển thị lấy từ extras `frames` và `spriteHeight` của node.
