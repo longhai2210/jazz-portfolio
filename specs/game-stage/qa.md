@@ -20,3 +20,12 @@ Gap: no browser e2e; webgl probe covered with fake canvas only. Fresh worktree n
 | AC-STAGE-004.2 | same | pass | 2026-11-21 |
 
 Regression: street folder is new and nothing imports it yet; web type-check and the street suites (56 tests) pass. The exact door-radius boundary is asserted in the developer's `door.test.ts` (lines 14-15): a distance of exactly 1.2 m counts as near, the agreed reading of "trong DOOR_PROMPT_RADIUS" (inclusive). `street.ac.test.ts` tests only clearly inside and clearly outside.
+
+## T-020
+| AC | test | result | date |
+|---|---|---|---|
+| AC-STAGE-005.2 | apps/web/src/game/stage/character/ac-stage.qa.test.ts | pass | 2026-11-21 |
+| AC-STAGE-006.1 | same (fixture VRM, node env; no WebGL) | pass | 2026-11-21 |
+| AC-STAGE-007.1 | same | pass | 2026-11-21 |
+| AC-STAGE-007.2 | same (visual smoothness is G6, by eye) | pass | 2026-11-21 |
+| AC-STAGE-007.3 | same | pass | 2026-11-21 |
