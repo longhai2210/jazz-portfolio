@@ -29,7 +29,7 @@ Spec: `specs/game-stage/requirements.md`. Code dựng theo hợp đồng này v�
 ```
 
 - Mọi đường dẫn là tương đối với `/game-assets/`.
-- `bytes` là kích thước file thật, để tính tiến độ tải theo byte (AC-STAGE-001.4).
+- `bytes` là kích thước file thật, để tính tiến độ tải theo byte (AC-STAGE-001.4). Với `characters.player`, `bytes` là tổng của `vrm` và `shadowPalette`. `bytes` bằng 0 vẫn hợp lệ (file giữ chỗ); khi tổng bằng 0 thì không vẽ thanh tiến độ (design.md mục 1).
 - Thiếu trường nào ở trên, hoặc `version` khác 1, thì coi là thiếu asset (AC-STAGE-001.3).
 
 ## Nhân vật: `characters/player.vrm`
