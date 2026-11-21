@@ -46,3 +46,6 @@ coverage/
 # ai-workflow
 .claude/worktrees/
 .claude/settings.local.json
+
+# Game art: local-only assets for the game-stage slice, never committed (specs/game-stage/assets.md)
+apps/web/public/game-assets/
