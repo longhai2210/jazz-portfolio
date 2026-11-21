@@ -527,3 +527,74 @@ describe('AC-STAGE-004.1 the scene schedules duck quacks on beats 2 and 4', () =
     for (const time of lastQueued) expect(time).toBeGreaterThanOrEqual(20);
   });
 });
+
+const NOTE_MISSING = 'The stage art is not available here, so this is the plain grey-box match.';
+const NOTE_NO_WEBGL = 'This browser cannot draw the 3D stage, so this is the plain grey-box match.';
+
+function expectGreyBoxWithNote(note: string): void {
+  const status = screen.getByRole('status');
+  expect(status).toHaveTextContent(note);
+  expect(document.querySelector('[data-duel-game]')).not.toBeNull();
+  expect(screen.getByRole('button', { name: 'Play' })).toBeEnabled();
+  expect(screen.queryByTestId('street-scene')).not.toBeInTheDocument();
+  expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
+}
+
+describe('AC-STAGE-001.2 missing assets give the grey-box duel', () => {
+  it('AC-STAGE-001.2: with no manifest (404) the grey-box duel runs with the missing-assets note', async () => {
+    const server = createFakeAssetServer({
+      routes: { '/game-assets/manifest.json': { kind: 'status', status: 404 } },
+    });
+    const scene = openWith(server.fetch);
+    await settle();
+    expectGreyBoxWithNote(NOTE_MISSING);
+    expect(scene.loads).toBe(0);
+  });
+
+  it('AC-STAGE-001.2: when the manifest request itself fails (network error) the same fallback shows', async () => {
+    const server = createFakeAssetServer({
+      routes: { '/game-assets/manifest.json': { kind: 'network-error' } },
+    });
+    openWith(server.fetch);
+    await settle();
+    expectGreyBoxWithNote(NOTE_MISSING);
+  });
+
+  it.each(Object.entries(FAKE_FILE_URLS))(
+    'AC-STAGE-001.2: when %s answers an error the grey-box duel runs with the note',
+    async (_id, url) => {
+      const server = createFakeAssetServer({ routes: { [url]: { kind: 'status', status: 500 } } });
+      const scene = openWith(server.fetch);
+      await settle();
+      expectGreyBoxWithNote(NOTE_MISSING);
+      expect(scene.loads).toBe(0);
+    },
+  );
+
+  it('AC-STAGE-001.2: the note is localised (vi)', async () => {
+    setFakeLocale('vi');
+    const server = createFakeAssetServer({
+      routes: { '/game-assets/manifest.json': { kind: 'status', status: 404 } },
+    });
+    openWith(server.fetch);
+    await settle();
+    expect(screen.getByRole('status')).toHaveTextContent(
+      'Chưa có hình ảnh sân khấu ở đây, nên đây là trận khối xám đơn giản.',
+    );
+  });
+});
+
+describe('AC-STAGE-002.1 no WebGL2 gives the grey-box duel', () => {
+  it('AC-STAGE-002.1: without a webgl2 context the grey-box duel runs with the no-WebGL note, nothing is fetched and the 3D module is never loaded', async () => {
+    webgl = installWebGL2(false);
+    const server = createFakeAssetServer();
+    serve(server.fetch);
+    const scene = createFakeStreetScene();
+    render(<StageGame loadScene={scene.load} />);
+    await settle();
+    expectGreyBoxWithNote(NOTE_NO_WEBGL);
+    expect(scene.loads).toBe(0);
+    expect(scene.mounts).toBe(0);
+    expect(server.requests).toEqual([]);
+  });
+});
