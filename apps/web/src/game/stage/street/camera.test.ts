@@ -32,11 +32,15 @@ describe('street camera', () => {
 
         expect(next).toBeGreaterThanOrEqual(CAMERA.camMin);
         expect(next).toBeLessThanOrEqual(CAMERA.camMax);
-        if (step.x >= CAMERA.camMin && step.x <= CAMERA.camMax) {
-          // Inside the bounds the camera moves exactly as far as the character.
+        const inside = (at: number) => at >= CAMERA.camMin && at <= CAMERA.camMax;
+        if (inside(step.x)) {
           expect(next).toBe(step.x);
-          expect(next - camera).toBeCloseTo(step.x - x, 9);
-          followed++;
+          // The camera moves exactly as far as the character only when the whole step is inside
+          // the bounds; on the step in from outside, it moves only from the bound.
+          if (inside(x)) {
+            expect(next - camera).toBeCloseTo(step.x - x, 9);
+            followed++;
+          }
         }
         x = step.x;
         camera = next;
