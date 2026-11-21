@@ -1,6 +1,7 @@
 import { Mesh, Texture, type Material, type Object3D } from 'three';
 import { MToonMaterial } from '@pixiv/three-vrm';
 import type { SessionPhase } from '@/game/core/session';
+import type { Turn } from '@/game/core/types';
 import {
   advanceGait,
   beatDip,
@@ -15,27 +16,26 @@ import { duelRoles } from './roles';
 import { createShadow, shadowPaletteTexture } from './shadow';
 import { buildFixtureVrm, fakeImage } from './testing/vrm-fixture';
 
-const turn = 'opponent' as never;
-const phase = (p: object): SessionPhase => p as SessionPhase;
+const turn: Turn = 'echo';
 
 describe('AC-STAGE-005.2: roles from the session phase', () => {
   it('AC-STAGE-005.2: opponent turn means shadow plays, player listens', () => {
-    const r = duelRoles(phase({ kind: 'opponent', turn, bar: 1, index: 0 }));
+    const r = duelRoles({ kind: 'opponent', turn, bar: 1, index: 0 });
     expect(r.shadow).toBe('play');
     expect(r.player).toBe('listen');
   });
   it('AC-STAGE-005.2: player turn is the reverse', () => {
-    const r = duelRoles(phase({ kind: 'player', turn, bar: 5, index: 0 }));
+    const r = duelRoles({ kind: 'player', turn, bar: 5, index: 0 });
     expect(r.player).toBe('play');
     expect(r.shadow).toBe('listen');
   });
   it('AC-STAGE-005.2: nobody plays outside the turns', () => {
-    const phases = [
+    const phases: (SessionPhase | null)[] = [
       null,
-      phase({ kind: 'ready' }),
-      phase({ kind: 'finished' }),
-      phase({ kind: 'paused', turn }),
-      phase({ kind: 'countIn', turn, bar: 0, beat: 1 }),
+      { kind: 'ready' },
+      { kind: 'finished' },
+      { kind: 'paused', turn },
+      { kind: 'countIn', turn, bar: 0, beat: 1 },
     ];
     for (const p of phases) {
       const r = duelRoles(p);
