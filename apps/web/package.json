@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@jazz-portfolio/shared": "workspace:*",
+    "@pixiv/three-vrm": "3.5.5",
     "@react-three/fiber": "^9.7.0",
     "@tanstack/react-query": "^5.101.2",
     "framer-motion": "^12.0.0",
