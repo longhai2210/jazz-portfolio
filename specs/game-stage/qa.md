@@ -46,3 +46,17 @@ Regression: street folder is new and nothing imports it yet; web type-check and 
 
 AC-STAGE-008.1 at scene level (release stops the loop, disposes geometry, textures and VRM, calls loseContext) is proven by the developer's `StageGame.test.tsx` line 998 (checked, not duplicated). Gaps: real GLB, VRM, WebGL drawing, GPU dispose and the 3D look cannot run in Jest; the Lead checks them in a browser (G6).
 Regression: full web suite 80 suites, 973 tests pass; web type-check clean.
+
+## T-022
+
+| AC | Test | Result | Date |
+|---|---|---|---|
+| AC-STAGE-005.1 (Sayo, Shadows per REQ-DUEL-012, no second Play, one AudioContext, audio not closed by DuelGame, WebGL lost after Play skips Start) | `apps/web/src/game/stage/stage-club.ac.test.tsx`, `apps/web/src/game/ui/duel-game.stage-props.ac.test.tsx` | pass | 2026-11-22 |
+| AC-STAGE-005.3 (win fades, loss does not, next match restores; result shows at once) | `stage-club.ac.test.tsx` | pass | 2026-11-22 |
+| AC-STAGE-005.4 (door, lights by wins, from result and summary, same audio) | `stage-club.ac.test.tsx` | pass | 2026-11-22 |
+| Done when: note under top bar and before HUD, not floating; touch pads kept on phone landscape with a note | `duel-game.stage-props.ac.test.tsx` | pass | 2026-11-22 |
+| Done when: Leave club only in result and summary rows with the backdrop/endAction | both files | pass | 2026-11-22 |
+| Done when: street layer inert under rotate hint | `stage-club.ac.test.tsx` | pass | 2026-11-22 |
+| Done when: no new props renders as before | `duel-game.stage-props.ac.test.tsx` | pass | 2026-11-22 |
+
+Gaps: real WebGL, camera framing, phone layout and pixel overlap (jsdom has no layout) are checked by the Lead in a browser. Regression: `src/game` 70 suites, 989 tests pass.
