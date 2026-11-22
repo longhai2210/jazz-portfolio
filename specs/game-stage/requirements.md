@@ -1,7 +1,7 @@
 ---
 id: STAGE
 title: Lát cắt dọc Hồ Làng: một đoạn phố và một club 3D quanh trận đấu
-status: implemented
+status: verified
 version: 0.1
 owner: longhai2210
 ---
@@ -126,3 +126,4 @@ Source: CLAUDE.md (chữ công khai qua next-intl)
 - 0.1 draft
 - 0.1 approved by owner (G0), 2026-11-21, theo các lựa chọn Lead đề xuất: asset chỉ có trên máy, Bóng dùng lại model người chơi, chấp nhận khe hở ở khớp, hoạt ảnh bằng code, nhánh tách từ feature/game-duel.
 - 0.1 implemented, 2026-11-22: T-017 đến T-023 gộp vào feature/game-stage, verify xanh, mọi AC có test (trace.md).
+- 0.1 verified by owner (G6), 2026-11-22: chủ dự án chơi thử /vi/game với asset trên máy và duyệt lát cắt.
