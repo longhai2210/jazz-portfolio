@@ -33,6 +33,32 @@ function placeholders(message: string): readonly string[] {
 const enGame = flatten(en.game);
 const enKeys = Object.keys(enGame);
 const others = { vi: flatten(vi.game), ja: flatten(ja.game) } as const;
+const allGame = { en: enGame, ...others } as const;
+
+/**
+ * The `stage.*` keys of the i18n table in `specs/game-stage/design.md`, relative to the `game`
+ * namespace. They sit beside the `game-duel` keys, which the tests above already cover.
+ */
+const STAGE_KEYS = [
+  'stage.loading.title',
+  'stage.loading.checking',
+  'stage.loading.bytes',
+  'stage.loading.label',
+  'stage.note.missing',
+  'stage.note.noWebgl',
+  'stage.scene.street',
+  'stage.scene.club',
+  'stage.start.intro',
+  'stage.street.controls',
+  'stage.street.enterClub',
+  'stage.street.enterClubKeys',
+  'stage.street.doorNear',
+  'stage.street.lightsOn',
+  'stage.club.leave',
+  'stage.club.shadowFading',
+] as const;
+
+const LOCALES = ['en', 'vi', 'ja'] as const;
 
 describe('i18n game namespace coverage', () => {
   it('AC-DUEL-016.1: en.json has a game namespace with a non-empty string for every key', () => {
@@ -66,6 +92,32 @@ describe('i18n game namespace coverage', () => {
         return placeholders(source).join() !== placeholders(translated).join();
       });
       expect(differing).toEqual([]);
+    },
+  );
+});
+
+describe('i18n game.stage keys', () => {
+  it.each(LOCALES)(
+    'AC-STAGE-009.1: %s.json has a non-empty string for every game.stage key of the design table',
+    (locale) => {
+      const messages = allGame[locale];
+      expect(STAGE_KEYS.filter((key) => !isFilled(messages[key]))).toEqual([]);
+    },
+  );
+
+  it.each(LOCALES)(
+    'AC-STAGE-009.1: %s.json has no game.stage key beyond the design table',
+    (locale) => {
+      const stageKeys = Object.keys(allGame[locale]).filter((key) => key.startsWith('stage.'));
+      expect([...stageKeys].sort()).toEqual([...STAGE_KEYS].sort());
+    },
+  );
+
+  it.each(LOCALES)(
+    'AC-STAGE-009.1: %s.json keeps {loaded} and {total} in game.stage.loading.bytes',
+    (locale) => {
+      const message = allGame[locale]['stage.loading.bytes'];
+      expect(isFilled(message) ? placeholders(message) : []).toEqual(['loaded', 'total']);
     },
   );
 });

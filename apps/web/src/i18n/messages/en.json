@@ -193,6 +193,36 @@
       "match": "Match {n} · {name}",
       "points": "{points} points",
       "again": "Play again from the start"
+    },
+    "stage": {
+      "loading": {
+        "title": "Loading the street and the club",
+        "checking": "Checking the stage files...",
+        "bytes": "{loaded} MB of {total} MB",
+        "label": "Loading progress"
+      },
+      "note": {
+        "missing": "The stage art is not available here, so this is the plain grey-box match.",
+        "noWebgl": "This browser cannot draw the 3D stage, so this is the plain grey-box match."
+      },
+      "scene": {
+        "street": "The street scene",
+        "club": "The club scene"
+      },
+      "start": {
+        "intro": "Walk down the street to the club door, then trade fours with a shadow on stage."
+      },
+      "street": {
+        "controls": "Walk: A and D or the arrow keys. Touch the left or right half of the screen.",
+        "enterClub": "Enter the club",
+        "enterClubKeys": "E or Enter",
+        "doorNear": "You are at the club door.",
+        "lightsOn": "The street lights are on"
+      },
+      "club": {
+        "leave": "Leave the club",
+        "shadowFading": "The shadow fades away."
+      }
     }
   }
 }
