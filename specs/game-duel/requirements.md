@@ -1,7 +1,7 @@
 ---
 id: DUEL
 title: Trận đấu Trading Fours (khối xám)
-status: implemented
+status: verified
 version: 0.6
 owner: longhai2210
 ---
@@ -243,3 +243,4 @@ Các mục sau là điều kiện qua Giai đoạn 2 hoặc số đo, không có
   - Lỗi tab bị ẩn đúng lúc đang tiếp tục trận vi phạm AC-DUEL-014.1 có sẵn. Task T-014.
   - design.md thêm khóa `start.blocked`, `start.error`, `start.retry`, `error.title`, `error.body`, `error.retry`.
 - 0.6 chỉ sửa phần Scope, không đổi AC: `page.tsx` import thẳng màn chơi thay vì `dynamic(..., { ssr: false })`, vì Next 15 không cho cách đó trong server component (phát hiện ở review T-011).
+- 0.6 verified by owner (G6), 2026-11-22: chủ dự án duyệt trận đấu qua lần chơi thử lát cắt Hồ Làng, kể cả bản khối xám mà site chạy khi không có asset.
