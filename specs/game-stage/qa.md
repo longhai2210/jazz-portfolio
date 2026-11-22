@@ -60,3 +60,12 @@ Regression: full web suite 80 suites, 973 tests pass; web type-check clean.
 | Done when: no new props renders as before | `duel-game.stage-props.ac.test.tsx` | pass | 2026-11-22 |
 
 Gaps: real WebGL, camera framing, phone layout and pixel overlap (jsdom has no layout) are checked by the Lead in a browser. Regression: `src/game` 70 suites, 989 tests pass.
+
+## T-023 (test/T-023)
+
+| AC | test | result | date |
+|---|---|---|---|
+| AC-STAGE-009.1: en, vi, ja have a non-empty string for every game.stage key (16), and the game-duel table test accepts them | `apps/web/src/i18n/game-messages.ac.test.ts` | pass | 2026-11-22 |
+| AC-DUEL-016.1 (retargeted): duel keys checked against specs/game-duel/design.md, stage keys against specs/game-stage/design.md "Bảng chữ", no key outside both tables | same file | pass | 2026-11-22 |
+
+Regression: full web suite 86 suites, 1083 tests pass; lint and type-check clean. The dead-string and used-key checks cover all game.* keys including the 16 stage keys (stage/testing fakes excluded from the scan).
