@@ -21,10 +21,10 @@ jest.mock('next/navigation', () => ({
   }),
 }));
 jest.mock('@/lib/portfolio-data', () => ({ getPublicSettings: jest.fn() }));
-jest.mock('@/game/ui/DuelGame', () => ({
+jest.mock('@/game/stage/StageGame', () => ({
   __esModule: true,
-  default: function FakeDuelGame() {
-    return <div data-testid="duel-game" />;
+  default: function FakeStageGame() {
+    return <div data-testid="stage-game" />;
   },
 }));
 jest.mock('next/link', () =>
@@ -117,15 +117,16 @@ describe('/{locale}/game page', () => {
     expect(metadata.robots).toEqual({ index: false, follow: false });
   });
 
-  it('renders the duel, with no inputs, while isGameEnabled is on', async () => {
+  it('AC-STAGE-001.1: renders the stage game, with no inputs, while isGameEnabled is on', async () => {
     getPublicSettingsMock.mockResolvedValue(settings(true));
 
     const page = (await GamePage()) as ReactElement<Record<string, unknown>>;
     render(page);
 
     expect(notFoundMock).not.toHaveBeenCalled();
-    expect(screen.getByTestId('duel-game')).toBeInTheDocument();
-    // The route passes nothing, so the game asks for difficulty and calibration itself.
+    expect(screen.getByTestId('stage-game')).toBeInTheDocument();
+    // The route passes nothing: the game picks the 3D street or the grey box itself, and asks
+    // for difficulty and calibration itself.
     expect(page.props).toEqual({});
   });
 });
