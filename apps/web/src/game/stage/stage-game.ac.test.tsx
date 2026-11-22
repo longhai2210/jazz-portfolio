@@ -44,8 +44,11 @@ function serve(fetchFn: unknown): void {
   Object.defineProperty(window, 'fetch', { configurable: true, writable: true, value: fetchFn });
 }
 
+let audioContexts: FakeAudioContext[] = [];
+
 function installAudio(): void {
   const fake = createFakeAudioScope();
+  audioContexts = fake.contexts;
   Object.defineProperty(window, 'AudioContext', {
     configurable: true,
     writable: true,
@@ -92,6 +95,13 @@ afterEach(() => {
   Reflect.deleteProperty(window, 'matchMedia');
   Reflect.deleteProperty(document, 'visibilityState');
 });
+
+/** One half of the touch zones; fails the test when it is missing. */
+function half(zones: HTMLElement, side: 'left' | 'right'): HTMLElement {
+  const found = zones.querySelector<HTMLElement>(`[data-side="${side}"]`);
+  if (found === null) throw new Error(`the ${side} touch half is missing`);
+  return found;
+}
 
 function openWith(fetchFn: unknown): FakeStreetScene {
   webgl = installWebGL2(true);
@@ -245,8 +255,8 @@ describe('AC-STAGE-003.1 walking by keyboard and touch', () => {
   it('AC-STAGE-003.1: holding the left or right half of the touch zone walks that way until release', async () => {
     const scene = await playStreet();
     const zones = screen.getByTestId('street-touch-zones');
-    const left = zones.querySelector('[data-side="left"]') as HTMLElement;
-    const right = zones.querySelector('[data-side="right"]') as HTMLElement;
+    const left = half(zones, 'left');
+    const right = half(zones, 'right');
     fireEvent.pointerDown(left, { pointerId: 1, button: 0 });
     expect(scene.props().getDirection()).toBe(-1);
     fireEvent.pointerUp(left, { pointerId: 1 });
@@ -260,11 +270,11 @@ describe('AC-STAGE-003.1 walking by keyboard and touch', () => {
   it('AC-STAGE-003.1: two fingers on both halves stand still', async () => {
     const scene = await playStreet();
     const zones = screen.getByTestId('street-touch-zones');
-    fireEvent.pointerDown(zones.querySelector('[data-side="left"]') as HTMLElement, {
+    fireEvent.pointerDown(half(zones, 'left'), {
       pointerId: 1,
       button: 0,
     });
-    fireEvent.pointerDown(zones.querySelector('[data-side="right"]') as HTMLElement, {
+    fireEvent.pointerDown(half(zones, 'right'), {
       pointerId: 2,
       button: 0,
     });
@@ -360,8 +370,12 @@ describe('AC-STAGE-008.1 leaving /game cleans up', () => {
     act(() => scene.props().onReady());
     fireEvent.click(screen.getByRole('button', { name: 'Play' }));
     await settle();
+    expect(audioContexts).toHaveLength(1);
+    expect(audioContexts[0].state).not.toBe('closed');
     view.unmount();
+    await settle();
     expect(scene.mounted).toBe(false);
+    expect(audioContexts[0].state).toBe('closed');
   });
 
   it('AC-STAGE-008.1: unmounting mid-download aborts the requests and falls back to nothing', async () => {

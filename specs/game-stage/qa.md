@@ -41,7 +41,6 @@ Regression: street folder is new and nothing imports it yet; web type-check and 
 | AC-STAGE-003.4 (smoothed camera stays in cam_min..cam_max; reduced motion hard follow) | same, real `createStreetStage` with fake renderer | pass | 2026-11-21 |
 | AC-STAGE-004.1 (frames queue quacks on beats 2 and 4, no duplicates or gaps, pause skips gap) | same | pass | 2026-11-21 |
 | AC-STAGE-008.1, 008.2 (StageGame level: unmount, abort, hidden tab) | same | pass | 2026-11-21 |
-
 | AC-STAGE-001.2 (no manifest, network error, each of 6 files answering 500, vi note; role=status, grey-box DuelGame, 3D module not loaded) | same | pass | 2026-11-21 |
 | AC-STAGE-002.1 (no webgl2: grey-box note, no fetch, 3D module never loaded) | same | pass | 2026-11-21 |
 
