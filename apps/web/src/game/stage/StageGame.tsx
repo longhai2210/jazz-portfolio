@@ -414,6 +414,15 @@ export default function StageGame({ loadScene = loadStageScenes }: StageGameProp
     else void audio.resume();
   }, [audio, paused, onStreet]);
 
+  // The grey-box duel without an unlocked audio unlocks its own behind its own Play: a context the
+  // browser kept suspended on the street is let go first, so only one is ever alive.
+  const fallenBackWithoutAudio = note !== null && !unlocking && audio === null;
+  useEffect(() => {
+    if (!fallenBackWithoutAudio) return;
+    blockedContext.current?.close().catch(() => undefined);
+    blockedContext.current = null;
+  }, [fallenBackWithoutAudio]);
+
   /**
    * The street cannot go on: a file did not parse (only before Play, while the street is built) or
    * the WebGL context was lost (design decision 3). Before Play the grey-box duel unlocks its own
@@ -508,6 +517,17 @@ export default function StageGame({ loadScene = loadStageScenes }: StageGameProp
   }
 
   if (note !== null) {
+    // A fallback while the street's Play is still unlocking waits for that unlock, so the duel
+    // takes its audio on instead of making a second AudioContext behind its own Play.
+    if (unlocking) {
+      return (
+        <div
+          aria-busy="true"
+          data-testid="stage-waiting"
+          className="fixed inset-0 bg-jazz-black"
+        />
+      );
+    }
     return (
       <LeaveGameContext.Provider value={leave}>
         <FallbackDuel note={note} audio={audio} />

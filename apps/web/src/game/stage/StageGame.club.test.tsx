@@ -107,8 +107,13 @@ let audioContexts: FakeAudioContext[] = [];
 let infoSpy: jest.SpyInstance;
 let restorePointerEvent: () => void = () => undefined;
 
-function installAudio(): void {
-  const fake = createFakeAudioScope();
+/** Installs a recording fake `AudioContext`; `firstStays` keeps the first one suspended (blocked). */
+function installAudio(firstStays = false): void {
+  const fake = createFakeAudioScope({
+    setup: (context) => {
+      if (firstStays && fake.contexts.length === 1) context.resumeBehaviour = 'stay';
+    },
+  });
   audioContexts = fake.contexts;
   Object.defineProperty(window, 'AudioContext', {
     configurable: true,
@@ -524,6 +529,48 @@ describe('StageGame: a club or a page without the 3D scene', () => {
     expect(useGameStore.getState().session?.config.character).toBe('aki');
     expect(audioContexts).toHaveLength(1);
     expect(screen.getByTestId('stage-note')).toHaveTextContent(NOTE_NO_WEBGL);
+  });
+
+  /** Opens the street and presses Play, leaving the unlock pending. */
+  async function pressPlayOnStreet(firstStays = false): Promise<FakeScenes> {
+    installAudio(firstStays);
+    webgl = installWebGL2(true);
+    serveAssets();
+    const scenes = createFakeScenes();
+    render(<StageGame loadScene={scenes.load} />);
+    await settle();
+    act(() => scenes.street.props().onReady());
+    fireEvent.click(screen.getByRole('button', { name: 'Play' }));
+    return scenes;
+  }
+
+  it('a WebGL context lost while Play is still unlocking waits for the unlock, then hands that audio to the grey-box duel', async () => {
+    const scenes = await pressPlayOnStreet();
+    act(() => scenes.street.props().onFallback('noWebgl'));
+    // Nothing that could unlock a second audio is on screen meanwhile.
+    expect(screen.getByTestId('stage-waiting')).toHaveAttribute('aria-busy', 'true');
+    expect(document.querySelector('[data-duel-game]')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument();
+
+    await settle();
+    expect(screen.getByTestId('stage-note')).toHaveTextContent(NOTE_NO_WEBGL);
+    expect(screen.getByRole('heading', { name: 'Choose your difficulty' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument();
+    expect(audioContexts).toHaveLength(1);
+    expect(audioContext().state).toBe('running');
+  });
+
+  it('when that unlock is refused, the suspended audio is let go before the grey-box duel unlocks its own', async () => {
+    const scenes = await pressPlayOnStreet(true);
+    act(() => scenes.street.props().onFallback('noWebgl'));
+    await settle();
+
+    // The duel's own Start, for its own unlock; the street's refused context is closed.
+    expect(screen.getByRole('heading', { name: 'Midnight Session' })).toBeInTheDocument();
+    expect(audioContext().state).toBe('closed');
+    await press('Play');
+    expect(screen.getByRole('heading', { name: 'Choose your difficulty' })).toBeInTheDocument();
+    expect(audioContexts.filter((context) => context.state !== 'closed')).toHaveLength(1);
   });
 
   it('while the rotate hint covers a phone held upright, the street under it is inert', async () => {

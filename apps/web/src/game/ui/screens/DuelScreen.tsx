@@ -114,7 +114,17 @@ export default function DuelScreen({ audio, controller }: DuelScreenProps) {
 
   const held = useKeyboardTaps({ clock: audio, onTap: controller.tap, enabled: playing });
 
-  if (portrait) return <RotateHint />;
+  if (portrait) {
+    // Over a 3D scene the hint gets a solid page of its own: the canvas keeps its last frame, and
+    // no text may sit on it (design.md "Nguyên tắc").
+    return backdrop ? (
+      <div className="fixed inset-0 z-20 bg-jazz-black" data-testid="rotate-cover">
+        <RotateHint />
+      </div>
+    ) : (
+      <RotateHint />
+    );
+  }
   if (config === null || calls === null) return null;
 
   const view =

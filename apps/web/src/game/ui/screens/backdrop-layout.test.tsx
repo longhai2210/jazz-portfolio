@@ -18,7 +18,7 @@ import { playTake } from './testing/duel-results';
 import { setFakeLocale } from './testing/intl';
 import { navigations } from './testing/link';
 import { useStageLayout } from './ui';
-import { COMPACT_QUERY } from './use-media-query';
+import { COMPACT_QUERY, PORTRAIT_PHONE_QUERY } from './use-media-query';
 
 jest.mock(
   'next-intl',
@@ -47,11 +47,21 @@ afterEach(() => {
 
 /** A phone held sideways: only the compact query of the duel matches. */
 function holdPhoneSideways(): void {
+  stubMedia(COMPACT_QUERY);
+}
+
+/** A phone held upright: only the portrait query of the duel matches. */
+function holdPhoneUpright(): void {
+  stubMedia(PORTRAIT_PHONE_QUERY);
+}
+
+/** A `matchMedia` where only `matching` matches. */
+function stubMedia(matching: string): void {
   Object.defineProperty(window, 'matchMedia', {
     configurable: true,
     writable: true,
     value: (query: string): MediaQueryList => ({
-      matches: query === COMPACT_QUERY,
+      matches: query === matching,
       media: query,
       onchange: null,
       addEventListener: () => undefined,
@@ -98,6 +108,13 @@ function byTestId(id: string): HTMLElement {
 /** `first` comes before `second` in the page. */
 function expectBefore(first: Element, second: Element): void {
   expect(first.compareDocumentPosition(second) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+}
+
+/** The page of the duel; fails the test when it is not on screen. */
+function duelPage(): HTMLElement {
+  const found = document.querySelector<HTMLElement>('[data-duel-game]');
+  if (found === null) throw new Error('DuelGame is not on screen');
+  return found;
 }
 
 function header(): HTMLElement {
@@ -209,14 +226,43 @@ describe('the duel board over a 3D scene (design.md section 4)', () => {
     const campaign = useGameStore.getState().campaign;
     if (campaign === null) throw new Error('no run');
     act(() => useGameStore.getState().finishMatch(playTake(createDuelSession(campaign), { win: true })));
-    expectNoTextOnTheScene(document.body.querySelector('[data-duel-game]') as HTMLElement);
+    expectNoTextOnTheScene(duelPage());
     cleanup();
     useGameStore.getState().reset();
 
     render(<DuelGame audio={runningAudio()} backdrop={<SceneProbe />} />);
     await settle();
     expect(screen.getByRole('heading', { name: 'Choose your difficulty' })).toBeInTheDocument();
-    expectNoTextOnTheScene(document.body.querySelector('[data-duel-game]') as HTMLElement);
+    expectNoTextOnTheScene(duelPage());
+  });
+
+  it('a phone held upright gets the rotate hint on a solid page over the scene, never on the scene', async () => {
+    holdPhoneUpright();
+    render(
+      <DuelGame
+        audio={runningAudio()}
+        difficulty="session"
+        offsetMs={0}
+        backdrop={<SceneProbe />}
+        note={<p>No stage here.</p>}
+      />,
+    );
+    await settle();
+
+    const hint = byTestId('rotate-hint');
+    expect(screen.getByRole('status')).toHaveTextContent('Turn your phone sideways to play');
+    const cover = byTestId('rotate-cover');
+    expect(cover).toContainElement(hint);
+    expect(cover).toHaveClass('fixed', 'inset-0', 'bg-jazz-black');
+    expectNoTextOnTheScene(duelPage());
+  });
+
+  it('without a scene the rotate hint is the game-duel hint, with no cover', async () => {
+    holdPhoneUpright();
+    render(<DuelGame audio={runningAudio()} difficulty="session" offsetMs={0} />);
+    await settle();
+    expect(byTestId('rotate-hint')).toBeInTheDocument();
+    expect(screen.queryByTestId('rotate-cover')).not.toBeInTheDocument();
   });
 
   it('panels are 90% solid over the scene and outline chips get a solid fill; without a scene both are as in game-duel', async () => {
