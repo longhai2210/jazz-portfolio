@@ -8,6 +8,10 @@ export class UpdateFeatureSettingsDto {
 
   @IsOptional()
   @IsBoolean()
+  isGameEnabled?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
   areCommentsEnabled?: boolean;
 
   @IsOptional()

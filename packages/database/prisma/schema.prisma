@@ -119,6 +119,7 @@ model SiteSettings {
   mailFrom                String   @default("") @map("mail_from")
   mailTo                  String   @default("") @map("mail_to")
   isBlogEnabled           Boolean  @default(false) @map("is_blog_enabled")
+  isGameEnabled           Boolean  @default(false) @map("is_game_enabled")
   areCommentsEnabled      Boolean  @default(false) @map("are_comments_enabled")
   commentModerationMode   String   @default("ALL") @map("comment_moderation_mode")
   isCommentCaptchaEnabled Boolean  @default(false) @map("is_comment_captcha_enabled")

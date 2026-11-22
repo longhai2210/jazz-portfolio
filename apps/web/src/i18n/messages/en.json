@@ -60,5 +60,169 @@
     "errorServer": "Something went wrong on our end. Your message was not lost — please try again.",
     "charCountWarning": "{remaining} characters remaining.",
     "charCountLimit": "Character limit reached."
+  },
+  "game": {
+    "title": "Midnight Session",
+    "home": {
+      "back": "Back to portfolio"
+    },
+    "start": {
+      "intro": "Trade fours with a shadow of the band. Listen, answer, then play your own solo. Use D F J K or tap the four zones.",
+      "play": "Play",
+      "blocked": "The browser did not start the sound. Press Try again to turn it on.",
+      "error": "Something went wrong while starting the match.",
+      "retry": "Try again"
+    },
+    "error": {
+      "title": "Something went wrong",
+      "body": "The game hit an unexpected error. Your portfolio is unaffected.",
+      "retry": "Reload the game"
+    },
+    "unsupported": {
+      "title": "This browser cannot play the game",
+      "body": "The game needs Web Audio, which this browser does not offer. Try a recent version of Chrome, Firefox, Safari or Edge."
+    },
+    "rotate": {
+      "hint": "Turn your phone sideways to play"
+    },
+    "difficulty": {
+      "title": "Choose your difficulty",
+      "lounge": {
+        "name": "Lounge",
+        "desc": "Wide timing. Every target note is shown. Easy to play with the sound off."
+      },
+      "session": {
+        "name": "Session",
+        "desc": "Normal timing. Beat lines stay on, targets show only while the opponent plays."
+      },
+      "lateSet": {
+        "name": "Late Set",
+        "desc": "Tight timing, swung rhythm. No targets and no beat lines: use your ears."
+      },
+      "timing": "Timing x{mult}",
+      "continue": "Continue"
+    },
+    "calibration": {
+      "title": "Tap along to the click",
+      "body": "Tap the pad with each click. This measures the delay of your screen and headphones.",
+      "tap": "Tap",
+      "progress": "{count} of {total}",
+      "done": "Delay set to {ms} ms",
+      "doneBody": "Both matches use this value.",
+      "startMatch": "Start match 1",
+      "again": "Calibrate again",
+      "failTitle": "We could not measure the delay",
+      "failBody": "Too few taps landed close to the clicks. Delay is set to 0 ms.",
+      "retry": "Try again",
+      "skip": "Continue without it"
+    },
+    "hud": {
+      "match": "Match {n} of 2",
+      "round": "Round {n} of 3",
+      "bar": "Bar {n}",
+      "opponentPlays": "{name} plays",
+      "yourTurn": "Your turn",
+      "yourPhrase": "Your phrase",
+      "bpm": "{bpm} BPM",
+      "countIn": "Count-in"
+    },
+    "round": {
+      "echo": "Echo",
+      "answer": "Answer",
+      "solo": "Solo",
+      "restart": "Round {n} of 3 · {round} restarts"
+    },
+    "pause": {
+      "button": "Pause",
+      "title": "Paused",
+      "body": "When you resume there is one bar of count-in. This round restarts from the opponent's phrase and its score starts over.",
+      "resume": "Resume"
+    },
+    "pad": {
+      "d": "Button D, lowest note",
+      "f": "Button F, second note",
+      "j": "Button J, third note",
+      "k": "Button K, highest note"
+    },
+    "feedback": {
+      "perfect": "Perfect",
+      "great": "Great",
+      "ok": "OK",
+      "miss": "Miss",
+      "extra": "Extra tap",
+      "quote": "Quote: {lick}!",
+      "quoteSub": "{lick} sounds on the next downbeat"
+    },
+    "lickBook": {
+      "title": "Lick book",
+      "open": "Open lick book",
+      "close": "Close lick book",
+      "note": "Round squares mark off-beat positions. Positions 1 to 8 read left to right.",
+      "justQuoted": "Just quoted"
+    },
+    "lick": {
+      "duck": "Duck",
+      "frog": "Frog",
+      "windChime": "Wind chime"
+    },
+    "result": {
+      "winTitle": "{name} is back in the band",
+      "loseTitle": "Not this take",
+      "stars": "{count} of 3 stars",
+      "rhythm": "Rhythm",
+      "direction": "Direction",
+      "feel": "Feel",
+      "quoteBonus": "Quote bonus",
+      "total": "Total",
+      "quotesTitle": "Licks quoted",
+      "quotesNone": "None this take.",
+      "quoteCount": "{lick} x{count}",
+      "next": "On to match 2",
+      "replay": "Replay this take",
+      "summary": "See summary"
+    },
+    "assist": {
+      "title": "Want a little more room?",
+      "body": "Widen the timing windows by 15% for the rest of this run. The result screen will say so.",
+      "accept": "Widen windows",
+      "decline": "No thanks",
+      "note": "Timing windows were widened by 15%."
+    },
+    "summary": {
+      "title": "Session complete",
+      "match": "Match {n} · {name}",
+      "points": "{points} points",
+      "again": "Play again from the start"
+    },
+    "stage": {
+      "loading": {
+        "title": "Loading the street and the club",
+        "checking": "Checking the stage files...",
+        "bytes": "{loaded} MB of {total} MB",
+        "label": "Loading progress"
+      },
+      "note": {
+        "missing": "The stage art is not available here, so this is the plain grey-box match.",
+        "noWebgl": "This browser cannot draw the 3D stage, so this is the plain grey-box match."
+      },
+      "scene": {
+        "street": "The street scene",
+        "club": "The club scene"
+      },
+      "start": {
+        "intro": "Walk down the street to the club door, then trade fours with a shadow on stage."
+      },
+      "street": {
+        "controls": "Walk: A and D or the arrow keys. Touch the left or right half of the screen.",
+        "enterClub": "Enter the club",
+        "enterClubKeys": "E or Enter",
+        "doorNear": "You are at the club door.",
+        "lightsOn": "The street lights are on"
+      },
+      "club": {
+        "leave": "Leave the club",
+        "shadowFading": "The shadow fades away."
+      }
+    }
   }
 }

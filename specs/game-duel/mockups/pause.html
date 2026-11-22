@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pause (game-duel)</title>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<div class="sheet">
+  <h1>Pause and count-in</h1>
+  <p class="note">REQ-DUEL-014. Opens on Esc, the pause button or a hidden tab. Audio is suspended while open.</p>
+
+  <div class="frame-label">1. Paused, over a frozen duel board. Focus moves to Resume; Esc also resumes, with the same 1-bar count-in.</div>
+  <div class="stage landscape">
+    <div class="duel" style="opacity:.5">
+      <div class="topbar"><div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div><div class="right"><span class="chip">Session</span><span class="chip">96 BPM</span></div></div>
+      <div class="hud"><div class="who"><div class="avatar">Y</div><div><b>Your turn</b><small>Match 1 of 2</small></div></div><div class="turn-banner"><small>Round 2 of 3</small>Answer</div></div>
+    </div>
+    <div class="overlay" role="dialog" aria-modal="true" aria-labelledby="pause-h">
+      <div class="panel" style="background:var(--color-jazz-dark);border:1px solid var(--color-jazz-slate);border-radius:16px">
+        <h2 id="pause-h">Paused</h2>
+        <p>When you resume there is one bar of count-in. This round restarts from the opponent's phrase and its score starts over.</p>
+        <div class="actions"><button class="btn primary">Resume</button><a class="btn" href="#">Back to portfolio</a></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="frame-label">2. Count-in after resume (1 bar, 4 beats). Visual beat dots plus the number, so it works with sound off. Beat 3 of 4 shown.</div>
+  <div class="stage landscape">
+    <div class="overlay">
+      <div style="text-align:center;display:flex;flex-direction:column;gap:16px;align-items:center">
+        <div class="countin" aria-live="assertive">3</div>
+        <div class="beat-dots" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i></i></div>
+        <p style="color:var(--color-jazz-text-muted);margin:0">Round 2 of 3 &middot; Answer restarts</p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

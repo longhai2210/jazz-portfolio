@@ -44,3 +44,45 @@ describe('portfolio-data getProfile', () => {
     expect(profile).toMatchObject({ id: 'p1' });
   });
 });
+
+describe('portfolio-data getPublicSettings fallback', () => {
+  let warnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    getMock.mockReset();
+    jest.resetModules();
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
+  it('AC-DUEL-015.4: returns isGameEnabled false when the settings API cannot be reached', async () => {
+    getMock.mockRejectedValue(new Error('connect ECONNREFUSED'));
+
+    const { getPublicSettings } = await import('@/lib/portfolio-data');
+    const settings = await getPublicSettings();
+
+    expect(getMock).toHaveBeenCalledWith(ApiRoutes.settings.public(), {
+      tags: ['settings'],
+    });
+    expect(settings.isGameEnabled).toBe(false);
+    expect(warnSpy).toHaveBeenCalled();
+  });
+
+  it('AC-DUEL-015.4: returns isGameEnabled false when the settings API returns no data', async () => {
+    getMock.mockResolvedValue({ data: null, meta: null });
+
+    const { getPublicSettings } = await import('@/lib/portfolio-data');
+    const settings = await getPublicSettings();
+
+    expect(settings).toEqual({
+      isContactFormEnabled: true,
+      isBlogEnabled: false,
+      isGameEnabled: false,
+      areCommentsEnabled: false,
+      isCommentCaptchaEnabled: false,
+    });
+  });
+});

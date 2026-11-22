@@ -38,6 +38,7 @@ export default function ContentSettingsForm({
     if (initialSettings) {
       setFormData({
         isBlogEnabled: initialSettings.isBlogEnabled,
+        isGameEnabled: initialSettings.isGameEnabled,
         areCommentsEnabled: initialSettings.areCommentsEnabled,
         commentModerationMode: initialSettings.commentModerationMode,
         isCommentCaptchaEnabled: initialSettings.isCommentCaptchaEnabled,
@@ -66,6 +67,7 @@ export default function ContentSettingsForm({
   }
 
   const isBlogOn = formData.isBlogEnabled ?? false;
+  const isGameOn = formData.isGameEnabled ?? false;
   const isCaptchaConfigured = status?.captchaConfigured ?? false;
 
   return (
@@ -153,6 +155,41 @@ export default function ContentSettingsForm({
               <div className="w-11 h-6 bg-jazz-charcoal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-jazz-slate after:border-jazz-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-jazz-gold peer-checked:after:bg-jazz-black" />
             </label>
           </div>
+        </div>
+
+        {/* Toggle: Game (independent of Blog) */}
+        <div className="bg-jazz-dark/50 border border-jazz-slate p-6 rounded-2xl flex flex-col gap-3">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h3 className="text-sm font-heading font-bold text-jazz-gold">
+                Enable Public Game
+              </h3>
+              <p className="text-xs text-jazz-text-muted mt-1">
+                When enabled, the Midnight Session duel is playable at <code className="text-jazz-gold font-mono">/[locale]/game</code>. It is hidden from search engines and the sitemap.
+              </p>
+            </div>
+            <label className="relative inline-flex items-center cursor-pointer select-none">
+              <input
+                type="checkbox"
+                aria-label="Enable Public Game"
+                checked={isGameOn}
+                onChange={(e) =>
+                  setFormData({ ...formData, isGameEnabled: e.target.checked })
+                }
+                className="sr-only peer"
+              />
+              <div className="w-11 h-6 bg-jazz-charcoal peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-jazz-slate after:border-jazz-slate after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-jazz-gold peer-checked:after:bg-jazz-black" />
+            </label>
+          </div>
+          {isGameOn ? (
+            <div className="text-[11px] font-mono text-jazz-text-muted bg-jazz-charcoal border border-jazz-slate rounded-lg p-2.5">
+              The page is live for anyone with the link. It is not linked from the site menu yet.
+            </div>
+          ) : (
+            <div className="text-[11px] font-mono text-amber-400/90 bg-amber-950/20 border border-amber-500/20 rounded-lg p-2.5">
+              ⚠️ Note: <code className="font-mono">/[locale]/game</code> returns 404 Not Found while the Game is disabled.
+            </div>
+          )}
         </div>
 
         {/* Moderation & Security Settings */}

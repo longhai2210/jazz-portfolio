@@ -134,6 +134,7 @@ async function main() {
       mailFrom: process.env.MAIL_FROM || '',
       mailTo: process.env.MAIL_TO || '',
       isBlogEnabled: false,
+      isGameEnabled: false,
       areCommentsEnabled: false,
       commentModerationMode: 'ALL',
       isCommentCaptchaEnabled: false,

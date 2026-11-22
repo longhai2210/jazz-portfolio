@@ -17,6 +17,7 @@ import {
 export interface CachedSiteSettings {
   isContactFormEnabled: boolean;
   isBlogEnabled: boolean;
+  isGameEnabled: boolean;
   areCommentsEnabled: boolean;
   commentModerationMode: string;
   isCommentCaptchaEnabled: boolean;
@@ -67,6 +68,7 @@ export class SettingsService implements OnModuleInit {
         mailFrom: this.configService.get<string>('MAIL_FROM') || '',
         mailTo: this.configService.get<string>('MAIL_TO') || '',
         isBlogEnabled: false,
+        isGameEnabled: false,
         areCommentsEnabled: false,
         commentModerationMode: 'ALL',
         isCommentCaptchaEnabled: false,
@@ -106,6 +108,7 @@ export class SettingsService implements OnModuleInit {
         select: {
           isContactFormEnabled: true,
           isBlogEnabled: true,
+          isGameEnabled: true,
           areCommentsEnabled: true,
           commentModerationMode: true,
           isCommentCaptchaEnabled: true,
@@ -195,6 +198,7 @@ export class SettingsService implements OnModuleInit {
 
     return {
       isBlogEnabled: row.isBlogEnabled,
+      isGameEnabled: row.isGameEnabled,
       areCommentsEnabled: row.areCommentsEnabled,
       commentModerationMode: row.commentModerationMode as CommentModerationMode,
       isCommentCaptchaEnabled: row.isCommentCaptchaEnabled,
@@ -213,6 +217,7 @@ export class SettingsService implements OnModuleInit {
     const isBlogOff = dto.isBlogEnabled === false;
 
     if (dto.isBlogEnabled !== undefined) data.isBlogEnabled = dto.isBlogEnabled;
+    if (dto.isGameEnabled !== undefined) data.isGameEnabled = dto.isGameEnabled;
     if (isBlogOff) {
       data.areCommentsEnabled = false;
     } else if (dto.areCommentsEnabled !== undefined) {
@@ -242,6 +247,7 @@ export class SettingsService implements OnModuleInit {
 
     return {
       isBlogEnabled: row.isBlogEnabled,
+      isGameEnabled: row.isGameEnabled,
       areCommentsEnabled: row.areCommentsEnabled,
       commentModerationMode: row.commentModerationMode as CommentModerationMode,
       isCommentCaptchaEnabled: row.isCommentCaptchaEnabled,
@@ -288,6 +294,7 @@ export class SettingsService implements OnModuleInit {
     return {
       isContactFormEnabled: cached.isContactFormEnabled,
       isBlogEnabled: cached.isBlogEnabled,
+      isGameEnabled: cached.isGameEnabled,
       areCommentsEnabled: cached.areCommentsEnabled,
       isCommentCaptchaEnabled: cached.isCommentCaptchaEnabled,
     };

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Duel board (game-duel)</title>
+<link rel="stylesheet" href="game.css">
+</head>
+<body>
+<div class="sheet">
+  <h1>Duel board</h1>
+  <p class="note">REQ-DUEL-007.4, 011.2, 013.3 to 013.11. Lane order: K on top (highest note), D at the bottom. Each lane has its own shape and color; hit state is also shown in text, not by color alone.</p>
+
+  <!-- ===== Frame A: Session, match 2, opponent Solo, "Câu của bạn" ===== -->
+  <div class="frame-label">A. Session, match 2, opponent plays Solo. Bars 1 and 2 are built from the player's own phrase (AC-DUEL-007.4). Target positions visible because the opponent is playing (AC-DUEL-011.2).</div>
+  <div class="stage landscape">
+    <div class="duel">
+      <div class="topbar">
+        <div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div>
+        <div class="right"><span class="chip">Session</span><span class="chip">96 BPM</span><button class="icon-btn" aria-label="Pause">&#10074;&#10074;</button></div>
+      </div>
+      <div class="hud">
+        <div class="who"><div class="avatar shadow">S</div><div><b>Sayo plays</b><small>Match 2 of 2</small></div></div>
+        <div class="turn-banner"><small>Round 3 of 3</small>Solo</div>
+      </div>
+      <div class="phase-tabs"><span class="chip">Echo</span><span class="chip">Answer</span><span class="chip on">Solo</span></div>
+      <div class="board">
+        <div class="bars-head"><span></span><span class="cur">Bar 1</span><span class="cur">Bar 2</span><span>Bar 3</span><span>Bar 4</span></div>
+        <!-- "Câu của bạn" label spans bars 1 and 2 only. Track starts after the 44px key column. -->
+        <div class="phrase-row"><span class="bar-label">Your phrase</span></div>
+        <div class="feedback">&nbsp;</div>
+        <div class="lanes">
+        <div class="lane"><div class="key"><i class="sig k"></i>K</div>
+          <div class="track beats theirs"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk k" style="left:17.1875%"></i><i class="mk k" style="left:60.9375%"></i><i class="mk k" style="left:64.0625%"></i><i class="mk k" style="left:95.3125%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig j"></i>J</div>
+          <div class="track beats theirs"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk j" style="left:7.8125%"></i><i class="mk j" style="left:60.9375%"></i><i class="mk j" style="left:76.5625%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig f"></i>F</div>
+          <div class="track beats theirs"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk f" style="left:32.8125%"></i><i class="mk f" style="left:51.5625%"></i><i class="mk f" style="left:85.9375%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig d"></i>D</div>
+          <div class="track beats theirs"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk d" style="left:1.5625%"></i><i class="mk d" style="left:42.1875%"></i><i class="mk d" style="left:70.3125%"></i><i class="mk d" style="left:89.0625%"></i></div></div>
+        <!-- playhead: one element over the track column (left offset 44px + percent of remaining width) -->
+        <div class="playhead" style="left:calc(44px + (100% - 44px) * 0.30)"></div>
+        </div>
+      </div>
+      <div class="pads">
+        <button class="pad"><i class="sig d"></i>D</button><button class="pad"><i class="sig f"></i>F</button><button class="pad"><i class="sig j"></i>J</button><button class="pad"><i class="sig k"></i>K</button>
+      </div>
+      <aside class="lickbook" aria-label="Lick book">
+        <h3>Lick book</h3>
+        <div class="lick"><b>Duck</b><div class="dots"><i></i><i class="odd"></i><i class="on"></i><i class="on odd"></i><i></i><i class="odd"></i><i class="on"></i><i class="odd"></i></div></div>
+        <div class="lick"><b>Frog</b><div class="dots"><i class="on"></i><i class="odd"></i><i></i><i class="on odd"></i><i></i><i class="on odd"></i><i></i><i class="odd"></i></div></div>
+        <div class="lick"><b>Wind chime</b><div class="dots"><i></i><i class="on odd"></i><i></i><i class="odd"></i><i class="on"></i><i class="odd"></i><i class="on"></i><i class="on odd"></i></div></div>
+        <p class="lick-note">Round squares mark off-beat positions. Positions 1 to 8 read left to right.</p>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ===== Frame B: Lounge, player's turn, targets as hollow outlines ===== -->
+  <div class="frame-label">B. Lounge, Echo, player's turn. Targets stay visible as hollow shapes (AC-DUEL-011.2). Hit results appear as text. Playable with sound off (all timing is visual).</div>
+  <div class="stage landscape">
+    <div class="duel">
+      <div class="topbar">
+        <div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div>
+        <div class="right"><span class="chip">Lounge</span><span class="chip">84 BPM</span><button class="icon-btn" aria-label="Pause">&#10074;&#10074;</button></div>
+      </div>
+      <div class="hud">
+        <div class="who"><div class="avatar">Y</div><div><b>Your turn</b><small>Match 1 of 2 &middot; vs Aki</small></div></div>
+        <div class="turn-banner"><small>Round 1 of 3</small>Echo</div>
+      </div>
+      <div class="phase-tabs"><span class="chip on">Echo</span><span class="chip">Answer</span><span class="chip">Solo</span></div>
+      <div class="board">
+        <div class="bars-head"><span></span><span class="cur">Bar 1</span><span class="cur">Bar 2</span><span>Bar 3</span><span>Bar 4</span></div>
+        <div class="feedback">Perfect<small>+1 &middot; Direction: up</small></div>
+        <div class="lanes">
+        <div class="lane"><div class="key"><i class="sig k"></i>K</div>
+          <div class="track beats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk k hit" style="left:20.3125%"></i><i class="mk k hollow" style="left:26.5625%"></i><i class="mk k hollow" style="left:70.3125%"></i><i class="mk k hollow" style="left:95.3125%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig j"></i>J</div>
+          <div class="track beats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk j hit" style="left:14.0625%"></i><i class="mk j hollow" style="left:57.8125%"></i><i class="mk j hollow" style="left:76.5625%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig f"></i>F</div>
+          <div class="track beats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk f hit" style="left:7.8125%"></i><i class="mk f hollow" style="left:39.0625%"></i><i class="mk f hollow" style="left:64.0625%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig d"></i>D</div>
+          <div class="track beats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span>
+            <i class="mk d hit" style="left:1.5625%"></i><i class="mk d hollow" style="left:45.3125%"></i><i class="mk d hollow" style="left:51.5625%"></i></div></div>
+        <div class="playhead" style="left:calc(44px + (100% - 44px) * 0.235)"></div>
+        </div>
+      </div>
+      <div class="pads">
+        <button class="pad"><i class="sig d"></i>D</button><button class="pad down"><i class="sig f"></i>F</button><button class="pad"><i class="sig j"></i>J</button><button class="pad"><i class="sig k"></i>K</button>
+      </div>
+      <aside class="lickbook" aria-label="Lick book">
+        <h3>Lick book</h3>
+        <div class="lick"><b>Duck</b><div class="dots"><i></i><i class="odd"></i><i class="on"></i><i class="on odd"></i><i></i><i class="odd"></i><i class="on"></i><i class="odd"></i></div></div>
+        <div class="lick"><b>Frog</b><div class="dots"><i class="on"></i><i class="odd"></i><i></i><i class="on odd"></i><i></i><i class="on odd"></i><i></i><i class="odd"></i></div></div>
+        <div class="lick"><b>Wind chime</b><div class="dots"><i></i><i class="on odd"></i><i></i><i class="odd"></i><i class="on"></i><i class="odd"></i><i class="on"></i><i class="on odd"></i></div></div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ===== Frame C: Late Set, Solo, player's turn, a lick quoted ===== -->
+  <div class="frame-label">C. Late Set, Solo, player's turn. No beat lines, no target positions (AC-DUEL-011.2). Only the player's own taps appear. A quote just landed: Duck lights up (AC-DUEL-013.8).</div>
+  <div class="stage landscape">
+    <div class="duel">
+      <div class="topbar">
+        <div class="left"><a class="home-btn" href="#">&larr; Back to portfolio</a></div>
+        <div class="right"><span class="chip">Late Set</span><span class="chip">96 BPM</span><button class="icon-btn" aria-label="Pause">&#10074;&#10074;</button></div>
+      </div>
+      <div class="hud">
+        <div class="who"><div class="avatar">Y</div><div><b>Your turn</b><small>Match 2 of 2 &middot; vs Sayo</small></div></div>
+        <div class="turn-banner"><small>Round 3 of 3</small>Solo</div>
+      </div>
+      <div class="phase-tabs"><span class="chip">Echo</span><span class="chip">Answer</span><span class="chip on">Solo</span></div>
+      <div class="board">
+        <div class="bars-head"><span></span><span class="cur">Bar 1</span><span>Bar 2</span><span>Bar 3</span><span>Bar 4</span></div>
+        <div class="feedback">Quote: Duck!<small>Duck sounds on the next downbeat</small></div>
+        <div class="lanes">
+        <div class="lane"><div class="key"><i class="sig k"></i>K</div><div class="track nobeats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span></div></div>
+        <div class="lane"><div class="key"><i class="sig j"></i>J</div><div class="track nobeats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span><i class="mk j" style="left:7.8125%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig f"></i>F</div><div class="track nobeats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span><i class="mk f" style="left:10.9375%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig d"></i>D</div><div class="track nobeats yours"><span class="barline" style="left:25%"></span><span class="barline" style="left:50%"></span><span class="barline" style="left:75%"></span><i class="mk d" style="left:1.5625%"></i><i class="mk d" style="left:20.3125%"></i></div></div>
+        <div class="playhead" style="left:calc(44px + (100% - 44px) * 0.27)"></div>
+        </div>
+      </div>
+      <div class="pads">
+        <button class="pad"><i class="sig d"></i>D</button><button class="pad"><i class="sig f"></i>F</button><button class="pad"><i class="sig j"></i>J</button><button class="pad"><i class="sig k"></i>K</button>
+      </div>
+      <aside class="lickbook" aria-label="Lick book">
+        <h3>Lick book</h3>
+        <div class="lick lit"><b>Duck</b><div class="dots"><i></i><i class="odd"></i><i class="on"></i><i class="on odd"></i><i></i><i class="odd"></i><i class="on"></i><i class="odd"></i></div></div>
+        <div class="lick"><b>Frog</b><div class="dots"><i class="on"></i><i class="odd"></i><i></i><i class="on odd"></i><i></i><i class="on odd"></i><i></i><i class="odd"></i></div></div>
+        <div class="lick"><b>Wind chime</b><div class="dots"><i></i><i class="on odd"></i><i></i><i class="odd"></i><i class="on"></i><i class="odd"></i><i class="on"></i><i class="on odd"></i></div></div>
+        <p class="lick-note">Lit lick: just quoted. Stays lit until the next bar. With reduced motion the glow does not pulse; the star and the label carry the message.</p>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ===== Frame D: phone landscape ===== -->
+  <div class="frame-label">D. Phone, landscape, Session, player's turn. Four large touch zones fill the lower half (AC-DUEL-013.4). Lick book moves into a drawer button. Portrait shows a "rotate your phone" hint (see design.md).</div>
+  <div class="stage phone compact">
+    <div class="duel">
+      <div class="topbar">
+        <div class="left"><a class="home-btn" href="#" aria-label="Back to portfolio">&larr;</a><span class="chip on">Answer</span><span class="chip">Bar 2 of 4</span></div>
+        <div class="right"><button class="icon-btn" aria-label="Lick book">&#9835;</button><button class="icon-btn" aria-label="Pause">&#10074;&#10074;</button></div>
+      </div>
+      <div class="hud" style="grid-column:1 / -1"><div class="who"><div class="avatar" style="width:28px;height:28px">Y</div><div><b style="font-size:12px">Your turn</b></div></div><div class="turn-banner" style="font-size:14px">Perfect</div></div>
+      <div class="board">
+        <div class="lane"><div class="key"><i class="sig k"></i></div><div class="track beats yours"><i class="mk k" style="left:20.3125%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig j"></i></div><div class="track beats yours"><i class="mk j" style="left:7.8125%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig f"></i></div><div class="track beats yours"><i class="mk f" style="left:45.3125%"></i></div></div>
+        <div class="lane"><div class="key"><i class="sig d"></i></div><div class="track beats yours"><i class="mk d" style="left:1.5625%"></i></div></div>
+        <div class="playhead" style="left:calc(10px + 44px + (100% - 20px - 44px) * 0.42)"></div>
+      </div>
+      <div class="touchzones">
+        <button class="pad"><i class="sig d"></i>D</button><button class="pad"><i class="sig f"></i>F</button><button class="pad down"><i class="sig j"></i>J</button><button class="pad"><i class="sig k"></i>K</button>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
