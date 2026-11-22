@@ -489,7 +489,7 @@ describe('StageGame: a club or a page without the 3D scene', () => {
     expect(screen.getByTestId('stage-note')).toHaveTextContent(NOTE_MISSING);
   });
 
-  it('the grey-box note sits in the slot under the top bar of the duel, not above the page', async () => {
+  it('the grey-box note sits in the page flow right under the top bar of the duel, inside its page', async () => {
     webgl = installWebGL2(false);
     serveAssets();
     render(<StageGame loadScene={createFakeScenes().load} />);
@@ -499,12 +499,31 @@ describe('StageGame: a club or a page without the 3D scene', () => {
     expect(note).toHaveTextContent(NOTE_NO_WEBGL);
     const slot = screen.getByTestId('duel-note');
     expect(slot).toContainElement(note);
-    // Inside the duel's page, laid over it: nothing before the duel adds to the page's height.
+    expect(slot.previousElementSibling?.tagName).toBe('HEADER');
+    // Inside the duel's page: nothing before the duel adds to the page's height.
     const game = document.querySelector('[data-duel-game]');
     expect(game).toContainElement(slot);
     expect(game?.parentElement?.firstElementChild).toBe(game);
-    expect(slot).toHaveClass('absolute');
+    // Before Play the grey-box duel keeps its own Start (AC-STAGE-002.1).
     expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument();
+  });
+
+  it('a WebGL context lost on the street after Play goes on as Sayo, on the same audio', async () => {
+    const { scenes } = await playStreet();
+    act(() => scenes.street.props().onFallback('noWebgl'));
+    await settle();
+    expect(screen.getByRole('heading', { name: 'Choose your difficulty' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: LEAVE_CLUB })).not.toBeInTheDocument();
+
+    await press('Continue');
+    audioContext().currentTime = 1_000;
+    await frames();
+    await press('Continue without it');
+    expect(screen.getByTestId('duel-screen')).toBeInTheDocument();
+    expect(useGameStore.getState().campaign?.player).toBe('sayo');
+    expect(useGameStore.getState().session?.config.character).toBe('aki');
+    expect(audioContexts).toHaveLength(1);
+    expect(screen.getByTestId('stage-note')).toHaveTextContent(NOTE_NO_WEBGL);
   });
 
   it('while the rotate hint covers a phone held upright, the street under it is inert', async () => {

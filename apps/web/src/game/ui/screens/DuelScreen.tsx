@@ -16,7 +16,7 @@ import type { DuelController } from './duel-controller';
 import { CHARACTER_NAMES } from './game-ids';
 import PauseOverlay from './PauseOverlay';
 import RotateHint from './RotateHint';
-import { Chip, TopBar } from './ui';
+import { Chip, STRIP_CLASS, TopBar, useStageLayout } from './ui';
 import { COMPACT_QUERY, PORTRAIT_PHONE_QUERY, useMediaQuery } from './use-media-query';
 
 export interface DuelScreenProps {
@@ -41,6 +41,11 @@ export default function DuelScreen({ audio, controller }: DuelScreenProps) {
   const drawerId = useId();
   const portrait = useMediaQuery(PORTRAIT_PHONE_QUERY);
   const compact = useMediaQuery(COMPACT_QUERY);
+  // In the stage (game-stage) the board fits the screen on a phone held sideways, and over a 3D
+  // scene everywhere; otherwise it is the game-duel board, unchanged.
+  const stage = useStageLayout();
+  const backdrop = stage?.backdrop ?? false;
+  const fitScreen = stage !== null && (compact || backdrop);
 
   const status = useGameStore((s) => s.session?.status ?? null);
   const config = useGameStore((s) => s.session?.config ?? null);
@@ -160,10 +165,172 @@ export default function DuelScreen({ audio, controller }: DuelScreenProps) {
     </button>
   );
 
-  return (
-    <div className="relative flex min-h-full flex-1 flex-col" data-testid="duel-screen">
+  // ---- The pieces of the board, shared by both layouts ----
+
+  const hudWho = (
+    <div className="flex items-center gap-2.5">
       <div
-        className={`flex flex-1 flex-col ${paused ? 'opacity-50' : ''}`}
+        aria-hidden="true"
+        className={`grid place-items-center rounded-[10px] border font-heading text-jazz-gold ${
+          compact ? 'h-7 w-7' : 'h-10 w-10'
+        } ${
+          yourTurn
+            ? 'border-jazz-steel bg-jazz-slate'
+            : 'border-dashed border-jazz-steel bg-jazz-indigo'
+        }`}
+      >
+        {avatar.charAt(0)}
+      </div>
+      <div>
+        <b className="block font-body text-[15px] text-jazz-text" data-testid="hud-who">
+          {who}
+        </b>
+        <small className="font-mono text-[11px] text-jazz-text-muted">
+          {t('hud.match', { n: config.duel })}
+        </small>
+      </div>
+    </div>
+  );
+
+  const hudRow = (
+    <div className="flex items-center justify-between gap-3 px-4 pt-2.5">
+      {hudWho}
+      {!compact && (
+        <div className="text-right font-heading text-xl text-jazz-amber">
+          <small className="block font-mono text-[11px] text-jazz-text-muted">
+            {t('hud.round', { n: round })}
+          </small>
+          {t(`round.${turn}`)}
+        </div>
+      )}
+    </div>
+  );
+
+  const roundChips = !compact && (
+    <div className="flex gap-1.5 px-4 pt-2">
+      {TURNS.map((name) => (
+        <Chip key={name} on={name === turn}>
+          {t(`round.${name}`)}
+        </Chip>
+      ))}
+    </div>
+  );
+
+  const topBarRight = compact ? (
+    <>
+      {lickBookButton}
+      {pauseButton}
+    </>
+  ) : (
+    <>
+      <Chip>{t(`difficulty.${config.difficulty}.name`)}</Chip>
+      <Chip>{t('hud.bpm', { bpm: config.bpm })}</Chip>
+      {pauseButton}
+    </>
+  );
+
+  const compactChips = (
+    <>
+      <Chip on>{t(`round.${turn}`)}</Chip>
+      {view?.barIndex != null && <Chip>{t('hud.bar', { n: view.barIndex + 1 })}</Chip>}
+    </>
+  );
+
+  const laneBoard = (
+    <>
+      {view !== null && clock !== null && (
+        <LaneBoard
+          audio={audio}
+          clock={clock}
+          firstBar={view.firstBar}
+          side={view.side}
+          call={view.call}
+          targets={view.targets}
+          taps={view.taps}
+          offsetMs={config.offsetMs}
+          feedback={feedback}
+          compact={compact}
+        />
+      )}
+      {phase?.kind === 'countIn' && !paused && (
+        <CountIn
+          beat={phase.beat}
+          caption={
+            countInResumed
+              ? t('round.restart', { n: round, round: t(`round.${turn}`) })
+              : t('hud.countIn')
+          }
+        />
+      )}
+    </>
+  );
+
+  const touchPads = (
+    <TouchPads
+      clock={audio}
+      onTap={controller.tap}
+      disabled={!playing}
+      held={held}
+      compact={compact}
+    />
+  );
+
+  const drawer = compact && (
+    <div
+      id={drawerId}
+      hidden={!lickBookOpen}
+      className="absolute bottom-0 right-0 top-[60px] z-10 w-[220px] overflow-y-auto border-l border-jazz-slate bg-jazz-black"
+    >
+      <LickBook justQuoted={justQuoted?.lickId ?? null} />
+    </div>
+  );
+
+  const pauseOverlay = paused && <PauseOverlay onResume={() => void controller.resume()} />;
+
+  if (!fitScreen) {
+    // The grey-box duel of game-duel, as it has always been drawn.
+    return (
+      <div className="relative flex min-h-full flex-1 flex-col" data-testid="duel-screen">
+        <div
+          className={`flex flex-1 flex-col ${paused ? 'opacity-50' : ''}`}
+          inert={paused}
+          data-testid="duel-board"
+        >
+          <TopBar compact={compact} left={compact ? compactChips : undefined} right={topBarRight} />
+
+          <div className={`grid flex-1 ${compact ? '' : 'lg:grid-cols-[1fr_190px]'}`}>
+            <div className="flex min-w-0 flex-col">
+              {hudRow}
+              {roundChips}
+              <div className="relative px-4 py-2">{laneBoard}</div>
+              <div className={compact ? 'h-[45dvh] px-2 pb-2' : 'px-4 pb-4'}>{touchPads}</div>
+            </div>
+
+            {!compact && (
+              <LickBook
+                justQuoted={justQuoted?.lickId ?? null}
+                className="border-t border-jazz-slate lg:border-l lg:border-t-0"
+              />
+            )}
+          </div>
+
+          {drawer}
+        </div>
+
+        {pauseOverlay}
+      </div>
+    );
+  }
+
+  // In the stage (a note or a 3D scene): the board is exactly the screen's height, so nothing is
+  // pushed past it. Over a scene the text sits on solid strips at the top, the lanes and pads on
+  // a near-solid block at the bottom, and the free window between them shows the scene
+  // (design.md section 4). On a phone held sideways the HUD joins the top bar to leave room.
+  const bottomBlock = backdrop ? ' border-t border-jazz-slate bg-jazz-black/85' : '';
+  return (
+    <div className="relative flex h-dvh flex-col" data-testid="duel-screen" data-layout="stage">
+      <div
+        className={`flex min-h-0 flex-1 flex-col ${paused ? 'opacity-50' : ''}`}
         inert={paused}
         data-testid="duel-board"
       >
@@ -172,130 +339,61 @@ export default function DuelScreen({ audio, controller }: DuelScreenProps) {
           left={
             compact ? (
               <>
-                <Chip on>{t(`round.${turn}`)}</Chip>
-                {view?.barIndex != null && <Chip>{t('hud.bar', { n: view.barIndex + 1 })}</Chip>}
+                {compactChips}
+                {hudWho}
               </>
             ) : undefined
           }
-          right={
-            compact ? (
-              <>
-                {lickBookButton}
-                {pauseButton}
-              </>
-            ) : (
-              <>
-                <Chip>{t(`difficulty.${config.difficulty}.name`)}</Chip>
-                <Chip>{t('hud.bpm', { bpm: config.bpm })}</Chip>
-                {pauseButton}
-              </>
-            )
-          }
+          right={topBarRight}
         />
 
-        <div className={`grid flex-1 ${compact ? '' : 'lg:grid-cols-[1fr_190px]'}`}>
-          <div className="flex min-w-0 flex-col">
-            <div className="flex items-center justify-between gap-3 px-4 pt-2.5">
-              <div className="flex items-center gap-2.5">
-                <div
-                  aria-hidden="true"
-                  className={`grid place-items-center rounded-[10px] border font-heading text-jazz-gold ${
-                    compact ? 'h-7 w-7' : 'h-10 w-10'
-                  } ${
-                    yourTurn
-                      ? 'border-jazz-steel bg-jazz-slate'
-                      : 'border-dashed border-jazz-steel bg-jazz-indigo'
-                  }`}
-                >
-                  {avatar.charAt(0)}
-                </div>
-                <div>
-                  <b className="block font-body text-[15px] text-jazz-text" data-testid="hud-who">
-                    {who}
-                  </b>
-                  <small className="font-mono text-[11px] text-jazz-text-muted">
-                    {t('hud.match', { n: config.duel })}
-                  </small>
-                </div>
-              </div>
-              {!compact && (
-                <div className="text-right font-heading text-xl text-jazz-amber">
-                  <small className="block font-mono text-[11px] text-jazz-text-muted">
-                    {t('hud.round', { n: round })}
-                  </small>
-                  {t(`round.${turn}`)}
-                </div>
-              )}
-            </div>
-
+        <div className="flex min-h-0 flex-1">
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col">
             {!compact && (
-              <div className="flex gap-1.5 px-4 pt-2">
-                {TURNS.map((name) => (
-                  <Chip key={name} on={name === turn}>
-                    {t(`round.${name}`)}
-                  </Chip>
-                ))}
+              <div
+                className={backdrop ? `border-b pb-2 ${STRIP_CLASS}` : undefined}
+                data-testid="duel-hud"
+              >
+                {hudRow}
+                {roundChips}
               </div>
             )}
-
-            <div className="relative px-4 py-2">
-              {view !== null && clock !== null && (
-                <LaneBoard
-                  audio={audio}
-                  clock={clock}
-                  firstBar={view.firstBar}
-                  side={view.side}
-                  call={view.call}
-                  targets={view.targets}
-                  taps={view.taps}
-                  offsetMs={config.offsetMs}
-                  feedback={feedback}
-                  compact={compact}
-                />
-              )}
-              {phase?.kind === 'countIn' && !paused && (
-                <CountIn
-                  beat={phase.beat}
-                  caption={
-                    countInResumed
-                      ? t('round.restart', { n: round, round: t(`round.${turn}`) })
-                      : t('hud.countIn')
-                  }
-                />
-              )}
-            </div>
-
-            <div className={compact ? 'h-[45dvh] px-2 pb-2' : 'px-4 pb-4'}>
-              <TouchPads
-                clock={audio}
-                onTap={controller.tap}
-                disabled={!playing}
-                held={held}
-                compact={compact}
+            {backdrop && (
+              <div
+                ref={stage?.setSceneWindow}
+                aria-hidden="true"
+                className="min-h-0 flex-1"
+                data-testid="scene-window"
               />
+            )}
+            <div
+              className={`relative px-4 ${compact ? 'py-1' : 'py-2'}${bottomBlock}`}
+              data-testid="duel-lanes"
+            >
+              {laneBoard}
+            </div>
+            <div
+              className={`${compact ? 'flex min-h-16 flex-1 flex-col px-2 pb-2' : 'px-4 pb-4'}${
+                backdrop ? ' bg-jazz-black/85' : ''
+              }`}
+              data-testid="duel-pads"
+            >
+              {touchPads}
             </div>
           </div>
 
           {!compact && (
             <LickBook
               justQuoted={justQuoted?.lickId ?? null}
-              className="border-t border-jazz-slate lg:border-l lg:border-t-0"
+              className="w-[190px] shrink-0 overflow-y-auto border-l border-jazz-slate"
             />
           )}
         </div>
 
-        {compact && (
-          <div
-            id={drawerId}
-            hidden={!lickBookOpen}
-            className="absolute bottom-0 right-0 top-[60px] z-10 w-[220px] overflow-y-auto border-l border-jazz-slate bg-jazz-black"
-          >
-            <LickBook justQuoted={justQuoted?.lickId ?? null} />
-          </div>
-        )}
+        {drawer}
       </div>
 
-      {paused && <PauseOverlay onResume={() => void controller.resume()} />}
+      {pauseOverlay}
     </div>
   );
 }

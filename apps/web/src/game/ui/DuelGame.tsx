@@ -28,7 +28,7 @@ import DuelScreen from './screens/DuelScreen';
 import ResultScreen from './screens/ResultScreen';
 import StartScreen, { type StartProblem } from './screens/StartScreen';
 import SummaryScreen from './screens/SummaryScreen';
-import { LeaveGameContext } from './screens/ui';
+import { LeaveGameContext, StageLayoutContext, type StageLayout } from './screens/ui';
 import UnsupportedScreen from './screens/UnsupportedScreen';
 
 /** What the game reports when a take ends (AC-DUEL-017.3), for the shell to save. */
@@ -78,12 +78,13 @@ export interface DuelGameProps {
    */
   readonly backdrop?: ReactNode;
   /**
-   * A one-line notice (the stage's missing-assets or no-WebGL note, design.md section 2), laid
-   * over the screen right under its top bar, so the page never grows taller than the screen.
+   * A one-line notice (the stage's missing-assets or no-WebGL note, design.md section 2), in the
+   * page flow right under the top bar of every screen. With a note or a backdrop the duel board
+   * fits the screen, so the page never grows taller than it (`StageLayout` in `screens/ui.tsx`).
    */
   readonly note?: ReactNode;
   /**
-   * An extra action under the panel of the result and summary screens, and only there (the
+   * One more action in the button row of the result and summary screens, and only there (the
    * stage's Leave the club, design.md section 4).
    */
   readonly endAction?: ReactNode;
@@ -102,13 +103,6 @@ const DIMMED_SCREENS: ReadonlySet<GameScreen> = new Set([
   'summary',
 ]);
 
-/**
- * The note strip, laid right under the top bar of every screen (`TopBar` in `screens/ui.tsx`),
- * whose height is a 2.75rem target, 0.625rem padding above and below and a 1 px border. The text
- * may wrap to a second line on a phone rather than be cut (design.md section 2).
- */
-const NOTE_SLOT_CLASS = 'pointer-events-none absolute inset-x-0 top-[calc(4rem+1px)] z-20';
-
 function matchReport(result: DuelResult): MatchEndReport {
   return {
     duel: result.duel,
@@ -118,7 +112,7 @@ function matchReport(result: DuelResult): MatchEndReport {
   };
 }
 
-function ResultView() {
+function ResultView({ extraAction }: { readonly extraAction: ReactNode }) {
   const result = useGameStore((s) => s.campaign?.lastResult ?? null);
   const canAdvance = useGameStore(selectCanAdvance);
   const runComplete = useGameStore(selectRunComplete);
@@ -140,15 +134,16 @@ function ResultView() {
       onSummary={showSummary}
       onAcceptAssist={acceptAssist}
       onDeclineAssist={declineAssist}
+      extraAction={extraAction}
     />
   );
 }
 
-function SummaryView() {
+function SummaryView({ extraAction }: { readonly extraAction: ReactNode }) {
   const results = useGameStore((s) => s.campaign?.results ?? null);
   const restartRun = useGameStore((s) => s.restartRun);
   if (results === null) return null;
-  return <SummaryScreen results={results} onRestart={restartRun} />;
+  return <SummaryScreen results={results} onRestart={restartRun} extraAction={extraAction} />;
 }
 
 /**
@@ -190,6 +185,18 @@ export default function DuelGame({
     onMatchEndRef.current = onMatchEnd;
   });
   const callerLeave = useContext(LeaveGameContext);
+
+  // The layout the screens take in the stage: null (the grey-box duel as in game-duel) unless the
+  // stage passed a scene or a note.
+  const hasBackdrop = backdrop !== null;
+  const [sceneWindow, setSceneWindow] = useState<HTMLElement | null>(null);
+  const stageLayout = useMemo<StageLayout | null>(
+    () =>
+      hasBackdrop || note !== null
+        ? { backdrop: hasBackdrop, note, sceneWindow, setSceneWindow }
+        : null,
+    [hasBackdrop, note, sceneWindow],
+  );
 
   // Leaving or unmounting releases the audio for good, and the next visit starts at Play. An audio
   // the caller passed in stays open for the caller; only what the duel queued on it is dropped.
@@ -354,54 +361,45 @@ export default function DuelGame({
         );
       break;
     case 'result':
-      content = <ResultView />;
+      content = <ResultView extraAction={endAction} />;
       break;
     case 'summary':
-      content = <SummaryView />;
+      content = <SummaryView extraAction={endAction} />;
       break;
   }
 
-  const hasBackdrop = backdrop !== null;
-  const dimmed = hasBackdrop && (DIMMED_SCREENS.has(screen) || (screen === 'duel' && sessionPaused));
-  const showEndAction = endAction !== null && (screen === 'result' || screen === 'summary');
+  const dimmed =
+    hasBackdrop && (DIMMED_SCREENS.has(screen) || (screen === 'duel' && sessionPaused));
 
   return (
     <LeaveGameContext.Provider value={leave}>
-      <div
-        data-duel-game=""
-        data-screen={screen}
-        data-backdrop={hasBackdrop ? '' : undefined}
-        className={
-          hasBackdrop
-            ? 'relative isolate flex min-h-dvh flex-col font-body text-jazz-text'
-            : 'relative flex min-h-dvh flex-col bg-jazz-black font-body text-jazz-text'
-        }
-      >
-        <style>{REDUCED_MOTION_CSS}</style>
-        {hasBackdrop && (
-          <div className="fixed inset-0 -z-10 bg-jazz-black" data-testid="duel-backdrop">
-            {backdrop}
-            {dimmed && (
-              <div
-                aria-hidden="true"
-                data-testid="duel-backdrop-dim"
-                className="absolute inset-0 bg-jazz-black/40"
-              />
-            )}
-          </div>
-        )}
-        {content}
-        {showEndAction && (
-          <div className="flex justify-center px-4 pb-8" data-testid="duel-end-action">
-            {endAction}
-          </div>
-        )}
-        {note !== null && (
-          <div className={NOTE_SLOT_CLASS} data-testid="duel-note">
-            {note}
-          </div>
-        )}
-      </div>
+      <StageLayoutContext.Provider value={stageLayout}>
+        <div
+          data-duel-game=""
+          data-screen={screen}
+          data-backdrop={hasBackdrop ? '' : undefined}
+          className={
+            hasBackdrop
+              ? 'relative isolate flex min-h-dvh flex-col font-body text-jazz-text'
+              : 'relative flex min-h-dvh flex-col bg-jazz-black font-body text-jazz-text'
+          }
+        >
+          <style>{REDUCED_MOTION_CSS}</style>
+          {hasBackdrop && (
+            <div className="fixed inset-0 -z-10 bg-jazz-black" data-testid="duel-backdrop">
+              {backdrop}
+              {dimmed && (
+                <div
+                  aria-hidden="true"
+                  data-testid="duel-backdrop-dim"
+                  className="absolute inset-0 bg-jazz-black/40"
+                />
+              )}
+            </div>
+          )}
+          {content}
+        </div>
+      </StageLayoutContext.Provider>
     </LeaveGameContext.Provider>
   );
 }

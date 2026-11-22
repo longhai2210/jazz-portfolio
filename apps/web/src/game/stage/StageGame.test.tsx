@@ -665,13 +665,24 @@ describe('StageGame: hidden tab, leaving and a lost context', () => {
     expect(audioContext().state).toBe('closed');
   });
 
-  it('a WebGL context lost on the street (design decision 3) falls back to the grey-box duel with the no-WebGL note', async () => {
-    const { scene } = await playStreet();
+  it('a WebGL context lost on the street after Play (design decision 3) falls back to the grey-box duel on the same audio, with no second Play', async () => {
+    const { scene, unmount } = await playStreet();
     act(() => scene.props().onFallback('noWebgl'));
     await settle();
 
-    expectGreyBox(NOTE_NO_WEBGL);
+    expect(screen.getByTestId('stage-note')).toHaveTextContent(NOTE_NO_WEBGL);
+    expect(screen.getByTestId('stage-note')).toHaveAttribute('role', 'status');
+    expect(document.querySelector('[data-duel-game]')).not.toBeNull();
     expect(scene.mounted).toBe(false);
+    // The Play press on the street already unlocked the audio: straight to the difficulty step.
+    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Choose your difficulty' })).toBeInTheDocument();
+    expect(audioContexts).toHaveLength(1);
+    expect(audioContext().state).not.toBe('closed');
+
+    // Leaving the page still releases it.
+    unmount();
+    await settle();
     expect(audioContext().state).toBe('closed');
   });
 });

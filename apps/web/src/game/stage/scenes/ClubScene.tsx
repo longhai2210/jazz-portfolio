@@ -40,6 +40,7 @@ import { timeToBeat, type BeatClock } from '../../core/clock';
 import type { Character } from '../../core/roster';
 import type { SessionPhase } from '../../core/session';
 import { useGameStore } from '@/stores/gameStore';
+import { useStageLayout } from '../../ui/screens/ui';
 import { ASSET_BASE_URL, type StageAssetFiles } from '../assets';
 import { characterPose, type CharacterAction } from '../character/animation';
 import { applyPose } from '../character/apply-pose';
@@ -233,10 +234,40 @@ export interface SafeArea {
   readonly bottom: number;
 }
 
-/** The safe area of a canvas `width` by `height` CSS pixels: the phone one when held sideways. */
+/**
+ * The safe area of a canvas `width` by `height` CSS pixels before the duel board has been measured
+ * (the setup panels come first): the phone one when held sideways.
+ */
 export function clubSafeArea(width: number, height: number): SafeArea {
   const phoneLandscape = width > height && height <= PHONE_LANDSCAPE_MAX_HEIGHT;
   return phoneLandscape ? CLUB_SAFE_AREA.phone : CLUB_SAFE_AREA.desktop;
+}
+
+/** The parts of a `DOMRect` a window is measured with. */
+export interface RectLike {
+  readonly left: number;
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly width: number;
+  readonly height: number;
+}
+
+/** The smallest window, as a fraction of the canvas, the camera frames into. */
+const MIN_WINDOW_FRACTION = 0.02;
+
+/**
+ * Where the scene window of the duel board (the free band between the HUD and the lanes) lies on
+ * the canvas, as fractions of it; null when either has no size or the window is off the canvas.
+ */
+export function windowArea(sceneWindow: RectLike, canvas: RectLike): SafeArea | null {
+  if (!(canvas.width > 0) || !(canvas.height > 0)) return null;
+  const left = clamp((sceneWindow.left - canvas.left) / canvas.width, 0, 1);
+  const right = clamp((sceneWindow.right - canvas.left) / canvas.width, 0, 1);
+  const top = clamp((sceneWindow.top - canvas.top) / canvas.height, 0, 1);
+  const bottom = clamp((sceneWindow.bottom - canvas.top) / canvas.height, 0, 1);
+  if (right - left < MIN_WINDOW_FRACTION || bottom - top < MIN_WINDOW_FRACTION) return null;
+  return { left, right, top, bottom };
 }
 
 /** How tall a character is and how far it reaches from its centre line, in metres. */
@@ -490,7 +521,12 @@ export async function parseClubModels(
     vrm.scene.traverse((node) => {
       node.frustumCulled = false;
     });
-    return { club: club.value.scene, player: vrm, shadowPalette: palette.value, drummer: drummer.value };
+    return {
+      club: club.value.scene,
+      player: vrm,
+      shadowPalette: palette.value,
+      drummer: drummer.value,
+    };
   }
 
   if (club.status === 'fulfilled') disposeObjectTree(club.value.scene);
@@ -557,6 +593,11 @@ export interface ClubStage {
   setReducedMotion(reducedMotion: boolean): void;
   /** Starts the Shadow's fade after a win, or brings it back solid for the next take. */
   setShadowFaded(faded: boolean): void;
+  /**
+   * Frames both characters inside `area` of the canvas: the window the duel board leaves for the
+   * scene, as measured (see `windowArea`). Before the first one, the design table is used.
+   */
+  setSafeArea(area: SafeArea): void;
   /** Fits the drawing and the framing to a size in CSS pixels at a pixel ratio. */
   resize(width: number, height: number, pixelRatio: number): void;
   /**
@@ -637,16 +678,18 @@ export function createClubStage(options: ClubStageOptions): ClubStage {
   scene.add(drummer);
   let frame = 0;
 
-  const subject = [
-    ...subjectPoints(layout.player, extent),
-    ...subjectPoints(layout.rival, extent),
-  ];
+  const subject = [...subjectPoints(layout.player, extent), ...subjectPoints(layout.rival, extent)];
   const camera = new PerspectiveCamera(layout.camera.fovDeg, 16 / 9, CAMERA_NEAR, 400);
-  function frameCamera(width: number, height: number) {
-    const framing = frameSubject(subject, layout.camera, width / height, clubSafeArea(width, height));
+  let viewSize: { width: number; height: number } = INITIAL_SIZE;
+  /** The window the duel board leaves for the scene, once measured; the design table until then. */
+  let measuredArea: SafeArea | null = null;
+  function frameCamera() {
+    const { width, height } = viewSize;
+    const area = measuredArea ?? clubSafeArea(width, height);
+    const framing = frameSubject(subject, layout.camera, width / height, area);
     applyFraming(camera, layout.camera, framing, width, height);
   }
-  frameCamera(INITIAL_SIZE.width, INITIAL_SIZE.height);
+  frameCamera();
 
   // The Shadow's own materials, with the transparency and opacity they were made with.
   const shadowMaterials = new Map(
@@ -681,10 +724,23 @@ export function createClubStage(options: ClubStageOptions): ClubStage {
   let lastTime: number | null = null;
   let released = false;
 
-  function pose(model: VRM, action: CharacterAction, seed: number, beat: number | null, dt: number) {
+  function pose(
+    model: VRM,
+    action: CharacterAction,
+    seed: number,
+    beat: number | null,
+    dt: number,
+  ) {
     applyPose(
       model,
-      characterPose({ character: PLAYER_CHARACTER, action, time: elapsed, beat, seed, reducedMotion }),
+      characterPose({
+        character: PLAYER_CHARACTER,
+        action,
+        time: elapsed,
+        beat,
+        seed,
+        reducedMotion,
+      }),
     );
     model.update(dt);
   }
@@ -767,11 +823,18 @@ export function createClubStage(options: ClubStageOptions): ClubStage {
       // Replay and match 2 bring the Shadow back solid at once.
       if (!next) showShadowAt(1);
     },
+    setSafeArea(area) {
+      if (released) return;
+      measuredArea = area;
+      frameCamera();
+      if (!running) renderer.render(scene, camera);
+    },
     resize(width, height, pixelRatio) {
       if (released || !(width > 0) || !(height > 0)) return;
       renderer.setPixelRatio(pixelRatio);
       renderer.setSize(width, height, false);
-      frameCamera(width, height);
+      viewSize = { width, height };
+      frameCamera();
       if (!running) renderer.render(scene, camera);
     },
     release() {
@@ -828,6 +891,8 @@ export default function ClubScene(props: ClubSceneProps) {
   const { files, audio, paused, reducedMotion, shadowFaded, label } = props;
   const hostRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<ClubStage | null>(null);
+  /** The last measured scene window, kept for a stage built after the measure. */
+  const areaRef = useRef<SafeArea | null>(null);
   const latest = useRef(props);
 
   useEffect(() => {
@@ -854,7 +919,11 @@ export default function ClubScene(props: ClubSceneProps) {
 
     let renderer: WebGLRenderer | null = null;
     try {
-      renderer = new WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+      renderer = new WebGLRenderer({
+        canvas,
+        antialias: true,
+        powerPreference: 'high-performance',
+      });
     } catch {
       fallBack('noWebgl');
     }
@@ -892,6 +961,7 @@ export default function ClubScene(props: ClubSceneProps) {
           }
           stageRef.current = stage;
           stage.setAudio(current.audio);
+          if (areaRef.current !== null) stage.setSafeArea(areaRef.current);
           resize();
           observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(resize);
           observer?.observe(host);
@@ -910,6 +980,26 @@ export default function ClubScene(props: ClubSceneProps) {
       canvas.remove();
     };
   }, [files]);
+
+  // The duel board's scene window (design decision 7): the characters are framed inside it,
+  // measured again whenever it or the canvas changes size. When the board goes (the result after a
+  // take), the last framing stays, so the Shadow fades where it stood.
+  const sceneWindow = useStageLayout()?.sceneWindow ?? null;
+  useEffect(() => {
+    const host = hostRef.current;
+    if (sceneWindow === null || host === null) return;
+    const measure = () => {
+      const area = windowArea(sceneWindow.getBoundingClientRect(), host.getBoundingClientRect());
+      if (area === null) return;
+      areaRef.current = area;
+      stageRef.current?.setSafeArea(area);
+    };
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(sceneWindow);
+    observer?.observe(host);
+    return () => observer?.disconnect();
+  }, [sceneWindow]);
 
   useEffect(() => {
     stageRef.current?.setAudio(audio);

@@ -34,13 +34,22 @@ import {
   readClubLayout,
   SHADOW_FADE_S,
   shadowFadeOpacity,
+  windowArea,
   type ClubStage,
   type ClubStageOptions,
   type DuelView,
 } from './ClubScene';
 
-// GLTFLoader ships as an ES module Jest does not load; no test here parses a file.
+// GLTFLoader and next-intl ship as ES modules Jest does not load; no test here parses a file or
+// renders text. The scene reads the duel layout from the game's screens module, which imports them.
 jest.mock('three/addons/loaders/GLTFLoader.js', () => ({ GLTFLoader: class {} }));
+jest.mock(
+  'next-intl',
+  () => jest.requireActual<typeof import('../testing/intl')>('../testing/intl').nextIntlMock,
+);
+jest.mock('next/link', () =>
+  jest.requireActual<typeof import('../../ui/screens/testing/link')>('../../ui/screens/testing/link'),
+);
 
 /** Where the fake club's nodes stand, in metres. Not the real club's numbers. */
 const MARKS = Object.freeze({
@@ -425,6 +434,48 @@ describe('club stage', () => {
       expect(stage.camera.aspect).toBeCloseTo(width / height);
     },
   );
+
+  it.each([
+    // The free band the stage layout of the duel board leaves (backdrop-layout.test.tsx): under the
+    // top bar with the HUD in it, over the lanes, on a phone; under the HUD strip, over the lanes
+    // and left of the lick book, on a computer.
+    ['a phone held sideways', 844, 390, { left: 0, right: 1, top: 0.17, bottom: 0.4 }],
+    ['a computer', 1280, 720, { left: 0, right: 0.85, top: 0.21, bottom: 0.53 }],
+  ])(
+    'frames both characters inside the measured scene window of the duel board on %s (design decision 7)',
+    (_name, width, height, area) => {
+      const { stage } = useRig();
+      stage.resize(width, height, 1);
+      stage.setSafeArea(area);
+      for (const point of stage.subject) {
+        const { x, y } = onScreen(point, stage);
+        expect(y).toBeGreaterThanOrEqual(area.top);
+        expect(y).toBeLessThanOrEqual(area.bottom);
+        expect(x).toBeGreaterThanOrEqual(area.left);
+        expect(x).toBeLessThanOrEqual(area.right);
+      }
+      // A resize keeps framing into the measured window, not the design table.
+      stage.resize(width, height, 1);
+      for (const point of stage.subject) {
+        const { y } = onScreen(point, stage);
+        expect(y).toBeGreaterThanOrEqual(area.top);
+        expect(y).toBeLessThanOrEqual(area.bottom);
+      }
+    },
+  );
+
+  it('windowArea turns the scene window and the canvas rectangles into fractions of the canvas', () => {
+    const canvas = { left: 0, top: 0, right: 844, bottom: 390, width: 844, height: 390 };
+    const band = { left: 0, top: 65, right: 844, bottom: 156, width: 844, height: 91 };
+    const area = windowArea(band, canvas);
+    expect(area?.top).toBeCloseTo(65 / 390);
+    expect(area?.bottom).toBeCloseTo(156 / 390);
+    expect(area).toMatchObject({ left: 0, right: 1 });
+    // Clamped to the canvas, and nothing for a window with no room or a canvas with no size.
+    expect(windowArea({ ...band, top: -20, right: 900 }, canvas)).toMatchObject({ top: 0, right: 1 });
+    expect(windowArea({ ...band, bottom: 66, height: 1 }, canvas)).toBeNull();
+    expect(windowArea(band, { ...canvas, width: 0 })).toBeNull();
+  });
 
   it('never frames closer than cam_duel: a subject that already fits keeps the camera on the node', () => {
     const { layout } = useRig().stage;

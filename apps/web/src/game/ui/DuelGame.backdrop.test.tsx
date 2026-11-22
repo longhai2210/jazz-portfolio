@@ -195,33 +195,42 @@ describe('DuelGame over a 3D scene (design.md section 4)', () => {
     expect(screen.getByTestId('duel-backdrop-dim')).toBeInTheDocument();
   });
 
-  it('lays the note over the page right under the top bar, on the Start, setup and duel screens', async () => {
+  it('puts the note in the page flow right under the top bar, on the Start, setup and duel screens', async () => {
     const note = <p data-testid="note">The stage art is missing.</p>;
+
+    /** The note follows the screen's top bar directly, inside the same column. */
+    function expectUnderTopBar(): void {
+      const slot = screen.getByTestId('duel-note');
+      expect(slot).toContainElement(screen.getByTestId('note'));
+      expect(slot.previousElementSibling?.tagName).toBe('HEADER');
+      expect(slot).not.toHaveClass('absolute');
+      expect(screen.getAllByTestId('duel-note')).toHaveLength(1);
+    }
+
     const first = renderGame({ note });
     expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument();
-    const slot = screen.getByTestId('duel-note');
-    expect(slot).toContainElement(screen.getByTestId('note'));
-    // Out of the page flow, so the page is no taller than the screen; clicks go through it.
-    expect(slot).toHaveClass('absolute', 'inset-x-0', 'top-[calc(4rem+1px)]', 'pointer-events-none');
-    expect(slot.parentElement).toBe(root());
-    // After the screen, so it is laid over it.
-    expect(root().lastElementChild).toBe(slot);
+    expectUnderTopBar();
     first.unmount();
 
     const { audio } = unlockedAudio();
     const second = renderGame({ audio, note });
     await settle();
     expect(screen.getByRole('heading', { name: 'Choose your difficulty' })).toBeInTheDocument();
-    expect(screen.getByTestId('duel-note')).toContainElement(screen.getByTestId('note'));
+    expectUnderTopBar();
     second.unmount();
 
     renderGame({ audio, difficulty: 'session', offsetMs: 0, note });
     await settle();
     expect(screen.getByTestId('duel-screen')).toBeInTheDocument();
-    expect(screen.getByTestId('duel-note')).toContainElement(screen.getByTestId('note'));
+    expectUnderTopBar();
+    // It pushes the HUD down instead of covering it.
+    const slot = screen.getByTestId('duel-note');
+    expect(
+      slot.compareDocumentPosition(screen.getByTestId('hud-who')) & Node.DOCUMENT_POSITION_FOLLOWING,
+    ).toBeTruthy();
   });
 
-  it('shows the extra action under the result and summary panels, and nowhere else', async () => {
+  it('puts the extra action in the button row of the result and summary screens, and nowhere else', async () => {
     const { audio } = unlockedAudio();
     renderGame({
       audio,
@@ -234,8 +243,9 @@ describe('DuelGame over a 3D scene (design.md section 4)', () => {
 
     finishTake(true);
     expect(screen.getByRole('heading', { name: /is back in the band/ })).toBeInTheDocument();
-    expect(screen.getByTestId('duel-end-action')).toContainElement(
-      screen.getByRole('button', { name: 'Leave the club' }),
+    const leave = screen.getByRole('button', { name: 'Leave the club' });
+    expect(leave.parentElement).toContainElement(
+      screen.getByRole('button', { name: 'Replay this take' }),
     );
 
     await press('On to match 2');
@@ -244,7 +254,9 @@ describe('DuelGame over a 3D scene (design.md section 4)', () => {
     finishTake(true);
     await press('See summary');
     expect(screen.getByRole('heading', { name: 'Session complete' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Leave the club' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Leave the club' }).parentElement).toContainElement(
+      screen.getByRole('button', { name: 'Play again from the start' }),
+    );
   });
 
   it('without the stage props it is the grey-box duel as before: solid page, Start, no slots', () => {
@@ -254,6 +266,5 @@ describe('DuelGame over a 3D scene (design.md section 4)', () => {
     expect(screen.getByRole('button', { name: 'Play' })).toBeInTheDocument();
     expect(screen.queryByTestId('duel-backdrop')).not.toBeInTheDocument();
     expect(screen.queryByTestId('duel-note')).not.toBeInTheDocument();
-    expect(screen.queryByTestId('duel-end-action')).not.toBeInTheDocument();
   });
 });

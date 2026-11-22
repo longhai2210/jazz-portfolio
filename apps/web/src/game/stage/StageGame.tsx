@@ -102,9 +102,25 @@ function StageNoteLine({ note }: { readonly note: StageNote }) {
   );
 }
 
+interface FallbackDuelProps {
+  readonly note: StageNote;
+  /**
+   * The audio the street's Play unlocked, or null before Play. With it the duel skips its own
+   * Start and plays as the slice's player character (design decision 1, a context lost after
+   * Play); without it the duel is the grey-box match of game-duel, Start included.
+   */
+  readonly audio: GameAudio | null;
+}
+
 /** The grey-box duel of `game-duel` with a one-line note on why (design.md section 2). */
-function FallbackDuel({ note }: { readonly note: StageNote }) {
-  return <DuelGame note={<StageNoteLine note={note} />} />;
+function FallbackDuel({ note, audio }: FallbackDuelProps) {
+  return (
+    <DuelGame
+      note={<StageNoteLine note={note} />}
+      audio={audio}
+      character={audio === null ? null : PLAYER_CHARACTER}
+    />
+  );
 }
 
 /** A small lamp, the picture beside the street-lights chip. */
@@ -389,28 +405,21 @@ export default function StageGame({ loadScene = loadStageScenes }: StageGameProp
   }, []);
 
   // The street music stops with the drawing: a hidden tab or a phone held upright suspends the
-  // audio clock, and showing the street again resumes it where it stopped.
+  // audio clock, and showing the street again resumes it where it stopped. Once the street has
+  // fallen back to the grey-box duel, the duel runs the clock.
+  const onStreet = place === 'street' && note === null;
   useEffect(() => {
-    if (audio === null || place !== 'street') return;
+    if (audio === null || !onStreet) return;
     if (paused) void audio.suspend();
     else void audio.resume();
-  }, [audio, paused, place]);
+  }, [audio, paused, onStreet]);
 
-  const releaseAudio = useCallback(() => {
-    const current = audioRef.current;
-    audioRef.current = null;
-    if (current !== null) void current.close();
-    setAudio(null);
-  }, []);
-
-  const fallBack = useCallback(
-    (next: StageNote) => {
-      // The grey-box duel unlocks its own audio behind its own Play.
-      releaseAudio();
-      setNote(next);
-    },
-    [releaseAudio],
-  );
+  /**
+   * The street cannot go on: a file did not parse (only before Play, while the street is built) or
+   * the WebGL context was lost (design decision 3). Before Play the grey-box duel unlocks its own
+   * audio behind its own Play; after it, the duel takes the unlocked audio on, with no second Play.
+   */
+  const fallBack = useCallback((next: StageNote) => setNote(next), []);
 
   /** Back to portfolio: the page is about to go, so the audio is closed straight away. */
   const leave = useCallback(() => {
@@ -442,7 +451,8 @@ export default function StageGame({ loadScene = loadStageScenes }: StageGameProp
   // and match 2 put a new take on screen, and the Shadow back.
   const shadowBeaten = useGameStore(
     (s) =>
-      s.screen === 'summary' || (s.screen === 'result' && s.campaign?.lastResult?.score.won === true),
+      s.screen === 'summary' ||
+      (s.screen === 'result' && s.campaign?.lastResult?.score.won === true),
   );
   const inClub = place === 'club';
   useEffect(() => {
@@ -497,7 +507,13 @@ export default function StageGame({ loadScene = loadStageScenes }: StageGameProp
     }
   }
 
-  if (note !== null) return <FallbackDuel note={note} />;
+  if (note !== null) {
+    return (
+      <LeaveGameContext.Provider value={leave}>
+        <FallbackDuel note={note} audio={audio} />
+      </LeaveGameContext.Provider>
+    );
+  }
 
   if (inClub) {
     // The same DuelGame stays mounted when the scene drops out (a lost context, decision 3): only

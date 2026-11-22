@@ -18,6 +18,37 @@ import { useLocale, useTranslations } from 'next-intl';
 /** Called just before the player leaves the game for the portfolio: releases the audio. */
 export const LeaveGameContext = createContext<() => void>(() => undefined);
 
+/**
+ * How the screens sit inside the 3D stage (game-stage), set by `DuelGame` when the stage passes a
+ * scene or a note. Null, the default, is the grey-box duel of game-duel, drawn exactly as before.
+ */
+export interface StageLayout {
+  /**
+   * A 3D scene is drawn behind the screens (design.md section 4): every text sits on a solid strip,
+   * chip or panel, never on the scene, and the duel leaves a window for the scene.
+   */
+  readonly backdrop: boolean;
+  /**
+   * A notice laid in the page flow right under the top bar (design.md section 2), or null. With a
+   * note or a scene, the duel board fits the screen: the page never grows taller than it.
+   */
+  readonly note: ReactNode;
+  /** The element the scene shows through on the duel board, between the HUD and the lanes. */
+  readonly sceneWindow: HTMLElement | null;
+  /** The duel board registers its scene window here (a callback ref), and null when it goes. */
+  readonly setSceneWindow: (element: HTMLElement | null) => void;
+}
+
+export const StageLayoutContext = createContext<StageLayout | null>(null);
+
+/** The layout of the stage the screens are in, or null for the grey-box duel of game-duel. */
+export function useStageLayout(): StageLayout | null {
+  return useContext(StageLayoutContext);
+}
+
+/** The solid strip behind a bar of text over the 3D scene (design.md section 4). */
+export const STRIP_CLASS = 'border-jazz-slate bg-jazz-dark/90';
+
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 
 /** Full class names, so Tailwind's scanner finds them. Every target is at least 44 px high. */
@@ -86,7 +117,10 @@ export function HomeLink({ variant = 'bar' }: { readonly variant?: HomeLinkVaria
   );
 }
 
-/** The top bar every screen has: the way home on the left, screen controls on the right. */
+/**
+ * The top bar every screen has: the way home on the left, screen controls on the right. Over a 3D
+ * scene it sits on a solid strip; with a stage note, the note follows it in the page flow.
+ */
 export function TopBar({
   compact = false,
   left,
@@ -96,14 +130,26 @@ export function TopBar({
   readonly left?: ReactNode;
   readonly right?: ReactNode;
 }) {
-  return (
-    <header className="flex items-center justify-between gap-3 border-b border-jazz-slate px-4 py-2.5 text-[13px]">
+  const stage = useStageLayout();
+  const header = (
+    <header
+      className={`flex items-center justify-between gap-3 border-b border-jazz-slate px-4 py-2.5 text-[13px]${
+        stage?.backdrop ? ' bg-jazz-dark/90' : ''
+      }`}
+    >
       <div className="flex items-center gap-3">
         <HomeLink variant={compact ? 'icon' : 'bar'} />
         {left}
       </div>
       {right && <div className="flex items-center gap-3">{right}</div>}
     </header>
+  );
+  if (stage === null || stage.note === null) return header;
+  return (
+    <>
+      {header}
+      <div data-testid="duel-note">{stage.note}</div>
+    </>
   );
 }
 
@@ -119,14 +165,22 @@ export function ScreenShell({
   readonly role?: 'alert';
   readonly labelledBy?: string;
 }) {
+  const stage = useStageLayout();
+  // In the stage the panel is a touch see-through over the scene, and a short phone screen gets
+  // less room around it, so a note above does not push the page past the screen.
+  const mainClass =
+    stage === null
+      ? 'flex flex-1 items-start justify-center px-4 py-8 sm:items-center'
+      : 'flex flex-1 items-start justify-center px-4 py-8 sm:items-center [@media(max-height:500px)]:py-3';
+  const panelBackground = stage?.backdrop ? 'bg-jazz-dark/90' : 'bg-jazz-dark';
   return (
     <div className="flex min-h-full flex-col">
       <TopBar />
-      <main className="flex flex-1 items-start justify-center px-4 py-8 sm:items-center">
+      <main className={mainClass}>
         <section
           role={role}
           aria-labelledby={labelledBy}
-          className={`flex w-full flex-col items-center gap-3.5 rounded-2xl border border-jazz-slate bg-jazz-dark px-6 py-7 text-center ${
+          className={`flex w-full flex-col items-center gap-3.5 rounded-2xl border border-jazz-slate ${panelBackground} px-6 py-7 text-center ${
             wide ? 'max-w-[820px]' : 'max-w-[560px]'
           }`}
         >
@@ -154,11 +208,16 @@ export function Actions({ children }: { readonly children: ReactNode }) {
 }
 
 export function Chip({ on = false, children }: { readonly on?: boolean; readonly children: ReactNode }) {
+  const stage = useStageLayout();
+  // Over a 3D scene an outline chip gets a solid fill, so its text never sits on the scene.
+  const off = stage?.backdrop
+    ? 'border-jazz-slate bg-jazz-dark text-jazz-text-muted'
+    : 'border-jazz-slate text-jazz-text-muted';
   return (
     <span
       data-on={on}
       className={`rounded-full border px-2.5 py-1 font-mono text-[11px] uppercase tracking-[0.06em] ${
-        on ? 'border-jazz-gold bg-jazz-gold text-jazz-black' : 'border-jazz-slate text-jazz-text-muted'
+        on ? 'border-jazz-gold bg-jazz-gold text-jazz-black' : off
       }`}
     >
       {children}
