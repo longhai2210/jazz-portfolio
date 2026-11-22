@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import type { DuelResult } from '../../core/session';
 import { CHARACTER_NAMES } from './game-ids';
@@ -22,6 +22,11 @@ export interface ResultScreenProps {
   readonly onSummary: () => void;
   readonly onAcceptAssist: () => void;
   readonly onDeclineAssist: () => void;
+  /**
+   * One more action at the end of the button row (the stage's Leave the club, design.md section 4,
+   * a secondary button). Without it the screen is the game-duel result, unchanged.
+   */
+  readonly extraAction?: ReactNode;
 }
 
 /** A 0 to 1 score as a whole percentage. */
@@ -62,6 +67,7 @@ export default function ResultScreen({
   onSummary,
   onAcceptAssist,
   onDeclineAssist,
+  extraAction = null,
 }: ResultScreenProps) {
   const t = useTranslations('game');
   const titleId = useId();
@@ -148,6 +154,7 @@ export default function ResultScreen({
         <GameButton variant={score.won ? 'secondary' : 'primary'} onClick={onReplay}>
           {t('result.replay')}
         </GameButton>
+        {extraAction}
       </Actions>
     </ScreenShell>
   );

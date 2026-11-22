@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useId, useRef, useState, type ComponentType } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
 import { createGameAudio, unlockAudio, type AudioContextLike, type GameAudio } from '../audio';
+import type { Character } from '../core/roster';
 import DuelGame from '../ui/DuelGame';
 import { usePrefersReducedMotion } from '../ui/lanes/use-prefers-reduced-motion';
 import RotateHint from '../ui/screens/RotateHint';
@@ -16,9 +17,11 @@ import DoorPrompt from './input/DoorPrompt';
 import StreetControls from './input/StreetControls';
 import { NO_SIDES, walkDirection, type HeldSides } from './input/street-keys';
 import { useStreetKeys } from './input/use-street-keys';
-import type { StreetSceneProps } from './scenes/StreetScene';
+import type { ClubSceneProps } from './scenes/ClubScene';
+import type { StreetSceneProps, StreetStart } from './scenes/StreetScene';
 import type { WalkDirection } from './street/movement';
 import { isWebGL2Supported } from './webgl';
+import { useGameStore } from '@/stores/gameStore';
 
 /**
  * Why the game runs the grey-box duel instead of the stage (design.md section 2): the assets are
@@ -27,29 +30,45 @@ import { isWebGL2Supported } from './webgl';
  */
 export type StageNote = 'missing' | 'noWebgl';
 
-/** What `StageGame` needs of the 3D street module. */
+/** What `StageGame` needs of the 3D scene modules. */
 export interface StreetSceneModule {
+  /** The street. */
   readonly default: ComponentType<StreetSceneProps>;
+  /** The club drawn behind the duel; without it the club is the duel alone. */
+  readonly ClubScene?: ComponentType<ClubSceneProps>;
 }
 
 /**
- * Imports the 3D street on demand: three.js and the scene reach the browser only on `/game`, only
- * with WebGL2, and only once the asset files have downloaded.
+ * Imports the 3D street and club on demand: three.js and the scenes reach the browser only on
+ * `/game`, only with WebGL2, and only once the asset files have downloaded.
  */
-const loadStreetScene = (): Promise<StreetSceneModule> => import('./scenes/StreetScene');
+async function loadStageScenes(): Promise<StreetSceneModule> {
+  const [street, club] = await Promise.all([
+    import('./scenes/StreetScene'),
+    import('./scenes/ClubScene'),
+  ]);
+  return { default: street.default, ClubScene: club.default };
+}
 
 export interface StageGameProps {
-  /** Loads the 3D street module; `loadStreetScene` by default. Tests pass a fake. */
+  /** Loads the 3D scene modules; the street and the club by default. Tests pass a fake. */
   readonly loadScene?: () => Promise<StreetSceneModule>;
 }
 
-/** Where the player is. T-022 adds the club scene; until then the club is the grey-box duel. */
+/** Where the player is: walking the street, or in the club, where the duel runs. */
 type Place = 'street' | 'club';
 
 interface LoadedStage {
   readonly files: StageAssetFiles;
   readonly Scene: ComponentType<StreetSceneProps>;
+  readonly Club: ComponentType<ClubSceneProps> | null;
 }
+
+/**
+ * The player's character in the stage (design.md): the club runs the duel as Sayo, so the
+ * opponents follow REQ-DUEL-012 for Sayo (AC-STAGE-005.1).
+ */
+const PLAYER_CHARACTER: Character = 'sayo';
 
 const NOTE_KEYS: Readonly<Record<StageNote, 'stage.note.missing' | 'stage.note.noWebgl'>> = {
   missing: 'stage.note.missing',
@@ -66,20 +85,50 @@ const REDUCED_MOTION_CSS =
 /** Bytes per MB in the loading text. */
 const BYTES_PER_MB = 1_000_000;
 
-/** The grey-box duel of `game-duel` with a one-line note on why (design.md section 2). */
-function FallbackDuel({ note }: { readonly note: StageNote }) {
+/**
+ * The one-line note on why there is no 3D stage (design.md section 2): small, muted, on a thin
+ * solid strip that `DuelGame` lays right under its top bar, so the page keeps its height.
+ */
+function StageNoteLine({ note }: { readonly note: StageNote }) {
   const t = useTranslations('game');
   return (
-    <>
-      <p
-        role="status"
-        data-testid="stage-note"
-        className="border-b border-jazz-slate bg-jazz-dark px-4 py-1.5 font-mono text-[11px] leading-snug text-jazz-text-muted"
-      >
-        {t(NOTE_KEYS[note])}
-      </p>
-      <DuelGame />
-    </>
+    <p
+      role="status"
+      data-testid="stage-note"
+      className="border-b border-jazz-slate bg-jazz-dark px-4 py-1.5 font-mono text-[11px] leading-snug text-jazz-text-muted"
+    >
+      {t(NOTE_KEYS[note])}
+    </p>
+  );
+}
+
+interface FallbackDuelProps {
+  readonly note: StageNote;
+  /**
+   * The audio the street's Play unlocked, or null before Play. With it the duel skips its own
+   * Start and plays as the slice's player character (design decision 1, a context lost after
+   * Play); without it the duel is the grey-box match of game-duel, Start included.
+   */
+  readonly audio: GameAudio | null;
+}
+
+/** The grey-box duel of `game-duel` with a one-line note on why (design.md section 2). */
+function FallbackDuel({ note, audio }: FallbackDuelProps) {
+  return (
+    <DuelGame
+      note={<StageNoteLine note={note} />}
+      audio={audio}
+      character={audio === null ? null : PLAYER_CHARACTER}
+    />
+  );
+}
+
+/** A small lamp, the picture beside the street-lights chip. */
+function LampIcon() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 16 16" className="h-4 w-4 fill-jazz-gold">
+      <path d="M8 1a4.5 4.5 0 0 0-2.6 8.2c.4.3.6.7.6 1.1V11h4v-.7c0-.4.2-.8.6-1.1A4.5 4.5 0 0 0 8 1Zm-2 11h4v1.2c0 .4-.3.8-.8.8H6.8a.8.8 0 0 1-.8-.8V12Z" />
+    </svg>
   );
 }
 
@@ -189,11 +238,14 @@ interface StreetOverlayProps {
   readonly onEnterClub: () => void;
   readonly onTouch: (held: HeldSides) => void;
   readonly walked: boolean;
+  /** At least one take was won: the street lamps are lit, and a chip says so (AC-STAGE-005.4). */
+  readonly lightsOn: boolean;
 }
 
 /**
- * The DOM over the street (design.md section 3): the top bar on a solid strip, the Play gate, and
- * after it the touch zones, the Enter the club button by the door and the controls hint.
+ * The DOM over the street (design.md section 3): the top bar on a solid strip, the lights chip
+ * after a win, the Play gate, and after it the touch zones, the Enter the club button by the door
+ * and the controls hint.
  */
 function StreetOverlay({
   audio,
@@ -205,13 +257,27 @@ function StreetOverlay({
   onEnterClub,
   onTouch,
   walked,
+  lightsOn,
 }: StreetOverlayProps) {
+  const t = useTranslations('game');
   const coarse = useMediaQuery(COARSE_POINTER_QUERY);
   return (
     <div className="pointer-events-none absolute inset-0 flex flex-col">
       <div className="pointer-events-auto relative z-10 bg-jazz-dark/90">
         <TopBar />
       </div>
+      {lightsOn && (
+        <div className="flex justify-end px-4 pt-3">
+          <p
+            role="status"
+            data-testid="street-lights-chip"
+            className="inline-flex items-center gap-1.5 rounded-full border border-jazz-slate bg-jazz-dark/90 px-3 py-1.5 font-body text-[13px] text-jazz-text"
+          >
+            <LampIcon />
+            {t('stage.street.lightsOn')}
+          </p>
+        </div>
+      )}
       {audio === null ? (
         <PlayGate unlocking={unlocking} problem={problem} onPlay={onPlay} />
       ) : (
@@ -233,17 +299,28 @@ function StreetOverlay({
  * the club door. Without WebGL2 or the assets it runs the grey-box duel of `game-duel`, with a
  * note on why (AC-STAGE-001.1, 001.2, 001.4, 002.1).
  *
+ * In the club the duel runs as Sayo on the same audio, with no second Play (AC-STAGE-005.1,
+ * design decision 1), over the 3D club, where the Shadow fades away after a win (AC-STAGE-005.3).
+ * Leaving the club puts the player back on the street at the club door, with the lamps lit once a
+ * take has been won (AC-STAGE-005.4).
+ *
  * It owns the audio from the Play press on, pauses the street and its music while the tab is
  * hidden (AC-STAGE-008.2), and on unmount aborts the downloads, closes the audio and unmounts the
  * scene, which frees the WebGL resources (AC-STAGE-008.1).
  */
-export default function StageGame({ loadScene = loadStreetScene }: StageGameProps) {
+export default function StageGame({ loadScene = loadStageScenes }: StageGameProps) {
   const t = useTranslations('game');
   const [note, setNote] = useState<StageNote | null>(null);
   const [progress, setProgress] = useState<AssetLoadProgress | null>(null);
   const [stage, setStage] = useState<LoadedStage | null>(null);
   const [sceneReady, setSceneReady] = useState(false);
   const [place, setPlace] = useState<Place>('street');
+  /** Where the street opens: at `spawn` first, at the club door after the club. */
+  const [streetStart, setStreetStart] = useState<StreetStart>('spawn');
+  /** A take was won in this visit: the street lamps are lit from then on. */
+  const [wonOnce, setWonOnce] = useState(false);
+  /** The club scene could not be drawn: the duel goes on without it, with this note. */
+  const [clubNote, setClubNote] = useState<StageNote | null>(null);
 
   const [audio, setAudio] = useState<GameAudio | null>(null);
   const [unlocking, setUnlocking] = useState(false);
@@ -307,7 +384,13 @@ export default function StageGame({ loadScene = loadStreetScene }: StageGameProp
         }
         return;
       }
-      if (!signal.aborted) setStage({ files: result.files, Scene: sceneModule.default });
+      if (!signal.aborted) {
+        setStage({
+          files: result.files,
+          Scene: sceneModule.default,
+          Club: sceneModule.ClubScene ?? null,
+        });
+      }
     })();
     return () => controller.abort();
   }, [loadScene]);
@@ -322,28 +405,30 @@ export default function StageGame({ loadScene = loadStreetScene }: StageGameProp
   }, []);
 
   // The street music stops with the drawing: a hidden tab or a phone held upright suspends the
-  // audio clock, and showing the street again resumes it where it stopped.
+  // audio clock, and showing the street again resumes it where it stopped. Once the street has
+  // fallen back to the grey-box duel, the duel runs the clock.
+  const onStreet = place === 'street' && note === null;
   useEffect(() => {
-    if (audio === null || place !== 'street') return;
+    if (audio === null || !onStreet) return;
     if (paused) void audio.suspend();
     else void audio.resume();
-  }, [audio, paused, place]);
+  }, [audio, paused, onStreet]);
 
-  const releaseAudio = useCallback(() => {
-    const current = audioRef.current;
-    audioRef.current = null;
-    if (current !== null) void current.close();
-    setAudio(null);
-  }, []);
+  // The grey-box duel without an unlocked audio unlocks its own behind its own Play: a context the
+  // browser kept suspended on the street is let go first, so only one is ever alive.
+  const fallenBackWithoutAudio = note !== null && !unlocking && audio === null;
+  useEffect(() => {
+    if (!fallenBackWithoutAudio) return;
+    blockedContext.current?.close().catch(() => undefined);
+    blockedContext.current = null;
+  }, [fallenBackWithoutAudio]);
 
-  const fallBack = useCallback(
-    (next: StageNote) => {
-      // The grey-box duel unlocks its own audio behind its own Play.
-      releaseAudio();
-      setNote(next);
-    },
-    [releaseAudio],
-  );
+  /**
+   * The street cannot go on: a file did not parse (only before Play, while the street is built) or
+   * the WebGL context was lost (design decision 3). Before Play the grey-box duel unlocks its own
+   * audio behind its own Play; after it, the duel takes the unlocked audio on, with no second Play.
+   */
+  const fallBack = useCallback((next: StageNote) => setNote(next), []);
 
   /** Back to portfolio: the page is about to go, so the audio is closed straight away. */
   const leave = useCallback(() => {
@@ -355,13 +440,33 @@ export default function StageGame({ loadScene = loadStreetScene }: StageGameProp
   const markReady = useCallback(() => setSceneReady(true), []);
 
   const enterClub = useCallback(() => {
-    // T-022 hands this audio on to the duel in the club; until then the street music just stops.
+    // The street music stops: its scene drops what it queued, and the clock waits until the first
+    // press in the club, where the duel takes this same audio on (design decision 1).
     void audioRef.current?.suspend();
     setNearDoor(false);
     // Back on the street the controls hint shows again (design.md section 3).
     setWalked(false);
+    setClubNote(null);
     setPlace('club');
   }, []);
+
+  /** Leave the club (AC-STAGE-005.4): back on the street, standing at the club door. */
+  const leaveClub = useCallback(() => {
+    setStreetStart('door');
+    setPlace('street');
+  }, []);
+
+  // The Shadow is beaten while a won take's result, or the summary after the last win, is up. Replay
+  // and match 2 put a new take on screen, and the Shadow back.
+  const shadowBeaten = useGameStore(
+    (s) =>
+      s.screen === 'summary' ||
+      (s.screen === 'result' && s.campaign?.lastResult?.score.won === true),
+  );
+  const inClub = place === 'club';
+  useEffect(() => {
+    if (inClub && shadowBeaten) setWonOnce(true);
+  }, [inClub, shadowBeaten]);
 
   const canWalk = audio !== null && sceneReady && place === 'street' && !paused;
   const keys = useStreetKeys({
@@ -411,9 +516,65 @@ export default function StageGame({ loadScene = loadStreetScene }: StageGameProp
     }
   }
 
-  if (note !== null) return <FallbackDuel note={note} />;
-  if (place === 'club') return <DuelGame />;
+  if (note !== null) {
+    // A fallback while the street's Play is still unlocking waits for that unlock, so the duel
+    // takes its audio on instead of making a second AudioContext behind its own Play.
+    if (unlocking) {
+      return (
+        <div
+          aria-busy="true"
+          data-testid="stage-waiting"
+          className="fixed inset-0 bg-jazz-black"
+        />
+      );
+    }
+    return (
+      <LeaveGameContext.Provider value={leave}>
+        <FallbackDuel note={note} audio={audio} />
+      </LeaveGameContext.Provider>
+    );
+  }
 
+  if (inClub) {
+    // The same DuelGame stays mounted when the scene drops out (a lost context, decision 3): only
+    // its backdrop goes and the note comes, so the take goes on.
+    const Club = clubNote === null ? (stage?.Club ?? null) : null;
+    const backdrop =
+      Club === null || stage === null ? null : (
+        <Club
+          files={stage.files}
+          audio={audio}
+          paused={paused}
+          reducedMotion={reducedMotion}
+          shadowFaded={shadowBeaten}
+          label={t('stage.scene.club')}
+          onFallback={setClubNote}
+        />
+      );
+    return (
+      <LeaveGameContext.Provider value={leave}>
+        <DuelGame
+          character={PLAYER_CHARACTER}
+          audio={audio}
+          backdrop={backdrop}
+          note={clubNote === null ? null : <StageNoteLine note={clubNote} />}
+          endAction={
+            // Only with the scene: without WebGL there is no street to go back to.
+            backdrop === null ? null : (
+              <GameButton variant="secondary" onClick={leaveClub}>
+                {t('stage.club.leave')}
+              </GameButton>
+            )
+          }
+        />
+        <p aria-live="polite" className="sr-only" data-testid="shadow-fading">
+          {backdrop !== null && shadowBeaten ? t('stage.club.shadowFading') : ''}
+        </p>
+      </LeaveGameContext.Provider>
+    );
+  }
+
+  const rotateHint = sceneReady && portrait;
   return (
     <LeaveGameContext.Provider value={leave}>
       <div
@@ -426,35 +587,41 @@ export default function StageGame({ loadScene = loadStreetScene }: StageGameProp
           <UnsupportedScreen />
         ) : (
           <>
-            {stage !== null && (
-              <stage.Scene
-                files={stage.files}
-                audio={audio}
-                getDirection={getDirection}
-                paused={paused}
-                reducedMotion={reducedMotion}
-                label={t('stage.scene.street')}
-                onReady={markReady}
-                onFallback={fallBack}
-                onNearDoorChange={setNearDoor}
-              />
-            )}
-            {sceneReady ? (
-              <StreetOverlay
-                audio={audio}
-                unlocking={unlocking}
-                problem={startProblem}
-                onPlay={() => void play()}
-                paused={paused}
-                nearDoor={nearDoor}
-                onEnterClub={enterClub}
-                onTouch={setTouch}
-                walked={walked}
-              />
-            ) : (
-              <LoadingPanel progress={progress} />
-            )}
-            {sceneReady && portrait && (
+            {/* Under the rotate hint the street is out of the Tab order and the accessibility tree. */}
+            <div className="absolute inset-0" inert={rotateHint} data-testid="street-layer">
+              {stage !== null && (
+                <stage.Scene
+                  files={stage.files}
+                  audio={audio}
+                  getDirection={getDirection}
+                  paused={paused}
+                  reducedMotion={reducedMotion}
+                  lightsOn={wonOnce}
+                  startAt={streetStart}
+                  label={t('stage.scene.street')}
+                  onReady={markReady}
+                  onFallback={fallBack}
+                  onNearDoorChange={setNearDoor}
+                />
+              )}
+              {sceneReady ? (
+                <StreetOverlay
+                  audio={audio}
+                  unlocking={unlocking}
+                  problem={startProblem}
+                  onPlay={() => void play()}
+                  paused={paused}
+                  nearDoor={nearDoor}
+                  onEnterClub={enterClub}
+                  onTouch={setTouch}
+                  walked={walked}
+                  lightsOn={wonOnce}
+                />
+              ) : (
+                <LoadingPanel progress={progress} />
+              )}
+            </div>
+            {rotateHint && (
               <div className="absolute inset-0 z-20 bg-jazz-black">
                 <RotateHint />
               </div>

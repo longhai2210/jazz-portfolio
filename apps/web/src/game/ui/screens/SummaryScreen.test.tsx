@@ -7,6 +7,7 @@ import type { DuelResult } from '../../core/session';
 import SummaryScreen from './SummaryScreen';
 import { BEST_BAR, DUCK_BAR, playTake } from './testing/duel-results';
 import { setFakeLocale } from './testing/intl';
+import { GameButton } from './ui';
 
 jest.mock(
   'next-intl',
@@ -71,5 +72,37 @@ describe('SummaryScreen', () => {
     expect(links.length).toBeGreaterThanOrEqual(1);
     for (const link of links) expect(link).toHaveAttribute('href', '/vi');
     expect(screen.getByRole('button', { name: 'Chơi lại từ đầu' })).toBeInTheDocument();
+  });
+});
+
+describe('SummaryScreen in the 3D stage (game-stage design.md section 4)', () => {
+  it('puts the extra action at the end of the button row, after the way home', () => {
+    const onLeave = jest.fn();
+    render(
+      <SummaryScreen
+        results={wins()}
+        onRestart={() => undefined}
+        extraAction={
+          <GameButton variant="secondary" onClick={onLeave}>
+            Leave the club
+          </GameButton>
+        }
+      />,
+    );
+    const leave = screen.getByRole('button', { name: 'Leave the club' });
+    const row = leave.parentElement;
+    if (row === null) throw new Error('the action has no row');
+    expect(within(row).getByRole('button', { name: 'Play again from the start' })).toBeInTheDocument();
+    expect(within(row).getByRole('link', { name: /Back to portfolio/ })).toBeInTheDocument();
+    expect(row.lastElementChild).toBe(leave);
+    fireEvent.click(leave);
+    expect(onLeave).toHaveBeenCalledTimes(1);
+  });
+
+  it('without it the row is the game-duel row', () => {
+    render(<SummaryScreen results={wins()} onRestart={() => undefined} />);
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+      'Play again from the start',
+    ]);
   });
 });

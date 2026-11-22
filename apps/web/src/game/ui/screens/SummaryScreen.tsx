@@ -1,6 +1,6 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 import { useTranslations } from 'next-intl';
 import { CAMPAIGN_DUELS } from '../../core/campaign';
 import type { DuelResult } from '../../core/session';
@@ -14,13 +14,22 @@ export interface SummaryScreenProps {
   readonly results: Readonly<Partial<Record<DuelNumber, DuelResult>>>;
   /** "Play again from the start" (AC-DUEL-013.7). */
   readonly onRestart: () => void;
+  /**
+   * One more action at the end of the button row (the stage's Leave the club, design.md section 4,
+   * a secondary button). Without it the screen is the game-duel summary, unchanged.
+   */
+  readonly extraAction?: ReactNode;
 }
 
 /**
  * Screen 7, Summary (AC-DUEL-013.7): shown after the match 2 win, with one card per match and
  * every different lick quoted across both, then "Play again from the start" and the way home.
  */
-export default function SummaryScreen({ results, onRestart }: SummaryScreenProps) {
+export default function SummaryScreen({
+  results,
+  onRestart,
+  extraAction = null,
+}: SummaryScreenProps) {
   const t = useTranslations('game');
   const titleId = useId();
   const played = CAMPAIGN_DUELS.flatMap((duel) => {
@@ -56,6 +65,7 @@ export default function SummaryScreen({ results, onRestart }: SummaryScreenProps
           {t('summary.again')}
         </GameButton>
         <HomeLink variant="secondary" />
+        {extraAction}
       </Actions>
     </ScreenShell>
   );

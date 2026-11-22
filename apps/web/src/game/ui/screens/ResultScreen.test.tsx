@@ -7,6 +7,7 @@ import type { DuelResult } from '../../core/session';
 import ResultScreen, { type ResultScreenProps } from './ResultScreen';
 import { BEST_BAR, DUCK_BAR, playTake, type TakePlan } from './testing/duel-results';
 import { setFakeLocale } from './testing/intl';
+import { GameButton } from './ui';
 
 jest.mock(
   'next-intl',
@@ -148,5 +149,32 @@ describe('ResultScreen', () => {
     const home = screen.getByRole('link', { name: 'Về trang chủ' });
     expect(home).toHaveAttribute('href', '/vi');
     expect(screen.getByRole('heading', { name: 'Take này chưa được' })).toBeInTheDocument();
+  });
+});
+
+describe('ResultScreen in the 3D stage (game-stage design.md section 4)', () => {
+  it('puts the extra action at the end of the button row, as a secondary button', () => {
+    const onLeave = jest.fn();
+    renderResult(take({ win: true }), {
+      canAdvance: true,
+      extraAction: (
+        <GameButton variant="secondary" onClick={onLeave}>
+          Leave the club
+        </GameButton>
+      ),
+    });
+    expect(actionNames()).toEqual(['On to match 2', 'Replay this take', 'Leave the club']);
+    const leave = screen.getByRole('button', { name: 'Leave the club' });
+    expect(leave.parentElement).toContainElement(
+      screen.getByRole('button', { name: 'Replay this take' }),
+    );
+    expect(leave).toHaveClass('border-jazz-slate', 'text-jazz-text');
+    fireEvent.click(leave);
+    expect(onLeave).toHaveBeenCalledTimes(1);
+  });
+
+  it('without it the row is the game-duel row', () => {
+    renderResult(take({}), { extraAction: undefined });
+    expect(actionNames()).toEqual(['Replay this take']);
   });
 });
