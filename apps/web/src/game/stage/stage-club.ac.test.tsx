@@ -266,28 +266,43 @@ describe('AC-STAGE-005.4: back on the street', () => {
   });
 });
 
+/** A `matchMedia` where only the queries `matches` picks are true. */
+function stubMedia(matches: (query: string) => boolean): void {
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    writable: true,
+    value: (query: string): MediaQueryList => ({
+      matches: matches(query),
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    }),
+  });
+}
+
 describe('the street under the rotate hint', () => {
-  it('is inert while a phone is held upright, and not otherwise', async () => {
-    Object.defineProperty(window, 'matchMedia', {
-      configurable: true,
-      writable: true,
-      value: (query: string): MediaQueryList =>
-        ({
-          matches: query.includes('orientation: portrait'),
-          media: query,
-          addEventListener: () => undefined,
-          removeEventListener: () => undefined,
-          addListener: () => undefined,
-          removeListener: () => undefined,
-          dispatchEvent: () => false,
-        }) as unknown as MediaQueryList,
-    });
+  it('is inert while a phone is held upright, with its controls out of reach', async () => {
+    stubMedia((query) => query.includes('orientation: portrait'));
     await playStreet();
     expect(screen.getByTestId('rotate-hint')).toBeInTheDocument();
     const layer = screen.getByTestId('street-layer');
     expect(layer).toHaveAttribute('inert');
-    // The Play button and the others of the street are inside the inert layer.
-    layer.querySelectorAll('button').forEach((b) => expect(layer).toContainElement(b));
-    expect(screen.queryByRole('button', { name: 'Play' })).not.toBeInTheDocument();
+    expect(layer.querySelector('[data-testid="street-touch-zones"]')).not.toBeNull();
+    // Every interactive element of the street sits inside the inert layer.
+    const outside = Array.from(document.querySelectorAll('button')).filter(
+      (b) => !layer.contains(b) && b.closest('[data-testid="rotate-hint"]') === null,
+    );
+    expect(outside.map((b) => b.textContent)).not.toContain('Play');
+  });
+
+  it('is not inert when held sideways, and there is no rotate hint', async () => {
+    stubMedia((query) => !query.includes('orientation: portrait'));
+    await playStreet();
+    expect(screen.queryByTestId('rotate-hint')).not.toBeInTheDocument();
+    expect(screen.getByTestId('street-layer')).not.toHaveAttribute('inert');
   });
 });

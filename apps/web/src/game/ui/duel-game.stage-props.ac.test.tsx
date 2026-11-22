@@ -150,16 +150,16 @@ describe('the note slot under the top bar', () => {
     Object.defineProperty(window, 'matchMedia', {
       configurable: true,
       writable: true,
-      value: (query: string): MediaQueryList =>
-        ({
-          matches: query.includes('max-height: 500px'),
-          media: query,
-          addEventListener: () => undefined,
-          removeEventListener: () => undefined,
-          addListener: () => undefined,
-          removeListener: () => undefined,
-          dispatchEvent: () => false,
-        }) as unknown as MediaQueryList,
+      value: (query: string): MediaQueryList => ({
+        matches: query.includes('max-height: 500px'),
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      }),
     });
     render(<DuelGame audio={unlockedAudio()} note={NOTE} />);
     startRun();
