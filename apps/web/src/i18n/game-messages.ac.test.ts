@@ -21,13 +21,23 @@ const game = Object.fromEntries(
 ) as Record<(typeof LOCALES)[number], Record<string, unknown>>;
 
 // Design table rows: | key | en | vi | ja |
-const design = readFileSync(join(REPO, 'specs', 'game-duel', 'design.md'), 'utf8');
-const rows = design
-  .slice(design.indexOf('## i18n table'))
-  .split('\n')
-  .filter((line) => line.startsWith('|'))
-  .map((line) => line.split('|').slice(1, -1).map((c) => c.trim()))
-  .filter((cells) => cells.length === 4 && cells[0] !== 'Key' && !/^-+$/.test(cells[0]));
+function tableRows(file: string, heading: string): string[][] {
+  const text = readFileSync(join(REPO, 'specs', file, 'design.md'), 'utf8');
+  const start = text.indexOf(heading);
+  const rest = text.slice(start);
+  const end = rest.indexOf('\n## ', heading.length);
+  return (end === -1 ? rest : rest.slice(0, end))
+    .split('\n')
+    .filter((line) => line.startsWith('|'))
+    .map((line) => line.split('|').slice(1, -1).map((c) => c.trim()))
+    .filter((cells) => cells.length === 4 && !/^(Key|Khóa)$/.test(cells[0]) && !/^-+$/.test(cells[0]));
+}
+// game-duel table (AC-DUEL-016.1) and game-stage table (AC-STAGE-009.1); no key may sit outside both.
+const duelRows = tableRows('game-duel', '## i18n table');
+const stageRows = tableRows('game-stage', '## Bảng chữ');
+const rows = [...duelRows, ...stageRows];
+const stageKeys = new Set(stageRows.map((r) => r[0]));
+const isDuelKey = (k: string): boolean => !stageKeys.has(k);
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
@@ -58,6 +68,7 @@ describe('game messages', () => {
   it('AC-DUEL-016.1: every string matches the i18n table in design.md', () => {
     expect(rows.length).toBeGreaterThan(80);
     const mismatches: string[] = [];
+    expect(stageRows.length).toBe(16);
     for (const [key, en, vi, ja] of rows) {
       if (game.en[key] !== en) mismatches.push(`en ${key}`);
       if (game.vi[key] !== vi) mismatches.push(`vi ${key}`);
@@ -102,10 +113,25 @@ describe('game messages', () => {
 
   it('AC-DUEL-016.1: no dead strings, every key is referenced by the UI or is a known dynamic family', () => {
     const source = uiFiles().map((f) => readFileSync(f, 'utf8')).join('\n');
-    const unused = Object.keys(game.en).filter((key) => {
+    const unused = Object.keys(game.en).filter(isDuelKey).filter((key) => {
       if (/^(difficulty\.[A-Za-z]+\.(name|desc)|lick\.[A-Za-z]+|round\.(echo|answer|solo))$/.test(key)) return false;
       return !source.includes(`'${key}'`);
     });
     expect(unused).toEqual([]);
+  });
+
+  it('AC-STAGE-009.1: en, vi and ja have a non-empty string for every game.stage key, and the game-duel table test accepts them', () => {
+    expect(stageKeys.size).toBe(16);
+    for (const key of stageKeys) expect(key.startsWith('stage.')).toBe(true);
+    for (const locale of LOCALES) {
+      const bad = [...stageKeys].filter((k) => typeof game[locale][k] !== 'string' || (game[locale][k] as string).trim() === '');
+      expect({ locale, bad }).toEqual({ locale, bad: [] });
+      const actual = Object.keys(game[locale]).filter((k) => k.startsWith('stage.'));
+      expect(actual.sort()).toEqual([...stageKeys].sort());
+    }
+    // Every game.* key belongs to exactly one of the two design tables.
+    const known = new Set(rows.map((r) => r[0]));
+    expect(Object.keys(game.en).filter((k) => !known.has(k))).toEqual([]);
+    expect(duelRows.some((r) => stageKeys.has(r[0]))).toBe(false);
   });
 });
