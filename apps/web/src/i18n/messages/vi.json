@@ -193,6 +193,36 @@
       "match": "Trận {n} · {name}",
       "points": "{points} điểm",
       "again": "Chơi lại từ đầu"
+    },
+    "stage": {
+      "loading": {
+        "title": "Đang tải phố và club",
+        "checking": "Đang kiểm tra tệp sân khấu...",
+        "bytes": "{loaded} MB trên {total} MB",
+        "label": "Tiến độ tải"
+      },
+      "note": {
+        "missing": "Chưa có hình ảnh sân khấu ở đây, nên đây là trận khối xám đơn giản.",
+        "noWebgl": "Trình duyệt này không vẽ được sân khấu 3D, nên đây là trận khối xám đơn giản."
+      },
+      "scene": {
+        "street": "Cảnh phố",
+        "club": "Cảnh club"
+      },
+      "start": {
+        "intro": "Đi dọc phố tới cửa club, rồi đấu trading fours với một bóng trên sân khấu."
+      },
+      "street": {
+        "controls": "Đi: phím A và D hoặc mũi tên. Trên điện thoại, chạm nửa trái hoặc nửa phải màn hình.",
+        "enterClub": "Vào club",
+        "enterClubKeys": "E hoặc Enter",
+        "doorNear": "Bạn đang ở cửa club.",
+        "lightsOn": "Đèn phố đã sáng"
+      },
+      "club": {
+        "leave": "Rời club",
+        "shadowFading": "Bóng mờ dần rồi biến mất."
+      }
     }
   }
 }
