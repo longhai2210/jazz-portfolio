@@ -37,13 +37,12 @@ const duelRows = tableRows('game-duel', '## i18n table');
 const stageRows = tableRows('game-stage', '## Bảng chữ');
 const rows = [...duelRows, ...stageRows];
 const stageKeys = new Set(stageRows.map((r) => r[0]));
-const isDuelKey = (k: string): boolean => !stageKeys.has(k);
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const name of readdirSync(dir)) {
     const p = join(dir, name);
     if (statSync(p).isDirectory()) walk(p, out);
-    else if (/\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name) && !p.includes(`screens${sep}testing`)) out.push(p);
+    else if (/\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name) && !p.includes(`screens${sep}testing`) && !p.includes(`stage${sep}testing`)) out.push(p);
   }
   return out;
 }
@@ -67,8 +66,8 @@ describe('game messages', () => {
 
   it('AC-DUEL-016.1: every string matches the i18n table in design.md', () => {
     expect(rows.length).toBeGreaterThan(80);
-    const mismatches: string[] = [];
     expect(stageRows.length).toBe(16);
+    const mismatches: string[] = [];
     for (const [key, en, vi, ja] of rows) {
       if (game.en[key] !== en) mismatches.push(`en ${key}`);
       if (game.vi[key] !== vi) mismatches.push(`vi ${key}`);
@@ -89,7 +88,7 @@ describe('game messages', () => {
   it('AC-DUEL-016.1: every key the game UI and /game route use exists in all three files', () => {
     const used = new Set<string>();
     const keyPattern =
-      /['"]((?:title|home|start|error|unsupported|rotate|difficulty|calibration|hud|round|pause|pad|feedback|lickBook|lick|result|assist|summary)(?:\.[A-Za-z]+)*)['"]/g;
+      /['"]((?:title|home|start|error|unsupported|rotate|difficulty|calibration|hud|round|pause|pad|feedback|lickBook|lick|result|assist|summary|stage)(?:\.[A-Za-z]+)*)['"]/g;
     for (const file of uiFiles()) {
       const text = readFileSync(file, 'utf8');
       if (!text.includes("useTranslations('game')")) continue;
@@ -113,7 +112,7 @@ describe('game messages', () => {
 
   it('AC-DUEL-016.1: no dead strings, every key is referenced by the UI or is a known dynamic family', () => {
     const source = uiFiles().map((f) => readFileSync(f, 'utf8')).join('\n');
-    const unused = Object.keys(game.en).filter(isDuelKey).filter((key) => {
+    const unused = Object.keys(game.en).filter((key) => {
       if (/^(difficulty\.[A-Za-z]+\.(name|desc)|lick\.[A-Za-z]+|round\.(echo|answer|solo))$/.test(key)) return false;
       return !source.includes(`'${key}'`);
     });

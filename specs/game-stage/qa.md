@@ -68,4 +68,4 @@ Gaps: real WebGL, camera framing, phone layout and pixel overlap (jsdom has no l
 | AC-STAGE-009.1: en, vi, ja have a non-empty string for every game.stage key (16), and the game-duel table test accepts them | `apps/web/src/i18n/game-messages.ac.test.ts` | pass | 2026-11-22 |
 | AC-DUEL-016.1 (retargeted): duel keys checked against specs/game-duel/design.md, stage keys against specs/game-stage/design.md "Bảng chữ", no key outside both tables | same file | pass | 2026-11-22 |
 
-Regression: full web suite 86 suites, 1083 tests pass; lint and type-check clean. The dead-string check now covers game-duel keys only; stage keys are checked for presence and table equality, not UI usage.
+Regression: full web suite 86 suites, 1083 tests pass; lint and type-check clean. The dead-string and used-key checks cover all game.* keys including the 16 stage keys (stage/testing fakes excluded from the scan).
